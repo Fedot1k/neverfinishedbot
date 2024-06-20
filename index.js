@@ -5,25 +5,29 @@ import TelegramBot from "node-telegram-bot-api";
 const TOKEN = "7279660476:AAGHOLKPGLzGTvMXff4mAYBZ8XnLrQV2e8w";
 const bot = new TelegramBot(TOKEN, { polling: true });
 
+let logged = false
+
 
 
 
 
 async function first(chatId){
 	try {
-		await bot.sendMessage(
-			chatId,
-			"<b>👋 Добро пожаловать</b> в мир целеустремленности и личностного роста с <b><i>neverfinished!</i></b>\n\n<b>•  Трекинг прогресса 🏆</b>\nВеди учет своих амбициозных <b><i>целей</i></b> и великих <b><i>достижений!</i></b>\n\n<b>•  Составление задач и правил на день 🫡</b>\nВыполняй свои <b><i>задачи на день</i></b>, не забывая про <b><i>собственные принципы!</i></b>\n\n<b>•  Отслеживание графика сна 🌙</b>\nУлучшай свой <b><i>режим сна</i></b> и проводи день <b><i>энергичнее!</i></b>\n\n<b>💪 Начни сейчас и достигни своих целей вместе с <i>neverfinished!</i></b>",
-			{
-				parse_mode: "HTML",
-				disable_web_page_preview: true,
-				reply_markup: {
-					inline_keyboard: [
-						[{ text: "Далее➡️ ", callback_data: "next" }],
-					],
-				},
-			}
-		);
+		if (!logged) {
+			await bot.sendMessage(
+				chatId,
+				"<b>👋 Добро пожаловать</b> в мир целеустремленности и личностного роста с <b><i>neverfinished!</i></b>\n\n<b>•  Трекинг прогресса 🏆</b>\nВеди учет своих амбициозных <b><i>целей</i></b> и великих <b><i>достижений!</i></b>\n\n<b>•  Составление задач и правил на день 🫡</b>\nВыполняй свои <b><i>задачи на день</i></b>, не забывая про <b><i>собственные принципы!</i></b>\n\n<b>•  Отслеживание графика сна 🌙</b>\nУлучшай свой <b><i>режим сна</i></b> и проводи день <b><i>энергичнее!</i></b>\n\n<b>💪 Начни сейчас и достигни своих целей вместе с <i>neverfinished!</i></b>",
+				{
+					parse_mode: "HTML",
+					disable_web_page_preview: true,
+					reply_markup: {
+						inline_keyboard: [
+							[{ text: "Далее➡️ ", callback_data: "next" }],
+						],
+					},
+				}
+			);
+		}
 	} catch (error) {
 		console.log(error);
 	}
@@ -36,7 +40,7 @@ async function first(chatId){
 async function menuNav(chatId, messageId){
 	try {
 		await bot.editMessageText(
-			`<b>Привет, Чемпион 💯</b>\n\n<b>Какой план на сегодняdddddddddd?</b>\n\n<a href="https://t.me/neverfinishedbot/?start=hideNav">Навигация по меню ↑</a>`,
+			`<b>Привет, Чемпион 💯</b>\n\n<b>Какой план на сегодняdddddddddd?</b>\n\n<a href="https://t.me/neverfinishedbot/?start=hideNav">Навигация по меню ⇧</a>`,
 			{
 				parse_mode: "html",
 				chat_id: chatId,
@@ -71,7 +75,7 @@ async function menuNav(chatId, messageId){
 async function menu(chatId, messageId){
 	try {
 		await bot.editMessageText(
-			`<b>Привет, Чемпион 💯</b>\n\n<b>Какой план на сегодня? </b>\n\n<a href="https://t.me/neverfinishedbot/?start=showNav">Навигация по меню →</a>`,
+			`<b>Привет, Чемпион 💯</b>\n\n<b>Какой план на сегодня? </b>\n\n<a href="https://t.me/neverfinishedbot/?start=showNav">Навигация по меню ⇨</a>`,
 			{
 				parse_mode: "html",
 				chat_id: chatId,
@@ -293,7 +297,8 @@ async function StartAll() {
 				// case "/start hideNav":
 				// 	menu(chatId, cur_mes);
 				// 	break;
-				case "":
+				case "/restart":
+					first(chatId)
 					break;
 				case "":
 					break;
