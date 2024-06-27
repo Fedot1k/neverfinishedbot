@@ -7,13 +7,19 @@ const fedotId = 870204479;
 let usersData = [];
 
 bot.setMyCommands([
-  // {
-  //   command: `/restart`,
-  //   description: `Перезапуск 🔄️`,
-  // },
+  {
+    command: `/restart`,
+    description: `Перезапуск 🔄️`,
+  },
 ]);
 
-async function first(chatId, messageId) {
+let navtext = `<blockquote>Цели - \n\nЗаметки - хранилище мыслей и идей.\n\nДостижения - .\n\nСон - график сна и советы для правильного ночного режима.\n\nСерии - раздел для трекинга самодисциплины.</blockquote>`;
+
+let first_text = `<b>👋 Добро пожаловать</b> в мир целеустремленности и эффективности с <b><i>neverfinished!</i></b>\n\n<b>•  Трекинг прогресса 💯</b>\nВеди учет своих амбициозных <b><i>целей</i></b> и великих <b><i>достижений!</i></b>\n\n<b>•  Составление заметок ⚡</b>\nЗаписывай свои <b><i>мысли и дела</i></b>, которые <b><i>нельзя забыть!</i></b>\n\n<b>•  Отчет по личным рекордам 🔥</b>\nПрокачивай <b><i>дисциплину</i></b>, сохраняя победные серии над <b><i>самим собой!</i></b>\n\n<b>•  Отслеживание графика сна ✨</b>\nУлучшай свой <b><i>режим сна</i></b> и проводи день <b><i>энергичнее!</i></b>\n\n<b>💪 Начни сейчас и достигни своих целей вместе с <i>neverfinished!</i></b>`;
+
+let second_text = `<b>Как пожелаете к вам обращаться в будущем? 🤔</b>\n\n<i><b>*neverfinished</b> несет ответственность за конфиденциальность ваших данных 🤫</i>`;
+
+async function first(chatId) {
   const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
 
   try {
@@ -21,11 +27,12 @@ async function first(chatId, messageId) {
       await bot
         .sendMessage(
           chatId,
-          `<b>👋 Добро пожаловать</b> в мир целеустремленности и эффективности с <b><i>neverfinished!</i></b>\n\n<b>•  Трекинг прогресса 💯</b>\nВеди учет своих амбициозных <b><i>целей</i></b> и великих <b><i>достижений!</i></b>\n\n<b>•  Составление заметок ⚡</b>\nЗаписывай свои <b><i>мысли и дела</i></b>, которые <b><i>нельзя забыть!</i></b>\n\n<b>•  Отчет по личным рекордам 🔥</b>\nПрокачивай <b><i>дисциплину</i></b>, сохраняя победные серии над <b><i>самим собой!</i></b>\n\n<b>•  Отслеживание графика сна ✨</b>\nУлучшай свой <b><i>режим сна</i></b> и проводи день <b><i>энергичнее!</i></b>\n\n<b>💪 Начни сейчас и достигни своих целей вместе с <i>neverfinished!</i></b>`,
+          first_text,
           {
             parse_mode: `HTML`,
             disable_web_page_preview: true,
-            reply_markup: {
+            reply_markup: 
+            {
               inline_keyboard: [[{ text: `Далее➡️`, callback_data: `next` }]],
             },
           }
@@ -36,7 +43,7 @@ async function first(chatId, messageId) {
         });
     } else if (dataAboutUser.ableback) {
       await bot.editMessageText(
-        `<b>👋 Добро пожаловать</b> в мир целеустремленности и эффективности с <b><i>neverfinished!</i></b>\n\n<b>•  Трекинг прогресса 💯</b>\nВеди учет своих амбициозных <b><i>целей</i></b> и великих <b><i>достижений!</i></b>\n\n<b>•  Составление заметок ⚡</b>\nЗаписывай свои <b><i>мысли и дела</i></b>, которые <b><i>нельзя забыть!</i></b>\n\n<b>•  Отчет по личным рекордам 🔥</b>\nПрокачивай <b><i>дисциплину</i></b>, сохраняя победные серии над <b><i>самим собой!</i></b>\n\n<b>•  Отслеживание графика сна ✨</b>\nУлучшай свой <b><i>режим сна</i></b> и проводи день <b><i>энергичнее!</i></b>\n\n<b>💪 Начни сейчас и достигни своих целей вместе с <i>neverfinished!</i></b>`,
+        first_text,
         {
           parse_mode: `HTML`,
           chat_id: chatId,
@@ -58,7 +65,7 @@ async function second(chatId) {
 
   try {
     await bot.editMessageText(
-      `<b>Как пожелаете к вам обращаться в будущем? 🤔</b>\n\n<i><b>*neverfinished</b> несет ответственность за конфиденциальность ваших данных 🤫</i>`,
+      second_text,
       {
         parse_mode: `HTML`,
         chat_id: chatId,
@@ -117,28 +124,57 @@ async function menu(chatId) {
   const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
 
   try {
-    await bot.editMessageText(
-      `<b>Привет, ${dataAboutUser.username} 💯</b>\n\n<b>Какой план на сегодня? </b>\n\n<a href="https://t.me/neverfinishedbot/?start=showNav">Навигация по меню ⇨</a>`,
-      {
-        parse_mode: `html`,
-        chat_id: chatId,
-        message_id: dataAboutUser.messageId,
-        disable_web_page_preview: true,
-        reply_markup: {
-          inline_keyboard: [
-            [
-              { text: `Цели 🏔`, callback_data: `goals` },
-              { text: `Заметки ⚡`, callback_data: `notes` },
+    if (!dataAboutUser.torestart) {
+      await bot.editMessageText(
+        `<b>Привет, ${dataAboutUser.username} 💯</b>\n\n<b>Какой план на сегодня? </b>\n\n<a href="https://t.me/neverfinishedbot/?start=showNav">Навигация по меню ⇨</a>`,
+        {
+          parse_mode: `html`,
+          chat_id: chatId,
+          message_id: dataAboutUser.messageId,
+          disable_web_page_preview: true,
+          reply_markup: {
+            inline_keyboard: [
+              [
+                { text: `Цели 🏔`, callback_data: `goals` },
+                { text: `Заметки ⚡`, callback_data: `notes` },
+              ],
+              [{ text: `Достижения 🎖️`, callback_data: `achivs` }],
+              [
+                { text: `Сон ✨`, callback_data: `sleep` },
+                { text: `Серии 🔥`, callback_data: `streaks` },
+              ],
             ],
-            [{ text: `Достижения 🎖️`, callback_data: `achivs` }],
-            [
-              { text: `Сон ✨`, callback_data: `sleep` },
-              { text: `Серии 🔥`, callback_data: `streaks` },
-            ],
-          ],
-        },
-      }
-    );
+          },
+        }
+      );
+    } else if (dataAboutUser.torestart) {
+      await bot
+        .sendMessage(
+          chatId,
+          `<b>Привет, ${dataAboutUser.username} 💯</b>\n\n<b>Какой план на сегодня? </b>\n\n<a href="https://t.me/neverfinishedbot/?start=showNav">Навигация по меню ⇨</a>`,
+          {
+            parse_mode: `html`,
+            disable_web_page_preview: true,
+            reply_markup: {
+              inline_keyboard: [
+                [
+                  { text: `Цели 🏔`, callback_data: `goals` },
+                  { text: `Заметки ⚡`, callback_data: `notes` },
+                ],
+                [{ text: `Достижения 🎖️`, callback_data: `achivs` }],
+                [
+                  { text: `Сон ✨`, callback_data: `sleep` },
+                  { text: `Серии 🔥`, callback_data: `streaks` },
+                ],
+              ],
+            },
+          }
+        )
+        .then((message) => {
+          dataAboutUser.messageId = message.message_id;
+          dataAboutUser.torestart = false;
+        });
+    }
   } catch (error) {
     console.log(error);
   }
@@ -293,8 +329,6 @@ async function StartAll() {
       let chatId = message.chat.id;
       let messageId = message.message_id;
 
-      usersData = [];
-
       const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
 
       if (!dataAboutUser) {
@@ -303,6 +337,7 @@ async function StartAll() {
           username: message.from.first_name,
           messageId: ``,
           ableback: false,
+          torestart: false,
         });
       }
 
@@ -310,12 +345,24 @@ async function StartAll() {
         case `/start`: // TODO: remove user on start
           first(chatId);
           break;
-        // case `/start showNav`: // TODO: add restart
+        case `/start showNav`:
+          menuNav(chatId);
+          break;
+        case `/start hideNav`:
+          menu(chatId);
+          break;
+        // case `/restart`:
+        //   dataAboutUser.torestart = true;
         //   menu(chatId);
         //   break;
-        // case `/start hideNav`:
-        //   menu(chatId);
-        //   break;
+        case ``:
+          break;
+        case ``:
+          break;
+        case ``:
+          break;
+        case ``:
+          break;
         case ``:
           break;
         case ``:
