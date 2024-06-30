@@ -15,11 +15,24 @@ bot.setMyCommands([
   },
 ]);
 
-let navtext = `<b>"Цели 🏔"</b> - \n\n<b>"Заметки ⚡"</b> - хранилище мыслей и идей.\n\n<b>"Достижения 🎖️"</b> - .\n\n<b>"Сон ✨"</b> - график сна и советы для правильного ночного режима.\n\n<b>"Серии 🔥"</b> - раздел для трекинга самодисциплины.`;
+let navtext = `<b>"Цели 🏔"</b> - список целей на будущее.\n\n<b>"Заметки ⚡"</b> - хранилище мыслей и идей.\n\n<b>"Достижения 🎖️"</b> - твои достижения и большие победы.\n\n<b>"Сон ✨"</b> - график сна и советы для правильного ночного режима.\n\n<b>"Серии 🔥"</b> - раздел для трекинга и развития самодисциплины.`;
 
-let first_text = `<b>👋 Добро пожаловать</b> в мир целеустремленности и эффективности с <b><i>neverfinished!</i></b>\n\n<b>•  Трекинг прогресса 💯</b>\nВеди учет своих амбициозных <b><i>целей</i></b> и великих <b><i>достижений!</i></b>\n\n<b>•  Составление заметок ⚡</b>\nЗаписывай свои <b><i>мысли и дела</i></b>, которые <b><i>нельзя забыть!</i></b>\n\n<b>•  Отчет по личным рекордам 🔥</b>\nПрокачивай <b><i>дисциплину</i></b>, сохраняя победные серии над <b><i>самим собой!</i></b>\n\n<b>•  Отслеживание графика сна ✨</b>\nУлучшай свой <b><i>режим сна</i></b> и проводи день <b><i>энергичнее!</i></b>\n\n<b>💪 Начни сейчас и достигни своих целей вместе с <i>neverfinished!</i></b>`;
+let first_text = `<b>👋 Добро пожаловать</b> в мир целеустремленности и эффективности с <b><i>neverfinished!</i></b>\n\n<b>•  Трекинг прогресса 💯</b>\nВеди учет своих амбициозных <b><i>целей</i></b> и великих <b><i>достижений!</i></b>\n\n<b>•  Составление заметок ⚡</b>\nЗаписывай свои <b><i>мысли и идеи</i></b>, которые <b><i>нельзя забыть!</i></b>\n\n<b>•  Отчет по личным рекордам 🔥</b>\nПрокачивай <b><i>дисциплину</i></b>, сохраняя победные серии над <b><i>самим собой!</i></b>\n\n<b>•  Отслеживание графика сна ✨</b>\nУлучшай свой <b><i>режим сна</i></b> и проводи день <b><i>энергичнее!</i></b>\n\n<b>💪 Начни сейчас и достигни своих целей вместе с <i>neverfinished!</i></b>`;
 
 let second_text = `<b>Как пожелаете к вам обращаться в будущем? 🤔</b>\n\n<i><b>*neverfinished</b> несет ответственность за конфиденциальность ваших данных 🤫</i>`;
+
+
+
+
+
+async function loginOver(chatId) {
+  const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
+  dataAboutUser.loginOver = true;
+}
+
+
+
+
 
 async function first(chatId, stage = 1) {
   const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
@@ -96,7 +109,7 @@ async function menu(chatId, nav = 1) {
     switch (nav) {
       case 1:
         await bot.editMessageText(
-          `<b>Привет, ${dataAboutUser.login} 💯</b>\n\n<b>Какой план на сегодня?</b>\n\n<a href="https://t.me/${BotName}/?start=showNav">Навигация по меню ⇨</a>`,
+          `<b>Привет, ${dataAboutUser.login}! 💯</b>\n\n<b>Какой план на сегодня?</b>\n\n<a href="https://t.me/${BotName}/?start=showNav">Навигация по меню ⇨</a>`,
           {
             parse_mode: `html`,
             chat_id: chatId,
@@ -121,7 +134,7 @@ async function menu(chatId, nav = 1) {
         break;
       case 2:
         await bot.editMessageText(
-          `<b>Привет, ${dataAboutUser.login} 💯</b>\n\n<b>Какой план на сегодня?</b>\n\n<blockquote>${navtext}</blockquote>\n\n<a href="https://t.me/${BotName}/?start=hideNav">Навигация по меню ⇧</a>`,
+          `<b>Привет, ${dataAboutUser.login}! 💯</b>\n\n<b>Какой план на сегодня?</b>\n\n<blockquote>${navtext}</blockquote>\n\n<a href="https://t.me/${BotName}/?start=hideNav">Навигация по меню ⇧</a>`,
           {
             parse_mode: `html`,
             chat_id: chatId,
@@ -145,32 +158,34 @@ async function menu(chatId, nav = 1) {
         dataAboutUser.action = `menu`;
         break;
       case 3:
-        await bot
-          .sendMessage(
-            chatId,
-            `<b>Привет, ${dataAboutUser.login} 💯</b>\n\n<b>Какой план на сегодня?</b>\n\n<a href="https://t.me/${BotName}/?start=showNav">Навигация по меню ⇨</a>`,
-            {
-              parse_mode: `HTML`,
-              disable_web_page_preview: true,
-              reply_markup: {
-                inline_keyboard: [
-                  [
-                    { text: `Цели 🏔`, callback_data: `goals` },
-                    { text: `Заметки ⚡`, callback_data: `notes` },
+        if (dataAboutUser.loginOver) {
+          await bot
+            .sendMessage(
+              chatId,
+              `<b>Привет, ${dataAboutUser.login}! 💯</b>\n\n<b>Какой план на сегодня?</b>\n\n<a href="https://t.me/${BotName}/?start=showNav">Навигация по меню ⇨</a>`,
+              {
+                parse_mode: `HTML`,
+                disable_web_page_preview: true,
+                reply_markup: {
+                  inline_keyboard: [
+                    [
+                      { text: `Цели 🏔`, callback_data: `goals` },
+                      { text: `Заметки ⚡`, callback_data: `notes` },
+                    ],
+                    [{ text: `Достижения 🎖️`, callback_data: `achivs` }],
+                    [
+                      { text: `Сон ✨`, callback_data: `sleep` },
+                      { text: `Серии 🔥`, callback_data: `streaks` },
+                    ],
                   ],
-                  [{ text: `Достижения 🎖️`, callback_data: `achivs` }],
-                  [
-                    { text: `Сон ✨`, callback_data: `sleep` },
-                    { text: `Серии 🔥`, callback_data: `streaks` },
-                  ],
-                ],
-              },
-            }
-          )
-          .then((message) => {
-            dataAboutUser.messageId = message.message_id;
-            dataAboutUser.action = `menu`;
-          });
+                },
+              }
+            )
+            .then((message) => {
+              dataAboutUser.messageId = message.message_id;
+              dataAboutUser.action = `menu`;
+            });
+          }
           break;
     }
   } catch (error) {
@@ -194,10 +209,14 @@ async function goals(chatId) {
       reply_markup: {
         inline_keyboard: [
           [
-            { text: `+ Добавить +`, callback_data: `add_goal` },
+            { text: `⬅️ В меню`, callback_data: `page` },
+            { text: `Отметить ✅`, callback_data: `page` },
           ],
           [
-            { text: `- Удалить -`, callback_data: `delete_goal` }
+            { text: `Добавить`, callback_data: `add_goal` },
+          ],
+          [
+            { text: `Удалить`, callback_data: `delete_goal` }
           ],
           [
             { text: `⬅️ В меню`, callback_data: `menu` },
@@ -357,6 +376,7 @@ async function StartAll() {
           TelegramUsername: message.from.first_name,
           messageId: null,
           action: null,
+          loginOver: false,
         });
       }
 
@@ -397,9 +417,10 @@ async function StartAll() {
 
       const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
 
-      if (dataAboutUser.action == `who`) {
+      if (dataAboutUser.action == `who` && Array.from(text)[0] != "/") {
         dataAboutUser.login = text;
-        menu(chatId)
+        loginOver(chatId);
+        menu(chatId);
       }
 
       bot.deleteMessage(chatId, usermessage);
@@ -439,6 +460,7 @@ async function StartAll() {
           first(chatId, 2);
           break;
         case `leavename`:
+          loginOver(chatId);
           menu(chatId);
           break;
         case ``:
