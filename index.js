@@ -21,6 +21,17 @@ let first_text = `<b>👋 Добро пожаловать</b> в мир целе
 
 let second_text = `<b>Как пожелаете к вам обращаться в будущем? 🤔</b>\n\n<i><b>*neverfinished</b> несет ответственность за конфиденциальность ваших данных 🤫</i>`;
 
+let sleep_tips_text = `<b>Основные советы для правильного режима 💤</b>\n\nПеред сном:<blockquote><b>• Отключите телефон 👀</b>\nВоздействие синего света нарушает работу ритмов сна\n\n<b>• Составьте план на день 📚</b>\nЭто поможет избавиться от лишних мыслей и лучше отдохнуть\n\n<b>• Соблюдайте темноту 🌙</b>\nСоздание оптимальных условий способствует хорошему сну</blockquote>\n\nПосле сна:<blockquote><b>• Выпейте воды 💧</b>\nЭто восполнит водный баланс вашего тела\n\n<b>• Избегайте соц. сетей 💻</b>\nЭто может нарушить ваш утренний ритм\n\n<b>• Сделайте зарядку 🧘</b>\nФизическая активность пробуждает организм и делает вас энергичнее</blockquote>`;
+
+
+
+
+
+async function set_login(chatId) {
+  const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
+  dataAboutUser.login = dataAboutUser.TelegramUsername;
+}
+
 
 
 
@@ -102,14 +113,32 @@ async function first(chatId, stage = 1) {
   }
 }
 
+
+
+
+
+
 async function menu(chatId, nav = 1) {
   const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
+
+  const current_time = new Date().getHours();
+  let hello_text = `Добрый день`;
+
+  if (current_time >= 5 && current_time <= 10) {
+    hello_text = `Доброе утро`;
+  } else if (current_time >= 11 && current_time <= 16) {
+    hello_text = `Добрый день`;
+  } else if (current_time >= 17 && current_time <= 22) {
+    hello_text = `Добрый вечер`;
+  } else if (current_time > 22 || current_time < 5) {
+    hello_text = `Доброй ночи`;
+  }
 
   try {
     switch (nav) {
       case 1:
         await bot.editMessageText(
-          `<b>Привет, ${dataAboutUser.login}! 💯</b>\n\n<b>Какой план на сегодня?</b>\n\n<a href="https://t.me/${BotName}/?start=showNav">Навигация по меню ⇨</a>`,
+          `<b>${hello_text}, ${dataAboutUser.login}! 💯</b>\n\n<b>Какой у тебя план на сегодня?</b>\n\n<a href="https://t.me/${BotName}/?start=showNav">Навигация по меню ⇨</a>`,
           {
             parse_mode: `html`,
             chat_id: chatId,
@@ -134,7 +163,7 @@ async function menu(chatId, nav = 1) {
         break;
       case 2:
         await bot.editMessageText(
-          `<b>Привет, ${dataAboutUser.login}! 💯</b>\n\n<b>Какой план на сегодня?</b>\n\n<blockquote>${navtext}</blockquote>\n\n<a href="https://t.me/${BotName}/?start=hideNav">Навигация по меню ⇧</a>`,
+          `<b>${hello_text}, ${dataAboutUser.login}! 💯</b>\n\n<b>Какой у тебя план на сегодня?</b>\n\n<blockquote>${navtext}</blockquote>\n\n<a href="https://t.me/${BotName}/?start=hideNav">Навигация по меню ⇧</a>`,
           {
             parse_mode: `html`,
             chat_id: chatId,
@@ -162,7 +191,7 @@ async function menu(chatId, nav = 1) {
           await bot
             .sendMessage(
               chatId,
-              `<b>Привет, ${dataAboutUser.login}! 💯</b>\n\n<b>Какой план на сегодня?</b>\n\n<a href="https://t.me/${BotName}/?start=showNav">Навигация по меню ⇨</a>`,
+              `<b>${hello_text}, ${dataAboutUser.login}! 💯</b>\n\n<b>Какой у тебя план на сегодня?</b>\n\n<a href="https://t.me/${BotName}/?start=showNav">Навигация по меню ⇨</a>`,
               {
                 parse_mode: `HTML`,
                 disable_web_page_preview: true,
@@ -187,6 +216,31 @@ async function menu(chatId, nav = 1) {
             });
           }
           break;
+      case 4:
+        await bot.editMessageText(
+          `<b>Привет, ${dataAboutUser.login}! 🤘</b>\n\nСпасибо за регистрацию!\nТебя встречает меню <i><b>neverfinished!</b></i>\n\n<a href="https://t.me/${BotName}/?start=showNav">Навигация по меню ⇨</a>`,
+          {
+            parse_mode: `html`,
+            chat_id: chatId,
+            message_id: dataAboutUser.messageId,
+            disable_web_page_preview: true,
+            reply_markup: {
+              inline_keyboard: [
+                [
+                  { text: `Цели 🏔`, callback_data: `goals` },
+                  { text: `Заметки ⚡`, callback_data: `notes` },
+                ],
+                [{ text: `Достижения 🎖️`, callback_data: `achivs` }],
+                [
+                  { text: `Сон ✨`, callback_data: `sleep` },
+                  { text: `Серии 🔥`, callback_data: `streaks` },
+                ],
+              ],
+            },
+          }
+        );
+        dataAboutUser.action = `menu`;
+        break;
     }
   } catch (error) {
     console.log(error);
@@ -197,34 +251,103 @@ async function menu(chatId, nav = 1) {
 
 
 
-async function goals(chatId) {
+async function goals(chatId, goals_stage = 1) {
   const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
 
   try {
-    await bot.editMessageText(`<b>Твои цели, ${dataAboutUser.login} 🏔</b>`, {
-      parse_mode: `html`,
-      chat_id: chatId,
-      message_id: dataAboutUser.messageId,
-      disable_web_page_preview: true,
-      reply_markup: {
-        inline_keyboard: [
-          [
-            { text: `⬅️ В меню`, callback_data: `page` },
-            { text: `Отметить ✅`, callback_data: `page` },
-          ],
-          [
-            { text: `Добавить`, callback_data: `add_goal` },
-          ],
-          [
-            { text: `Удалить`, callback_data: `delete_goal` }
-          ],
-          [
-            { text: `⬅️ В меню`, callback_data: `menu` },
-            { text: `Отметить ✅`, callback_data: `done_goal` },
-          ],
-        ],
-      },
-    });
+    switch (goals_stage) {
+      case 1:
+        await bot.editMessageText(`<b>Твои цели, ${dataAboutUser.login} 🏔</b>`, {
+          parse_mode: `html`,
+          chat_id: chatId,
+          message_id: dataAboutUser.messageId,
+          disable_web_page_preview: true,
+          reply_markup: {
+            inline_keyboard: [
+              [
+                { text: `◀️`, callback_data: `back_page` },
+                { text: `1 стр`, callback_data: `cur_page` },
+                { text: `▶️`, callback_data: `next_page` },
+              ],
+              [
+                { text: `⬅️ В меню`, callback_data: `menu` },
+                { text: `Редактировать ✍️`, callback_data: `edit` },
+              ],
+            ],
+          },
+        });
+        break;
+      case 2:
+        await bot.editMessageText(`<b>Твои цели, ${dataAboutUser.login} 🏔</b>`, {
+          parse_mode: `html`,
+          chat_id: chatId,
+          message_id: dataAboutUser.messageId,
+          disable_web_page_preview: true,
+          reply_markup: {
+            inline_keyboard: [
+              [
+                { text: `◀️`, callback_data: `back_page` },
+                { text: `1 стр`, callback_data: `cur_page` },
+                { text: `▶️`, callback_data: `next_page` },
+              ],
+              [
+                { text: `Добавить`, callback_data: `add_goal` },
+                { text: `Удалить`, callback_data: `delete_goal` },
+                { text: `Изменить`, callback_data: `change_goal` },
+              ],
+              [
+                { text: `⬅️ В меню`, callback_data: `menu` },
+              ],
+            ],
+          },
+        });
+        break;
+      case 3:
+        await bot.editMessageText(`<b>Запиши свою новую цель</b>`, {
+          parse_mode: `html`,
+          chat_id: chatId,
+          message_id: dataAboutUser.messageId,
+          disable_web_page_preview: true,
+          reply_markup: {
+            inline_keyboard: [
+              [
+                { text: `⬅️ Назад`, callback_data: `back_to_goals` },
+              ],
+            ],
+          },
+        });
+        break;
+      case 4:
+        await bot.editMessageText(`<b>Какую цель ты хочешь удалить?</b>`, {
+          parse_mode: `html`,
+          chat_id: chatId,
+          message_id: dataAboutUser.messageId,
+          disable_web_page_preview: true,
+          reply_markup: {
+            inline_keyboard: [
+              [
+                { text: `⬅️ Назад`, callback_data: `back_to_goals` },
+              ],
+            ],
+          },
+        });
+        break;
+      case 5:
+        await bot.editMessageText(`<b>Какую цель ты хочешь изменить?</b>`, {
+          parse_mode: `html`,
+          chat_id: chatId,
+          message_id: dataAboutUser.messageId,
+          disable_web_page_preview: true,
+          reply_markup: {
+            inline_keyboard: [
+              [
+                { text: `⬅️ Назад`, callback_data: `back_to_goals` },
+              ],
+            ],
+          },
+        });
+        break;
+    }
   } catch (error) {
     console.log(error);
   }
@@ -297,29 +420,76 @@ async function achivs(chatId) {
 
 
 
-async function sleep(chatId) {
+async function sleep(chatId, sleep_stage = 1) {
   const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
 
   try {
-    await bot.editMessageText(`<b>Твой график сна, ${dataAboutUser.login} ✨</b>`, {
-      parse_mode: `html`,
-      chat_id: chatId,
-      message_id: dataAboutUser.messageId,
-      disable_web_page_preview: true,
-      reply_markup: {
-        inline_keyboard: [
-          [
-            { text: `+ Добавить +`, callback_data: `add_goal` },
-          ],
-          [
-            { text: `- Удалить -`, callback_data: `delete_goal` }
-          ],
-          [
-            { text: `⬅️ В меню`, callback_data: `menu` },
-          ],
-        ],
-      },
-    });
+    switch (sleep_stage) {
+      case 1:
+        await bot.editMessageText(`<b>Твой график сна, ${dataAboutUser.login} ✨</b>\n\nВремя засыпания: <b>${dataAboutUser.sleep_at}</b>\nВремя подъема: <b>${dataAboutUser.wake_at}</b>\n\nКоличество сна: <b>${dataAboutUser.sleep_duration} 😴</b>`, {
+          parse_mode: `html`,
+          chat_id: chatId,
+          message_id: dataAboutUser.messageId,
+          disable_web_page_preview: true,
+          reply_markup: {
+            inline_keyboard: [
+              [
+                { text: `Изменить график ⌚`, callback_data: `edit_sleep` },
+              ],
+              [
+                { text: `⬅️ В меню`, callback_data: `menu` },
+                { text: `Советы ⁉️`, callback_data: `sleep_tips` },
+              ],
+            ],
+          },
+        });
+        break;
+      case 2:
+        await bot.editMessageText(`<b>Во сколько ты идешь спать? 🤔</b>\n\nПример: <code>22:30</code>`, {
+          parse_mode: `html`,
+          chat_id: chatId,
+          message_id: dataAboutUser.messageId,  
+          disable_web_page_preview: true,
+          reply_markup: {
+            inline_keyboard: [
+              [
+                { text: `⬅️ Назад`, callback_data: `back_to_sleep` },
+              ],
+            ],
+          },
+        });
+        break;
+      case 3:
+        await bot.editMessageText(`<b>Во сколько ты просыпаешься? 🤔</b>`, {
+          parse_mode: `html`,
+          chat_id: chatId,
+          message_id: dataAboutUser.messageId,  
+          disable_web_page_preview: true,
+          reply_markup: {
+            inline_keyboard: [
+              [
+                { text: `⬅️ Назад`, callback_data: `back_to_sleep` },
+              ],
+            ],
+          },
+        });
+        break;
+      case 4:
+        await bot.editMessageText(sleep_tips_text, {
+          parse_mode: `html`,
+          chat_id: chatId,
+          message_id: dataAboutUser.messageId,  
+          disable_web_page_preview: true,
+          reply_markup: {
+            inline_keyboard: [
+              [
+                { text: `⬅️ Назад`, callback_data: `back_to_sleep` },
+              ],
+            ],
+          },
+        });
+        break;
+    }
   } catch (error) {
     console.log(error);
   }
@@ -372,11 +542,26 @@ async function StartAll() {
       if (!usersData.find((obj) => obj.chatId == chatId)) {
         usersData.push({
           chatId: chatId,
-          login: message.from.first_name,
+          login: null,
           TelegramUsername: message.from.first_name,
           messageId: null,
           action: null,
           loginOver: false,
+
+
+          goals_list: [],
+
+          notes_list: [],
+
+          achivs_list: [],
+
+          streaks_list: [],
+
+
+          streaks_duration: [],
+          sleep_at: null,
+          wake_at: null,
+          sleep_duration: null,
         });
       }
 
@@ -420,7 +605,7 @@ async function StartAll() {
       if (dataAboutUser.action == `who` && Array.from(text)[0] != "/") {
         dataAboutUser.login = text;
         loginOver(chatId);
-        menu(chatId);
+        menu(chatId, 4);
       }
 
       bot.deleteMessage(chatId, usermessage);
@@ -435,6 +620,9 @@ async function StartAll() {
       let data = query.data;
 
       switch (data) {
+
+        ////////////////////////////////
+
         case `menu`:
           menu(chatId);
           break;
@@ -461,11 +649,48 @@ async function StartAll() {
           break;
         case `leavename`:
           loginOver(chatId);
-          menu(chatId);
+          set_login(chatId);
+          menu(chatId, 4);
+          break;
+        
+        ////////////////////////////////
+
+        case `edit`:
+          goals(chatId, 2);
+          break;
+        case `back_to_goals`:
+          goals(chatId, 1);
+          break;
+        case `add_goal`:
+          goals(chatId, 3);
+          break;
+        case `delete_goal`:
+          goals(chatId, 4);
+          break;
+        case `change_goal`:
+          goals(chatId, 5);
           break;
         case ``:
           break;
         case ``:
+          break;
+        case ``:
+          break;
+        case ``:
+          break;
+        case ``:
+          break;
+        
+        ////////////////////////////////
+        
+        case `edit_sleep`:
+          sleep(chatId, 2);
+          break;
+        case `back_to_sleep`:
+          sleep(chatId, 1);
+          break;
+        case `sleep_tips`:
+          sleep(chatId, 4);
           break;
         case ``:
           break;
