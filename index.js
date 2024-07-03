@@ -583,13 +583,15 @@ async function achivs(chatId, achivs_stage = 1) {
 
 
 
-async function sleep(chatId, sleep_stage = 1) {
+async function sleep(chatId, sleep_stage = 1, time = null) {
   const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
+
+  let sleep_duration = 0;
 
   try {
     switch (sleep_stage) {
       case 1:
-        await bot.editMessageText(`<b>Твой график сна, ${dataAboutUser.login} ✨</b>\n\nВремя засыпания: <b>${dataAboutUser.sleep_at}</b>\nВремя подъема: <b>${dataAboutUser.wake_at}</b>\n\nКоличество сна: <b>${dataAboutUser.sleep_duration} 😴</b>`, {
+        await bot.editMessageText(`<b>Твой график сна, ${dataAboutUser.login} ✨</b>\n\nВремя засыпания: <b>${dataAboutUser.sleep_at}</b>\nВремя подъема: <b>${dataAboutUser.wake_at}</b>\n\nКоличество сна: <b>${sleep_duration} 😴</b>`, {
           parse_mode: `html`,
           chat_id: chatId,
           message_id: dataAboutUser.messageId,
@@ -609,7 +611,7 @@ async function sleep(chatId, sleep_stage = 1) {
         dataAboutUser.action = `sleep`;
         break;
       case 2:
-        await bot.editMessageText(`<b>Во сколько ты идешь спать? 🤔</b>\n\nПример: <b>22:30</b>`, {
+        await bot.editMessageText(`<b>Во сколько ты идешь спать? 🤔</b>\n\nПример: <code>22:30</code>`, {
           parse_mode: `html`,
           chat_id: chatId,
           message_id: dataAboutUser.messageId,  
@@ -625,7 +627,7 @@ async function sleep(chatId, sleep_stage = 1) {
         dataAboutUser.action = `sleep_sleep_at`;
         break;
       case 3:
-        await bot.editMessageText(`<b>Во сколько ты просыпаешься? 🤔</b>\n\nПример: <b>6:30</b>`, {
+        await bot.editMessageText(`<b>Во сколько ты просыпаешься? 🤔</b>\n\nПример: <code>6:30</code>`, {
           parse_mode: `html`,
           chat_id: chatId,
           message_id: dataAboutUser.messageId,  
@@ -655,6 +657,45 @@ async function sleep(chatId, sleep_stage = 1) {
           },
         });
         dataAboutUser.action = `sleep`;
+        break;
+      case 5:
+        if (!/[a-z]/i.test(time) && time.includes(":")) {
+          time = time.replace(/\s/g, '');
+          let parse = time.split(":");
+
+          if (parse[1].length === 2 && Number(parse[0]) >= 0 && Number(parse[0]) <= 23 && Number(parse[1]) >= 0 && Number(parse[1]) <= 59) {
+            dataAboutUser.sleep_at = time;
+            sleep(chatId, 3);
+          }
+        }
+        break;
+      case 6:
+        if (!/[a-z]/i.test(time) && time.includes(":")) {
+          time = time.replace(/\s/g, '');
+          let parse = time.split(":");
+
+          if (parse[1].length === 2 && Number(parse[0]) >= 0 && Number(parse[0]) <= 23 && Number(parse[1]) >= 0 && Number(parse[1]) <= 59) {
+            dataAboutUser.wake_at = time;
+
+            let h1 = Number(dataAboutUser.sleep_at.split(":")[0]);
+            let h2 = Number(parse[0]);
+            let m1 = Number(dataAboutUser.sleep_at.split(":")[1]);
+            let m2 = Number(parse[1]);
+
+            if (h1 > h2) {
+              sleep_duration = (1440 - (h1 * 60) - m1) + ((h2 * 60) + m2);
+            } else if (h1 < h2) {
+              sleep_duration = ((h2 * 60) + m2) - ((h1 * 60) + m1);
+            } else if (h1 == h2 && m1 < m2) {
+              sleep_duration = m2 - m1;
+            } else if (h1 == h2 && m1 > m2) {
+              sleep_duration = (1440 - (h1 * 60) - m1) + ((h2 * 60) + m2);
+            }
+            console.log(sleep_duration);
+
+            sleep(chatId);
+          }
+        }
         break;
     }
   } catch (error) {
@@ -727,8 +768,8 @@ async function StartAll() {
 
 
           streaks_duration: [],
-          sleep_at: null,
-          wake_at: null,
+          sleep_at: `-`,
+          wake_at: `-`,
         });
       }
 
@@ -773,16 +814,15 @@ async function StartAll() {
         dataAboutUser.login = text;
         loginOver(chatId);
         menu(chatId, 4);
-      } else if (dataAboutUser.action == `sleep_sleep_at` && Array.from(text)[0] != "/") {
-        dataAboutUser.sleep_at = text;
-        sleep(chatId, 3);
-      } else if (dataAboutUser.action == `sleep_wake_at` && Array.from(text)[0] != "/") {
-        dataAboutUser.wake_at = text;
-        sleep(chatId);
+      } else if (dataAboutUser.action == `sleep_sleep_at`) {
+        sleep(chatId, 5, text);
+      } else if (dataAboutUser.action == `sleep_wake_at`) {
+        sleep(chatId, 6, text);
       }
 
       bot.deleteMessage(chatId, usermessage);
-      console.log(message);
+      console.log(message.chat.first_name);
+      console.log(message.text);
     });
   } catch (error) {}
 
