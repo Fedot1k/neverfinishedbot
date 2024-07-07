@@ -2,9 +2,7 @@ import TelegramBot from "node-telegram-bot-api";
 
 const TOKEN = `7279660476:AAGHOLKPGLzGTvMXff4mAYBZ8XnLrQV2e8w`;
 const bot = new TelegramBot(TOKEN, { polling: true });
-
-const FedotId = 870204479;
-const BotName = `neverfinishedbot`
+const BotName = `neverfinishedbot`;
 
 let usersData = [];
 
@@ -23,28 +21,6 @@ let second_text = `<b>Как пожелаете к вам обращаться �
 
 let sleep_tips_text = `<b>Основные советы для правильного режима 💤</b>\n\nПеред сном:<blockquote><b>• Отключите телефон 👀</b>\nВоздействие синего света нарушает работу ритмов сна\n\n<b>• Составьте план на день 📚</b>\nЭто поможет избавиться от лишних мыслей и лучше отдохнуть\n\n<b>• Соблюдайте темноту 🌙</b>\nСоздание оптимальных условий способствует хорошему сну</blockquote>\n\nПосле сна:<blockquote><b>• Выпейте воды 💧</b>\nЭто восполнит водный баланс вашего тела\n\n<b>• Избегайте соц. сетей 💻</b>\nЭто может нарушить ваш утренний ритм\n\n<b>• Сделайте зарядку 🧘</b>\nФизическая активность пробуждает организм и делает вас энергичнее</blockquote>`;
 
-
-
-
-
-async function set_login(chatId) {
-  const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
-  dataAboutUser.login = dataAboutUser.TelegramUsername;
-}
-
-
-
-
-
-async function loginOver(chatId) {
-  const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
-  dataAboutUser.loginOver = true;
-}
-
-
-
-
-
 async function first(chatId, stage = 1) {
   const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
 
@@ -52,60 +28,49 @@ async function first(chatId, stage = 1) {
     switch (stage) {
       case 1:
         await bot
-          .sendMessage(
-            chatId,
-            first_text,
-            {
-              parse_mode: `HTML`,
-              disable_web_page_preview: true,
-              reply_markup: 
-              {
-                inline_keyboard: [[{ text: `Далее➡️`, callback_data: `next` }]],
-              },
-            }
-          )
-          .then((message) => {
-            dataAboutUser.messageId = message.message_id;
-            dataAboutUser.action = `intro`;
-          });
-          break;
-      case 2:
-        await bot.editMessageText(
-          first_text,
-          {
+          .sendMessage(chatId, first_text, {
             parse_mode: `HTML`,
-            chat_id: chatId,
-            message_id: dataAboutUser.messageId,
             disable_web_page_preview: true,
             reply_markup: {
               inline_keyboard: [[{ text: `Далее➡️`, callback_data: `next` }]],
             },
-          }
-        );
+          })
+          .then((message) => {
+            dataAboutUser.messageId = message.message_id;
+            dataAboutUser.action = `intro`;
+          });
+        break;
+      case 2:
+        await bot.editMessageText(first_text, {
+          parse_mode: `HTML`,
+          chat_id: chatId,
+          message_id: dataAboutUser.messageId,
+          disable_web_page_preview: true,
+          reply_markup: {
+            inline_keyboard: [[{ text: `Далее➡️`, callback_data: `next` }]],
+          },
+        });
         dataAboutUser.action = `intro`;
         break;
       case 3:
-        await bot.editMessageText(
-          second_text,
-          {
-            parse_mode: `HTML`,
-            chat_id: chatId,
-            message_id: dataAboutUser.messageId,
-            disable_web_page_preview: true,
-            reply_markup: {
-              inline_keyboard: [
-                [
-                  {
-                    text: `Оставить ${dataAboutUser.TelegramUsername} ✅`,
-                    callback_data: `leavename`,
-                  },
-                ],
-                [{ text: `⬅️Назад`, callback_data: `back` }],
+        await bot.editMessageText(second_text, {
+          parse_mode: `HTML`,
+          chat_id: chatId,
+          message_id: dataAboutUser.messageId,
+          disable_web_page_preview: true,
+          reply_markup: {
+            inline_keyboard: [
+              [
+                {
+                  text: `Оставить ${dataAboutUser.TelegramUsername} ✅`,
+                  callback_data: `leavename`,
+                },
               ],
-            },
-          }
-        );
-        dataAboutUser.action = `who`;
+              [{ text: `⬅️Назад`, callback_data: `back` }],
+            ],
+          },
+        });
+        dataAboutUser.action = `set_login`;
         break;
     }
   } catch (error) {
@@ -113,12 +78,7 @@ async function first(chatId, stage = 1) {
   }
 }
 
-
-
-
-
-
-async function menu(chatId, nav = 1) {
+async function menu(chatId, stage = 1, navActive = false) {
   const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
 
   const current_time = new Date().getHours();
@@ -135,110 +95,75 @@ async function menu(chatId, nav = 1) {
   }
 
   try {
-    switch (nav) {
+    switch (stage) {
       case 1:
-        await bot.editMessageText(
-          `<b>${hello_text}, ${dataAboutUser.login}! 💯</b>\n\n<b>Какой у тебя план на сегодня?</b>\n\n<a href="https://t.me/${BotName}/?start=showNav">Навигация по меню ⇨</a>`,
-          {
-            parse_mode: `html`,
-            chat_id: chatId,
-            message_id: dataAboutUser.messageId,
-            disable_web_page_preview: true,
-            reply_markup: {
-              inline_keyboard: [
-                [
-                  { text: `Цели 🏔`, callback_data: `goals` },
-                  { text: `Заметки ⚡`, callback_data: `notes` },
-                ],
-                [{ text: `Достижения 🎖️`, callback_data: `achivs` }],
-                [
-                  { text: `Сон ✨`, callback_data: `sleep` },
-                  { text: `Серии 🔥`, callback_data: `streaks` },
-                ],
+        await bot.editMessageText(`<b>${hello_text}, ${dataAboutUser.login}! 💯</b>\n\n<b>Какой у тебя план на сегодня?</b>\n\n${navActive ? `<blockquote>${navtext}</blockquote>\n\n<a href="https://t.me/${BotName}/?start=hideNav">Навигация по меню ⇧</a>` : `<a href="https://t.me/${BotName}/?start=showNav">Навигация по меню ⇨</a>`}`, {
+          parse_mode: `html`,
+          chat_id: chatId,
+          message_id: dataAboutUser.messageId,
+          disable_web_page_preview: true,
+          reply_markup: {
+            inline_keyboard: [
+              [
+                { text: `Цели 🏔`, callback_data: `goals` },
+                { text: `Заметки ⚡`, callback_data: `notes` },
               ],
-            },
-          }
-        );
-        dataAboutUser.action = `menu`;
-        break;
-      case 2:
-        await bot.editMessageText(
-          `<b>${hello_text}, ${dataAboutUser.login}! 💯</b>\n\n<b>Какой у тебя план на сегодня?</b>\n\n<blockquote>${navtext}</blockquote>\n\n<a href="https://t.me/${BotName}/?start=hideNav">Навигация по меню ⇧</a>`,
-          {
-            parse_mode: `html`,
-            chat_id: chatId,
-            message_id: dataAboutUser.messageId,
-            disable_web_page_preview: true,
-            reply_markup: {
-              inline_keyboard: [
-                [
-                  { text: `Цели 🏔`, callback_data: `goals` },
-                  { text: `Заметки ⚡`, callback_data: `notes` },
-                ],
-                [{ text: `Достижения 🎖️`, callback_data: `achivs` }],
-                [
-                  { text: `Сон ✨`, callback_data: `sleep` },
-                  { text: `Серии 🔥`, callback_data: `streaks` },
-                ],
+              [{ text: `Достижения 🎖️`, callback_data: `achivs` }],
+              [
+                { text: `Сон ✨`, callback_data: `sleep` },
+                { text: `Серии 🔥`, callback_data: `streaks` },
               ],
-            },
-          }
-        );
+            ],
+          },
+        });
         dataAboutUser.action = `menu`;
         break;
       case 3:
         if (dataAboutUser.loginOver) {
           await bot
-            .sendMessage(
-              chatId,
-              `<b>${hello_text}, ${dataAboutUser.login}! 💯</b>\n\n<b>Какой у тебя план на сегодня?</b>\n\n<a href="https://t.me/${BotName}/?start=showNav">Навигация по меню ⇨</a>`,
-              {
-                parse_mode: `HTML`,
-                disable_web_page_preview: true,
-                reply_markup: {
-                  inline_keyboard: [
-                    [
-                      { text: `Цели 🏔`, callback_data: `goals` },
-                      { text: `Заметки ⚡`, callback_data: `notes` },
-                    ],
-                    [{ text: `Достижения 🎖️`, callback_data: `achivs` }],
-                    [
-                      { text: `Сон ✨`, callback_data: `sleep` },
-                      { text: `Серии 🔥`, callback_data: `streaks` },
-                    ],
+            .sendMessage(chatId, `<b>${hello_text}, ${dataAboutUser.login}! 💯</b>\n\n<b>Какой у тебя план на сегодня?</b>\n\n<a href="https://t.me/${BotName}/?start=showNav">Навигация по меню ⇨</a>`, {
+              parse_mode: `HTML`,
+              disable_web_page_preview: true,
+              reply_markup: {
+                inline_keyboard: [
+                  [
+                    { text: `Цели 🏔`, callback_data: `goals` },
+                    { text: `Заметки ⚡`, callback_data: `notes` },
                   ],
-                },
-              }
-            )
+                  [{ text: `Достижения 🎖️`, callback_data: `achivs` }],
+                  [
+                    { text: `Сон ✨`, callback_data: `sleep` },
+                    { text: `Серии 🔥`, callback_data: `streaks` },
+                  ],
+                ],
+              },
+            })
             .then((message) => {
               dataAboutUser.messageId = message.message_id;
               dataAboutUser.action = `menu`;
             });
-          }
-          break;
+        }
+        break;
       case 4:
-        await bot.editMessageText(
-          `<b>Привет, ${dataAboutUser.login}! 🤘</b>\n\nСпасибо за регистрацию!\nТебя встречает меню <i><b>neverfinished!</b></i>\n\n<a href="https://t.me/${BotName}/?start=showNav">Навигация по меню ⇨</a>`,
-          {
-            parse_mode: `html`,
-            chat_id: chatId,
-            message_id: dataAboutUser.messageId,
-            disable_web_page_preview: true,
-            reply_markup: {
-              inline_keyboard: [
-                [
-                  { text: `Цели 🏔`, callback_data: `goals` },
-                  { text: `Заметки ⚡`, callback_data: `notes` },
-                ],
-                [{ text: `Достижения 🎖️`, callback_data: `achivs` }],
-                [
-                  { text: `Сон ✨`, callback_data: `sleep` },
-                  { text: `Серии 🔥`, callback_data: `streaks` },
-                ],
+        await bot.editMessageText(`<b>Привет, ${dataAboutUser.login}! 🤘</b>\n\nСпасибо за регистрацию!\nТебя встречает меню <i><b>neverfinished!</b></i>\n\n<a href="https://t.me/${BotName}/?start=showNav">Навигация по меню ⇨</a>`, {
+          parse_mode: `html`,
+          chat_id: chatId,
+          message_id: dataAboutUser.messageId,
+          disable_web_page_preview: true,
+          reply_markup: {
+            inline_keyboard: [
+              [
+                { text: `Цели 🏔`, callback_data: `goals` },
+                { text: `Заметки ⚡`, callback_data: `notes` },
               ],
-            },
-          }
-        );
+              [{ text: `Достижения 🎖️`, callback_data: `achivs` }],
+              [
+                { text: `Сон ✨`, callback_data: `sleep` },
+                { text: `Серии 🔥`, callback_data: `streaks` },
+              ],
+            ],
+          },
+        });
         dataAboutUser.action = `menu`;
         break;
     }
@@ -247,15 +172,11 @@ async function menu(chatId, nav = 1) {
   }
 }
 
-
-
-
-
-async function goals(chatId, goals_stage = 1) {
+async function goals(chatId, stage = 1) {
   const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
 
   try {
-    switch (goals_stage) {
+    switch (stage) {
       case 1:
         await bot.editMessageText(`<b>Твои цели, ${dataAboutUser.login} 🏔</b>`, {
           parse_mode: `html`,
@@ -265,9 +186,9 @@ async function goals(chatId, goals_stage = 1) {
           reply_markup: {
             inline_keyboard: [
               [
-                { text: `◀️`, callback_data: `back_page` },
+                { text: `🔼`, callback_data: `back_page` },
                 { text: `1 стр`, callback_data: `cur_page` },
-                { text: `▶️`, callback_data: `next_page` },
+                { text: `🔽`, callback_data: `next_page` },
               ],
               [
                 { text: `⬅️ В меню`, callback_data: `menu` },
@@ -287,18 +208,16 @@ async function goals(chatId, goals_stage = 1) {
           reply_markup: {
             inline_keyboard: [
               [
-                { text: `◀️`, callback_data: `back_page` },
+                { text: `🔼`, callback_data: `back_page` },
                 { text: `1 стр`, callback_data: `cur_page` },
-                { text: `▶️`, callback_data: `next_page` },
+                { text: `🔽`, callback_data: `next_page` },
               ],
               [
                 { text: `Добавить`, callback_data: `add_goal` },
                 { text: `Удалить`, callback_data: `delete_goal` },
                 { text: `Изменить`, callback_data: `change_goal` },
               ],
-              [
-                { text: `⬅️ Назад`, callback_data: `back_to_goals` },
-              ],
+              [{ text: `⬅️ Назад`, callback_data: `back_to_goals` }],
             ],
           },
         });
@@ -311,11 +230,7 @@ async function goals(chatId, goals_stage = 1) {
           message_id: dataAboutUser.messageId,
           disable_web_page_preview: true,
           reply_markup: {
-            inline_keyboard: [
-              [
-                { text: `⬅️ Назад`, callback_data: `back_to_edit_goals` },
-              ],
-            ],
+            inline_keyboard: [[{ text: `⬅️ Назад`, callback_data: `back_to_edit_goals` }]],
           },
         });
         dataAboutUser.action = `goals_add`;
@@ -327,11 +242,7 @@ async function goals(chatId, goals_stage = 1) {
           message_id: dataAboutUser.messageId,
           disable_web_page_preview: true,
           reply_markup: {
-            inline_keyboard: [
-              [
-                { text: `⬅️ Назад`, callback_data: `back_to_edit_goals` },
-              ],
-            ],
+            inline_keyboard: [[{ text: `⬅️ Назад`, callback_data: `back_to_edit_goals` }]],
           },
         });
         dataAboutUser.action = `goals_delete`;
@@ -343,11 +254,7 @@ async function goals(chatId, goals_stage = 1) {
           message_id: dataAboutUser.messageId,
           disable_web_page_preview: true,
           reply_markup: {
-            inline_keyboard: [
-              [
-                { text: `⬅️ Назад`, callback_data: `back_to_edit_goals` },
-              ],
-            ],
+            inline_keyboard: [[{ text: `⬅️ Назад`, callback_data: `back_to_edit_goals` }]],
           },
         });
         dataAboutUser.action = `goals_change`;
@@ -358,15 +265,11 @@ async function goals(chatId, goals_stage = 1) {
   }
 }
 
-
-
-
-
-async function notes(chatId, notes_stage = 1) {
+async function notes(chatId, stage = 1) {
   const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
 
   try {
-    switch (notes_stage) {
+    switch (stage) {
       case 1:
         await bot.editMessageText(`<b>Твои заметки, ${dataAboutUser.login} ⚡</b>`, {
           parse_mode: `html`,
@@ -376,9 +279,9 @@ async function notes(chatId, notes_stage = 1) {
           reply_markup: {
             inline_keyboard: [
               [
-                { text: `◀️`, callback_data: `back_page` },
+                { text: `🔼`, callback_data: `back_page` },
                 { text: `1 стр`, callback_data: `cur_page` },
-                { text: `▶️`, callback_data: `next_page` },
+                { text: `🔽`, callback_data: `next_page` },
               ],
               [
                 { text: `⬅️ В меню`, callback_data: `menu` },
@@ -398,18 +301,16 @@ async function notes(chatId, notes_stage = 1) {
           reply_markup: {
             inline_keyboard: [
               [
-                { text: `◀️`, callback_data: `back_page` },
+                { text: `🔼`, callback_data: `back_page` },
                 { text: `1 стр`, callback_data: `cur_page` },
-                { text: `▶️`, callback_data: `next_page` },
+                { text: `🔽`, callback_data: `next_page` },
               ],
               [
                 { text: `Добавить`, callback_data: `add_note` },
                 { text: `Удалить`, callback_data: `delete_note` },
                 { text: `Изменить`, callback_data: `change_note` },
               ],
-              [
-                { text: `⬅️ Назад`, callback_data: `back_to_notes` },
-              ],
+              [{ text: `⬅️ Назад`, callback_data: `back_to_notes` }],
             ],
           },
         });
@@ -422,11 +323,7 @@ async function notes(chatId, notes_stage = 1) {
           message_id: dataAboutUser.messageId,
           disable_web_page_preview: true,
           reply_markup: {
-            inline_keyboard: [
-              [
-                { text: `⬅️ Назад`, callback_data: `back_to_edit_notes` },
-              ],
-            ],
+            inline_keyboard: [[{ text: `⬅️ Назад`, callback_data: `back_to_edit_notes` }]],
           },
         });
         dataAboutUser.action = `notes_add`;
@@ -438,11 +335,7 @@ async function notes(chatId, notes_stage = 1) {
           message_id: dataAboutUser.messageId,
           disable_web_page_preview: true,
           reply_markup: {
-            inline_keyboard: [
-              [
-                { text: `⬅️ Назад`, callback_data: `back_to_edit_notes` },
-              ],
-            ],
+            inline_keyboard: [[{ text: `⬅️ Назад`, callback_data: `back_to_edit_notes` }]],
           },
         });
         dataAboutUser.action = `notes_delete`;
@@ -454,11 +347,7 @@ async function notes(chatId, notes_stage = 1) {
           message_id: dataAboutUser.messageId,
           disable_web_page_preview: true,
           reply_markup: {
-            inline_keyboard: [
-              [
-                { text: `⬅️ Назад`, callback_data: `back_to_edit_notes` },
-              ],
-            ],
+            inline_keyboard: [[{ text: `⬅️ Назад`, callback_data: `back_to_edit_notes` }]],
           },
         });
         dataAboutUser.action = `notes_change`;
@@ -469,14 +358,11 @@ async function notes(chatId, notes_stage = 1) {
   }
 }
 
-
-
-
-async function achivs(chatId, achivs_stage = 1) {
+async function achivs(chatId, stage = 1) {
   const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
 
   try {
-    switch (achivs_stage) {
+    switch (stage) {
       case 1:
         await bot.editMessageText(`<b>Твои достижения, ${dataAboutUser.login} 🎖️</b>`, {
           parse_mode: `html`,
@@ -486,9 +372,9 @@ async function achivs(chatId, achivs_stage = 1) {
           reply_markup: {
             inline_keyboard: [
               [
-                { text: `◀️`, callback_data: `back_page` },
+                { text: `🔼`, callback_data: `back_page` },
                 { text: `1 стр`, callback_data: `cur_page` },
-                { text: `▶️`, callback_data: `next_page` },
+                { text: `🔽`, callback_data: `next_page` },
               ],
               [
                 { text: `⬅️ В меню`, callback_data: `menu` },
@@ -508,18 +394,16 @@ async function achivs(chatId, achivs_stage = 1) {
           reply_markup: {
             inline_keyboard: [
               [
-                { text: `◀️`, callback_data: `back_page` },
+                { text: `🔼`, callback_data: `back_page` },
                 { text: `1 стр`, callback_data: `cur_page` },
-                { text: `▶️`, callback_data: `next_page` },
+                { text: `🔽`, callback_data: `next_page` },
               ],
               [
                 { text: `Добавить`, callback_data: `add_achiv` },
                 { text: `Удалить`, callback_data: `delete_achiv` },
                 { text: `Изменить`, callback_data: `change_achiv` },
               ],
-              [
-                { text: `⬅️ Назад`, callback_data: `back_to_achivs` },
-              ],
+              [{ text: `⬅️ Назад`, callback_data: `back_to_achivs` }],
             ],
           },
         });
@@ -532,11 +416,7 @@ async function achivs(chatId, achivs_stage = 1) {
           message_id: dataAboutUser.messageId,
           disable_web_page_preview: true,
           reply_markup: {
-            inline_keyboard: [
-              [
-                { text: `⬅️ Назад`, callback_data: `back_to_edit_achivs` },
-              ],
-            ],
+            inline_keyboard: [[{ text: `⬅️ Назад`, callback_data: `back_to_edit_achivs` }]],
           },
         });
         dataAboutUser.action = `achivs_add`;
@@ -548,11 +428,7 @@ async function achivs(chatId, achivs_stage = 1) {
           message_id: dataAboutUser.messageId,
           disable_web_page_preview: true,
           reply_markup: {
-            inline_keyboard: [
-              [
-                { text: `⬅️ Назад`, callback_data: `back_to_edit_achivs` },
-              ],
-            ],
+            inline_keyboard: [[{ text: `⬅️ Назад`, callback_data: `back_to_edit_achivs` }]],
           },
         });
         dataAboutUser.action = `achivs_delete`;
@@ -564,11 +440,7 @@ async function achivs(chatId, achivs_stage = 1) {
           message_id: dataAboutUser.messageId,
           disable_web_page_preview: true,
           reply_markup: {
-            inline_keyboard: [
-              [
-                { text: `⬅️ Назад`, callback_data: `back_to_edit_achivs` },
-              ],
-            ],
+            inline_keyboard: [[{ text: `⬅️ Назад`, callback_data: `back_to_edit_achivs` }]],
           },
         });
         dataAboutUser.action = `achivs_change`;
@@ -579,28 +451,20 @@ async function achivs(chatId, achivs_stage = 1) {
   }
 }
 
-
-
-
-
-async function sleep(chatId, sleep_stage = 1, time = null) {
+async function sleep(chatId, stage = 1, time = null) {
   const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
 
-  let sleep_duration = 0;
-
   try {
-    switch (sleep_stage) {
+    switch (stage) {
       case 1:
-        await bot.editMessageText(`<b>Твой график сна, ${dataAboutUser.login} ✨</b>\n\nВремя засыпания: <b>${dataAboutUser.sleep_at}</b>\nВремя подъема: <b>${dataAboutUser.wake_at}</b>\n\nКоличество сна: <b>${sleep_duration} 😴</b>`, {
+        await bot.editMessageText(`<b>Твой график сна, ${dataAboutUser.login} ✨</b>\n\nВремя засыпания: <b>${dataAboutUser.sleep_at}</b>\nВремя подъема: <b>${dataAboutUser.wake_at}</b>\n\nКоличество сна: <b>${dataAboutUser.sleep_duration} 😴</b>`, {
           parse_mode: `html`,
           chat_id: chatId,
           message_id: dataAboutUser.messageId,
           disable_web_page_preview: true,
           reply_markup: {
             inline_keyboard: [
-              [
-                { text: `Изменить график ⌚`, callback_data: `edit_sleep` },
-              ],
+              [{ text: `Изменить график ⌚`, callback_data: `edit_sleep` }],
               [
                 { text: `⬅️ В меню`, callback_data: `menu` },
                 { text: `Советы ⁉️`, callback_data: `sleep_tips` },
@@ -614,14 +478,10 @@ async function sleep(chatId, sleep_stage = 1, time = null) {
         await bot.editMessageText(`<b>Во сколько ты идешь спать? 🤔</b>\n\nПример: <code>22:30</code>`, {
           parse_mode: `html`,
           chat_id: chatId,
-          message_id: dataAboutUser.messageId,  
+          message_id: dataAboutUser.messageId,
           disable_web_page_preview: true,
           reply_markup: {
-            inline_keyboard: [
-              [
-                { text: `⬅️ Назад`, callback_data: `back_to_sleep` },
-              ],
-            ],
+            inline_keyboard: [[{ text: `⬅️ Назад`, callback_data: `back_to_sleep` }]],
           },
         });
         dataAboutUser.action = `sleep_sleep_at`;
@@ -630,14 +490,10 @@ async function sleep(chatId, sleep_stage = 1, time = null) {
         await bot.editMessageText(`<b>Во сколько ты просыпаешься? 🤔</b>\n\nПример: <code>6:30</code>`, {
           parse_mode: `html`,
           chat_id: chatId,
-          message_id: dataAboutUser.messageId,  
+          message_id: dataAboutUser.messageId,
           disable_web_page_preview: true,
           reply_markup: {
-            inline_keyboard: [
-              [
-                { text: `⬅️ Назад`, callback_data: `back_to_sleep` },
-              ],
-            ],
+            inline_keyboard: [[{ text: `⬅️ Назад`, callback_data: `back_to_sleep` }]],
           },
         });
         dataAboutUser.action = `sleep_wake_at`;
@@ -646,21 +502,17 @@ async function sleep(chatId, sleep_stage = 1, time = null) {
         await bot.editMessageText(sleep_tips_text, {
           parse_mode: `html`,
           chat_id: chatId,
-          message_id: dataAboutUser.messageId,  
+          message_id: dataAboutUser.messageId,
           disable_web_page_preview: true,
           reply_markup: {
-            inline_keyboard: [
-              [
-                { text: `⬅️ Назад`, callback_data: `back_to_sleep` },
-              ],
-            ],
+            inline_keyboard: [[{ text: `⬅️ Назад`, callback_data: `back_to_sleep` }]],
           },
         });
         dataAboutUser.action = `sleep`;
         break;
       case 5:
         if (!/[a-z]/i.test(time) && time.includes(":")) {
-          time = time.replace(/\s/g, '');
+          time = time.replace(/\s/g, "");
           let parse = time.split(":");
 
           if (parse[1].length === 2 && Number(parse[0]) >= 0 && Number(parse[0]) <= 23 && Number(parse[1]) >= 0 && Number(parse[1]) <= 59) {
@@ -671,27 +523,30 @@ async function sleep(chatId, sleep_stage = 1, time = null) {
         break;
       case 6:
         if (!/[a-z]/i.test(time) && time.includes(":")) {
-          time = time.replace(/\s/g, '');
+          time = time.replace(/\s/g, "");
           let parse = time.split(":");
 
           if (parse[1].length === 2 && Number(parse[0]) >= 0 && Number(parse[0]) <= 23 && Number(parse[1]) >= 0 && Number(parse[1]) <= 59) {
             dataAboutUser.wake_at = time;
 
             let h1 = Number(dataAboutUser.sleep_at.split(":")[0]);
-            let h2 = Number(parse[0]);
             let m1 = Number(dataAboutUser.sleep_at.split(":")[1]);
-            let m2 = Number(parse[1]);
+            let h2 = Number(dataAboutUser.wake_at.split(":")[0]);
+            let m2 = Number(dataAboutUser.wake_at.split(":")[1]);
+
+            let dur = 0;
 
             if (h1 > h2) {
-              sleep_duration = (1440 - (h1 * 60) - m1) + ((h2 * 60) + m2);
+              dur = 1440 - h1 * 60 - m1 + (h2 * 60 + m2);
             } else if (h1 < h2) {
-              sleep_duration = ((h2 * 60) + m2) - ((h1 * 60) + m1);
+              dur = h2 * 60 + m2 - (h1 * 60 + m1);
             } else if (h1 == h2 && m1 < m2) {
-              sleep_duration = m2 - m1;
+              dur = m2 - m1;
             } else if (h1 == h2 && m1 > m2) {
-              sleep_duration = (1440 - (h1 * 60) - m1) + ((h2 * 60) + m2);
+              dur = 1440 - h1 * 60 - m1 + (h2 * 60 + m2);
             }
-            console.log(sleep_duration);
+
+            dataAboutUser.sleep_duration = `${(dur - (dur % 60)) / 60}:${dur % 60 < 10 ? `0` : ``}${dur % 60}`;
 
             sleep(chatId);
           }
@@ -702,10 +557,6 @@ async function sleep(chatId, sleep_stage = 1, time = null) {
     console.log(error);
   }
 }
-
-
-
-
 
 async function streaks(chatId) {
   const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
@@ -718,12 +569,8 @@ async function streaks(chatId) {
       disable_web_page_preview: true,
       reply_markup: {
         inline_keyboard: [
-          [
-            { text: `+ Добавить +`, callback_data: `add_goal` },
-          ],
-          [
-            { text: `- Удалить -`, callback_data: `delete_goal` }
-          ],
+          [{ text: `+ Добавить +`, callback_data: `add_goal` }],
+          [{ text: `- Удалить -`, callback_data: `delete_goal` }],
           [
             { text: `⬅️ В меню`, callback_data: `menu` },
             { text: `Отметить ✅`, callback_data: `done_goal` },
@@ -737,17 +584,13 @@ async function streaks(chatId) {
   }
 }
 
-
-
-
-
 async function StartAll() {
-  try {
-    bot.on(`message`, async (message) => {
-      let text = message.text;
-      let chatId = message.chat.id;
-      let usermessage = message.message_id;
+  bot.on(`message`, async (message) => {
+    let text = message.text;
+    let chatId = message.chat.id;
+    let usermessage = message.message_id;
 
+    try {
       if (!usersData.find((obj) => obj.chatId == chatId)) {
         usersData.push({
           chatId: chatId,
@@ -757,7 +600,6 @@ async function StartAll() {
           action: null,
           loginOver: false,
 
-
           goals_list: [],
 
           notes_list: [],
@@ -766,12 +608,14 @@ async function StartAll() {
 
           streaks_list: [],
 
-
           streaks_duration: [],
           sleep_at: `-`,
           wake_at: `-`,
+          sleep_duration: 0,
         });
       }
+
+      const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
 
       switch (text) {
         case `/start`:
@@ -781,7 +625,7 @@ async function StartAll() {
           menu(chatId, 3);
           break;
         case `/start showNav`:
-          menu(chatId, 2);
+          menu(chatId, 1, true);
           break;
         case `/start hideNav`:
           menu(chatId);
@@ -808,11 +652,9 @@ async function StartAll() {
           break;
       }
 
-      const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
-
-      if (dataAboutUser.action == `who` && Array.from(text)[0] != "/") {
+      if (dataAboutUser.action == `set_login` && Array.from(text)[0] != "/") {
         dataAboutUser.login = text;
-        loginOver(chatId);
+        dataAboutUser.loginOver = true;
         menu(chatId, 4);
       } else if (dataAboutUser.action == `sleep_sleep_at`) {
         sleep(chatId, 5, text);
@@ -823,17 +665,17 @@ async function StartAll() {
       bot.deleteMessage(chatId, usermessage);
       console.log(message.chat.first_name);
       console.log(message.text);
-    });
-  } catch (error) {}
+    } catch (error) {}
+  });
 
+  bot.on(`callback_query`, async (query) => {
+    let chatId = query.message.chat.id;
+    let data = query.data;
 
-  try {
-    bot.on(`callback_query`, async (query) => {
-      let chatId = query.message.chat.id;
-      let data = query.data;
+    const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
 
+    try {
       switch (data) {
-
         ////////////////////////////////
 
         case `menu`:
@@ -861,11 +703,11 @@ async function StartAll() {
           first(chatId, 2);
           break;
         case `leavename`:
-          loginOver(chatId);
-          set_login(chatId);
+          dataAboutUser.login = dataAboutUser.TelegramUsername;
+          dataAboutUser.loginOver = true;
           menu(chatId, 4);
           break;
-        
+
         ////////////////////////////////
 
         case `edit_goals`:
@@ -896,9 +738,9 @@ async function StartAll() {
           break;
         case ``:
           break;
-        
+
         ////////////////////////////////
-        
+
         case `edit_sleep`:
           sleep(chatId, 2);
           break;
@@ -924,9 +766,9 @@ async function StartAll() {
           break;
         case ``:
           break;
-        
+
         ////////////////////////////////
-        
+
         case `edit_notes`:
           notes(chatId, 2);
           break;
@@ -961,9 +803,9 @@ async function StartAll() {
           break;
         case ``:
           break;
-        
+
         ////////////////////////////////
-        
+
         case `edit_achivs`:
           achivs(chatId, 2);
           break;
@@ -999,8 +841,8 @@ async function StartAll() {
         case ``:
           break;
       }
-    });
-  } catch (error) {}
+    } catch (error) {}
+  });
 }
 
 StartAll();
