@@ -174,11 +174,18 @@ async function menu(chatId, stage = 1, navActive = false) {
 
 async function goals(chatId, stage = 1) {
   const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
+  let show_text = `\n`;
+
+  for (let i = 1; i <= dataAboutUser.goals_data.goals_title_list.length; i++) {
+    show_text += `${dataAboutUser.goals_data.goals_num == i ? `\n• ${i}. ${dataAboutUser.goals_data.goals_title_list[i - 1]} •\n<blockquote>${dataAboutUser.goals_data.goals_text_list[i - 1]}</blockquote>` : `\n${i}. ${dataAboutUser.goals_data.goals_title_list[i - 1]}`}`;
+  }
+
+  show_text += `\n filler`;
 
   try {
     switch (stage) {
       case 1:
-        await bot.editMessageText(`<b>Твои цели, ${dataAboutUser.login} 🏔</b>`, {
+        await bot.editMessageText(`<b>Твои цели, ${dataAboutUser.login} 🏔</b>${show_text}`, {
           parse_mode: `html`,
           chat_id: chatId,
           message_id: dataAboutUser.messageId,
@@ -186,13 +193,13 @@ async function goals(chatId, stage = 1) {
           reply_markup: {
             inline_keyboard: [
               [
-                { text: `🔼`, callback_data: `back_page` },
-                { text: `1 стр`, callback_data: `cur_page` },
-                { text: `🔽`, callback_data: `next_page` },
+                { text: `🔼`, callback_data: `back_page_goal` },
+                { text: `• №  ${dataAboutUser.goals_data.goals_num}•`, callback_data: `cur_page` },
+                { text: `🔽`, callback_data: `next_page_goal` },
               ],
               [
                 { text: `⬅️ В меню`, callback_data: `menu` },
-                { text: `Редактировать ✍️`, callback_data: `edit_goals` },
+                { text: `Добавить`, callback_data: `add_goal` },
               ],
             ],
           },
@@ -200,7 +207,7 @@ async function goals(chatId, stage = 1) {
         dataAboutUser.action = `goals`;
         break;
       case 2:
-        await bot.editMessageText(`<b>Твои цели, ${dataAboutUser.login} 🏔</b>`, {
+        await bot.editMessageText(`Цель<b> •№ ${dataAboutUser.goals_data.goals_num}• 🏔</b>`, {
           parse_mode: `html`,
           chat_id: chatId,
           message_id: dataAboutUser.messageId,
@@ -208,56 +215,62 @@ async function goals(chatId, stage = 1) {
           reply_markup: {
             inline_keyboard: [
               [
-                { text: `🔼`, callback_data: `back_page` },
-                { text: `1 стр`, callback_data: `cur_page` },
-                { text: `🔽`, callback_data: `next_page` },
-              ],
-              [
-                { text: `Добавить`, callback_data: `add_goal` },
+                { text: `Изменить`, callback_data: `edit_goal` },
                 { text: `Удалить`, callback_data: `delete_goal` },
-                { text: `Изменить`, callback_data: `change_goal` },
               ],
               [{ text: `⬅️ Назад`, callback_data: `back_to_goals` }],
             ],
           },
         });
-        dataAboutUser.action = `goals`;
+        dataAboutUser.action = `about_goal`;
         break;
       case 3:
-        await bot.editMessageText(`<b>Запиши свою новую цель</b>`, {
+        await bot.editMessageText(`<b>Введите название вашей цели</b>`, {
           parse_mode: `html`,
           chat_id: chatId,
           message_id: dataAboutUser.messageId,
           disable_web_page_preview: true,
           reply_markup: {
-            inline_keyboard: [[{ text: `⬅️ Назад`, callback_data: `back_to_edit_goals` }]],
+            inline_keyboard: [[{ text: `⬅️ Назад`, callback_data: `back_to_goals` }]],
           },
         });
-        dataAboutUser.action = `goals_add`;
+        dataAboutUser.action = `add_goal_title`;
         break;
       case 4:
-        await bot.editMessageText(`<b>Какую цель ты хочешь удалить?</b>`, {
+        await bot.editMessageText(`<b>Введите описание вашей цели</b>`, {
           parse_mode: `html`,
           chat_id: chatId,
           message_id: dataAboutUser.messageId,
           disable_web_page_preview: true,
           reply_markup: {
-            inline_keyboard: [[{ text: `⬅️ Назад`, callback_data: `back_to_edit_goals` }]],
+            inline_keyboard: [[{ text: `⬅️ Назад`, callback_data: `back_to_goals` }]],
           },
         });
-        dataAboutUser.action = `goals_delete`;
+        dataAboutUser.action = `add_goal_text`;
         break;
       case 5:
-        await bot.editMessageText(`<b>Какую цель ты хочешь изменить?</b>`, {
+        await bot.editMessageText(`<b>Введите новое название вашей цели</b>`, {
           parse_mode: `html`,
           chat_id: chatId,
           message_id: dataAboutUser.messageId,
           disable_web_page_preview: true,
           reply_markup: {
-            inline_keyboard: [[{ text: `⬅️ Назад`, callback_data: `back_to_edit_goals` }]],
+            inline_keyboard: [[{ text: `⬅️ Назад`, callback_data: `back_to_cur_goal` }]],
           },
         });
-        dataAboutUser.action = `goals_change`;
+        dataAboutUser.action = `edit_goal_title`;
+        break;
+      case 6:
+        await bot.editMessageText(`<b>Введите новое описание вашей цели</b>`, {
+          parse_mode: `html`,
+          chat_id: chatId,
+          message_id: dataAboutUser.messageId,
+          disable_web_page_preview: true,
+          reply_markup: {
+            inline_keyboard: [[{ text: `⬅️ Назад`, callback_data: `back_to_cur_goal` }]],
+          },
+        });
+        dataAboutUser.action = `edit_goal_text`;
         break;
     }
   } catch (error) {
@@ -457,7 +470,7 @@ async function sleep(chatId, stage = 1, time = null) {
   try {
     switch (stage) {
       case 1:
-        await bot.editMessageText(`<b>Твой график сна, ${dataAboutUser.login} ✨</b>\n\nВремя засыпания: <b>${dataAboutUser.sleep_at}</b>\nВремя подъема: <b>${dataAboutUser.wake_at}</b>\n\nКоличество сна: <b>${dataAboutUser.sleep_duration} 😴</b>`, {
+        await bot.editMessageText(`<b>Твой график сна, ${dataAboutUser.login} ✨</b>\n\nВремя засыпания: <b>${dataAboutUser.sleep_data.sleep_at}</b>\nВремя подъема: <b>${dataAboutUser.sleep_data.wake_at}</b>\n\nКоличество сна: <b>${dataAboutUser.sleep_data.sleep_duration} 😴</b>`, {
           parse_mode: `html`,
           chat_id: chatId,
           message_id: dataAboutUser.messageId,
@@ -516,7 +529,7 @@ async function sleep(chatId, stage = 1, time = null) {
           let parse = time.split(":");
 
           if (parse[1].length === 2 && Number(parse[0]) >= 0 && Number(parse[0]) <= 23 && Number(parse[1]) >= 0 && Number(parse[1]) <= 59) {
-            dataAboutUser.sleep_at = time;
+            dataAboutUser.sleep_data.sleep_at = time;
             sleep(chatId, 3);
           }
         }
@@ -527,12 +540,12 @@ async function sleep(chatId, stage = 1, time = null) {
           let parse = time.split(":");
 
           if (parse[1].length === 2 && Number(parse[0]) >= 0 && Number(parse[0]) <= 23 && Number(parse[1]) >= 0 && Number(parse[1]) <= 59) {
-            dataAboutUser.wake_at = time;
+            dataAboutUser.sleep_data.wake_at = time;
 
-            let h1 = Number(dataAboutUser.sleep_at.split(":")[0]);
-            let m1 = Number(dataAboutUser.sleep_at.split(":")[1]);
-            let h2 = Number(dataAboutUser.wake_at.split(":")[0]);
-            let m2 = Number(dataAboutUser.wake_at.split(":")[1]);
+            let h1 = Number(dataAboutUser.sleep_data.sleep_at.split(":")[0]);
+            let m1 = Number(dataAboutUser.sleep_data.sleep_at.split(":")[1]);
+            let h2 = Number(dataAboutUser.sleep_data.wake_at.split(":")[0]);
+            let m2 = Number(dataAboutUser.sleep_data.wake_at.split(":")[1]);
 
             let dur = 0;
 
@@ -546,7 +559,7 @@ async function sleep(chatId, stage = 1, time = null) {
               dur = 1440 - h1 * 60 - m1 + (h2 * 60 + m2);
             }
 
-            dataAboutUser.sleep_duration = `${(dur - (dur % 60)) / 60}:${dur % 60 < 10 ? `0` : ``}${dur % 60}`;
+            dataAboutUser.sleep_data.sleep_duration = `${(dur - (dur % 60)) / 60}:${dur % 60 < 10 ? `0` : ``}${dur % 60}`;
 
             sleep(chatId);
           }
@@ -600,18 +613,15 @@ async function StartAll() {
           action: null,
           loginOver: false,
 
-          goals_list: [],
+          goals_data: { goals_title_list: [], goals_text_list: [], goals_num: 1 },
 
-          notes_list: [],
+          notes_data: { notes_title_list: [], notes_text_list: [] },
 
-          achivs_list: [],
+          achivs_data: { achivs_title_list: [], achivs_text_list: [] },
 
-          streaks_list: [],
+          streaks_data: { streaks_list: [], streaks_duration: [] },
 
-          streaks_duration: [],
-          sleep_at: `-`,
-          wake_at: `-`,
-          sleep_duration: 0,
+          sleep_data: { sleep_duration: 0, sleep_at: `-`, wake_at: `-` },
         });
       }
 
@@ -638,18 +648,6 @@ async function StartAll() {
           break;
         case ``:
           break;
-        case ``:
-          break;
-        case ``:
-          break;
-        case ``:
-          break;
-        case ``:
-          break;
-        case ``:
-          break;
-        case ``:
-          break;
       }
 
       if (dataAboutUser.action == `set_login` && Array.from(text)[0] != "/") {
@@ -660,11 +658,21 @@ async function StartAll() {
         sleep(chatId, 5, text);
       } else if (dataAboutUser.action == `sleep_wake_at`) {
         sleep(chatId, 6, text);
+      } else if (dataAboutUser.action == `add_goal_title`) {
+        dataAboutUser.goals_data.goals_title_list.push(text);
+        goals(chatId, 4);
+      } else if (dataAboutUser.action == `add_goal_text`) {
+        dataAboutUser.goals_data.goals_text_list.push(text);
+        goals(chatId);
+      } else if (dataAboutUser.action == `edit_goal_title`) {
+        dataAboutUser.goals_data.goals_title_list[dataAboutUser.goals_num] = text;
+        goals(chatId, 6);
+      } else if (dataAboutUser.action == `edit_goal_text`) {
+        dataAboutUser.goals_data.goals_text_list[dataAboutUser.goals_num] = text;
+        goals(chatId, 2);
       }
 
       bot.deleteMessage(chatId, usermessage);
-      console.log(message.chat.first_name);
-      console.log(message.text);
     } catch (error) {}
   });
 
@@ -710,27 +718,32 @@ async function StartAll() {
 
         ////////////////////////////////
 
-        case `edit_goals`:
-          goals(chatId, 2);
-          break;
         case `back_to_goals`:
           goals(chatId, 1);
           break;
-        case `back_to_edit_goals`:
-          goals(chatId, 2);
+        case `cur_page`:
+          `${dataAboutUser.goals_data.goals_title_list.length != 0 ? goals(chatId, 2) : 0}`;
           break;
         case `add_goal`:
           goals(chatId, 3);
           break;
         case `delete_goal`:
-          goals(chatId, 4);
+          dataAboutUser.goals_data.goals_title_list.splice(dataAboutUser.goals_data.goals_num - 1, 1);
+          dataAboutUser.goals_data.goals_text_list.splice(dataAboutUser.goals_data.goals_num - 1, 1);
+          goals(chatId, 1);
           break;
-        case `change_goal`:
+        case `edit_goal`:
           goals(chatId, 5);
           break;
-        case ``:
+        case `next_page_goal`:
+          dataAboutUser.goals_data.goals_num += 1;
+          goals(chatId, 1);
+        case `back_page_goal`:
+          dataAboutUser.goals_data.goals_num -= 1;
+          goals(chatId, 1);
           break;
-        case ``:
+        case `back_to_cur_goal`:
+          goals(chatId, 2);
           break;
         case ``:
           break;
@@ -749,18 +762,6 @@ async function StartAll() {
           break;
         case `sleep_tips`:
           sleep(chatId, 4);
-          break;
-        case ``:
-          break;
-        case ``:
-          break;
-        case ``:
-          break;
-        case ``:
-          break;
-        case ``:
-          break;
-        case ``:
           break;
         case ``:
           break;
@@ -791,18 +792,6 @@ async function StartAll() {
           break;
         case ``:
           break;
-        case ``:
-          break;
-        case ``:
-          break;
-        case ``:
-          break;
-        case ``:
-          break;
-        case ``:
-          break;
-        case ``:
-          break;
 
         ////////////////////////////////
 
@@ -823,18 +812,6 @@ async function StartAll() {
           break;
         case `change_achiv`:
           achivs(chatId, 5);
-          break;
-        case ``:
-          break;
-        case ``:
-          break;
-        case ``:
-          break;
-        case ``:
-          break;
-        case ``:
-          break;
-        case ``:
           break;
         case ``:
           break;
