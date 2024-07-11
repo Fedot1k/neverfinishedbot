@@ -281,7 +281,7 @@ async function goal(chatId, stage = 1) {
         dataAboutUser.action = `goalEditText`;
         break;
       case 7:
-        await bot.editMessageText(`<b>Твои цели, ${dataAboutUser.login} 🏔</b>\n\n<blockquote>We dont want to tell our dreams. We want to show them.</blockquote> ~ Cristiano Ronaldo 🇵🇹`, {
+        await bot.editMessageText(`<b>Твои цели, ${dataAboutUser.login} 🏔</b>\n\n<blockquote>Dreams are not what you see in your sleep. They are the things that dont let you sleep.</blockquote> ~ Cristiano Ronaldo 🇵🇹`, {
           parse_mode: `html`,
           chat_id: chatId,
           message_id: dataAboutUser.messageId,
@@ -934,6 +934,32 @@ async function StartAll() {
       } else if (dataAboutUser.action == `goalEditText`) {
         dataAboutUser.goalData.text[dataAboutUser.supportiveCount - 1] = text;
         goal(chatId, 2);
+      } else if (dataAboutUser.action == `noteAddTitle`) {
+        dataAboutUser.noteData.title.push(text);
+        dataAboutUser.noteData.marker.push(0);
+        note(chatId, 4);
+      } else if (dataAboutUser.action == `noteAddText`) {
+        dataAboutUser.noteData.text.push(text);
+        `${dataAboutUser.noteData.title.length >= 1 ? note(chatId) : note(chatId, 7)}`;
+      } else if (dataAboutUser.action == `noteEditTitle`) {
+        dataAboutUser.noteData.title[dataAboutUser.supportiveCount - 1] = text;
+        note(chatId, 6);
+      } else if (dataAboutUser.action == `noteEditText`) {
+        dataAboutUser.noteData.text[dataAboutUser.supportiveCount - 1] = text;
+        note(chatId, 2);
+      } else if (dataAboutUser.action == `achivAddTitle`) {
+        dataAboutUser.achivData.title.push(text);
+        dataAboutUser.achivData.marker.push(0);
+        achiv(chatId, 4);
+      } else if (dataAboutUser.action == `achivAddText`) {
+        dataAboutUser.achivData.text.push(text);
+        `${dataAboutUser.achivData.title.length >= 1 ? achiv(chatId) : achiv(chatId, 7)}`;
+      } else if (dataAboutUser.action == `achivEditTitle`) {
+        dataAboutUser.achivData.title[dataAboutUser.supportiveCount - 1] = text;
+        achiv(chatId, 6);
+      } else if (dataAboutUser.action == `achivEditText`) {
+        dataAboutUser.achivData.text[dataAboutUser.supportiveCount - 1] = text;
+        achiv(chatId, 2);
       }
 
       bot.deleteMessage(chatId, usermessage);
