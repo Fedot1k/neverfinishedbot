@@ -183,7 +183,7 @@ async function goal(chatId, stage = 1) {
   try {
     switch (stage) {
       case 1:
-        await bot.editMessageText(`<b>Твои цели, ${dataAboutUser.login} 🏔</b>${showText}\n\n<a href="https://t.me/${BotName}/?start=markDone">Отметить текущий</a>`, {
+        await bot.editMessageText(`<b>Твои цели, ${dataAboutUser.login} 🏔</b>${showText}\n\n<a href="https://t.me/${BotName}/?start=goalMarkDone">Отметить текущий</a>`, {
           parse_mode: `html`,
           chat_id: chatId,
           message_id: dataAboutUser.messageId,
@@ -191,9 +191,9 @@ async function goal(chatId, stage = 1) {
           reply_markup: {
             inline_keyboard: [
               [
-                { text: `🔼`, callback_data: `pageBack` },
+                { text: `🔼`, callback_data: `goalPageBack` },
                 { text: `• №  ${dataAboutUser.supportiveCount}•`, callback_data: `goalCur` },
-                { text: `🔽`, callback_data: `pageNext` },
+                { text: `🔽`, callback_data: `goalPageNext` },
               ],
               [
                 { text: `⬅️ В меню`, callback_data: `menu` },
@@ -205,7 +205,7 @@ async function goal(chatId, stage = 1) {
         dataAboutUser.action = `goal`;
         break;
       case 2:
-        await bot.editMessageText(`Цель: <b>${dataAboutUser.supportiveCount}. 🏔\n\n• ${dataAboutUser.goalData.title[dataAboutUser.supportiveCount - 1]} •</b>\n<blockquote>${dataAboutUser.goalData.text[dataAboutUser.supportiveCount - 1]}</blockquote>\n\n<a href="https://t.me/${BotName}/?start=markDone">Отметить текущий</a>`, {
+        await bot.editMessageText(`Цель: <b>${dataAboutUser.supportiveCount}. 🏔\n\n• ${dataAboutUser.goalData.title[dataAboutUser.supportiveCount - 1]} •</b>\n<blockquote>${dataAboutUser.goalData.text[dataAboutUser.supportiveCount - 1]}</blockquote>\n\n<a href="https://t.me/${BotName}/?start=goalMarkDone">Отметить текущий</a>`, {
           parse_mode: `html`,
           chat_id: chatId,
           message_id: dataAboutUser.messageId,
@@ -314,7 +314,7 @@ async function note(chatId, stage = 1) {
   try {
     switch (stage) {
       case 1:
-        await bot.editMessageText(`<b>Твои заметки, ${dataAboutUser.login} ⚡</b>${showText}\n\n<a href="https://t.me/${BotName}/?start=markDone">Отметить текущий</a>`, {
+        await bot.editMessageText(`<b>Твои заметки, ${dataAboutUser.login} ⚡</b>${showText}\n\n<a href="https://t.me/${BotName}/?start=noteMarkDone">Отметить текущий</a>`, {
           parse_mode: `html`,
           chat_id: chatId,
           message_id: dataAboutUser.messageId,
@@ -322,9 +322,9 @@ async function note(chatId, stage = 1) {
           reply_markup: {
             inline_keyboard: [
               [
-                { text: `🔼`, callback_data: `pageBack` },
+                { text: `🔼`, callback_data: `notePageBack` },
                 { text: `• №  ${dataAboutUser.supportiveCount}•`, callback_data: `noteCur` },
-                { text: `🔽`, callback_data: `pageNext` },
+                { text: `🔽`, callback_data: `notePageNext` },
               ],
               [
                 { text: `⬅️ В меню`, callback_data: `menu` },
@@ -336,7 +336,7 @@ async function note(chatId, stage = 1) {
         dataAboutUser.action = `note`;
         break;
       case 2:
-        await bot.editMessageText(`Заметка: <b>${dataAboutUser.supportiveCount}. ⚡\n\n• ${dataAboutUser.noteData.title[dataAboutUser.supportiveCount - 1]} •</b>\n<blockquote>${dataAboutUser.noteData.text[dataAboutUser.supportiveCount - 1]}</blockquote>\n\n<a href="https://t.me/${BotName}/?start=markDone">Отметить текущий</a>`, {
+        await bot.editMessageText(`Заметка: <b>${dataAboutUser.supportiveCount}. ⚡\n\n• ${dataAboutUser.noteData.title[dataAboutUser.supportiveCount - 1]} •</b>\n<blockquote>${dataAboutUser.noteData.text[dataAboutUser.supportiveCount - 1]}</blockquote>\n\n<a href="https://t.me/${BotName}/?start=noteMarkDone">Отметить текущий</a>`, {
           parse_mode: `html`,
           chat_id: chatId,
           message_id: dataAboutUser.messageId,
@@ -445,7 +445,7 @@ async function achiv(chatId, stage = 1) {
   try {
     switch (stage) {
       case 1:
-        await bot.editMessageText(`<b>Твои достижения, ${dataAboutUser.login} 🎖️</b>${showText}\n\n<a href="https://t.me/${BotName}/?start=markDone">Отметить текущий</a>`, {
+        await bot.editMessageText(`<b>Твои достижения, ${dataAboutUser.login} 🎖️</b>${showText}\n\n<a href="https://t.me/${BotName}/?start=achivMarkDone">Отметить текущий</a>`, {
           parse_mode: `html`,
           chat_id: chatId,
           message_id: dataAboutUser.messageId,
@@ -453,9 +453,9 @@ async function achiv(chatId, stage = 1) {
           reply_markup: {
             inline_keyboard: [
               [
-                { text: `🔼`, callback_data: `pageBack` },
+                { text: `🔼`, callback_data: `achivPageBack` },
                 { text: `• №  ${dataAboutUser.supportiveCount}•`, callback_data: `achivCur` },
-                { text: `🔽`, callback_data: `pageNext` },
+                { text: `🔽`, callback_data: `achivPageNext` },
               ],
               [
                 { text: `⬅️ В меню`, callback_data: `menu` },
@@ -467,7 +467,7 @@ async function achiv(chatId, stage = 1) {
         dataAboutUser.action = `achiv`;
         break;
       case 2:
-        await bot.editMessageText(`Достижение: <b>${dataAboutUser.supportiveCount}. 🎖️\n\n• ${dataAboutUser.achivData.title[dataAboutUser.supportiveCount - 1]} •</b>\n<blockquote>${dataAboutUser.achivData.text[dataAboutUser.supportiveCount - 1]}</blockquote>\n\n<a href="https://t.me/${BotName}/?start=markDone">Отметить текущий</a>`, {
+        await bot.editMessageText(`Достижение: <b>${dataAboutUser.supportiveCount}. 🎖️\n\n• ${dataAboutUser.achivData.title[dataAboutUser.supportiveCount - 1]} •</b>\n<blockquote>${dataAboutUser.achivData.text[dataAboutUser.supportiveCount - 1]}</blockquote>\n\n<a href="https://t.me/${BotName}/?start=achivMarkDone">Отметить текущий</a>`, {
           parse_mode: `html`,
           chat_id: chatId,
           message_id: dataAboutUser.messageId,
@@ -726,136 +726,7 @@ async function sleep(chatId, stage = 1, time = null) {
   }
 }
 
-async function streak(chatId, stage = 1) {
-  const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
-  let showText = ``;
-
-  for (let i = 1; i <= dataAboutUser.streakData.title.length; i++) {
-    showText += `${dataAboutUser.supportiveCount == i ? `\n\n${dataAboutUser.streakData.marker[i - 1] == 1 ? `• <s>${i}. ${dataAboutUser.streakData.title[i - 1]}</s> •` : `• ${i}. ${dataAboutUser.streakData.title[i - 1]} •`}\n<blockquote>${dataAboutUser.streakData.text[i - 1]}</blockquote>` : `\n\n${dataAboutUser.streakData.marker[i - 1] == 1 ? `<s>${i}. ${dataAboutUser.streakData.title[i - 1]}</s>` : `${i}. ${dataAboutUser.streakData.title[i - 1]}`}`}`;
-  }
-
-  try {
-    switch (stage) {
-      case 1:
-        await bot.editMessageText(`<b>Твои цели, ${dataAboutUser.login} 🏔</b>${showText}\n\n<a href="https://t.me/${BotName}/?start=markDone">Отметить текущий</a>`, {
-          parse_mode: `html`,
-          chat_id: chatId,
-          message_id: dataAboutUser.messageId,
-          disable_web_page_preview: true,
-          reply_markup: {
-            inline_keyboard: [
-              [
-                { text: `🔼`, callback_data: `pageBack` },
-                { text: `• №  ${dataAboutUser.supportiveCount}•`, callback_data: `streakCur` },
-                { text: `🔽`, callback_data: `pageNext` },
-              ],
-              [
-                { text: `⬅️ В меню`, callback_data: `menu` },
-                { text: `Добавить`, callback_data: `streakAdd` },
-              ],
-            ],
-          },
-        });
-        dataAboutUser.action = `streak`;
-        break;
-      case 2:
-        await bot.editMessageText(`Цель: <b>${dataAboutUser.supportiveCount}. 🏔\n\n• ${dataAboutUser.streakData.title[dataAboutUser.supportiveCount - 1]} •</b>\n<blockquote>${dataAboutUser.streakData.text[dataAboutUser.supportiveCount - 1]}</blockquote>\n\n<a href="https://t.me/${BotName}/?start=markDone">Отметить текущий</a>`, {
-          parse_mode: `html`,
-          chat_id: chatId,
-          message_id: dataAboutUser.messageId,
-          disable_web_page_preview: true,
-          reply_markup: {
-            inline_keyboard: [
-              [
-                { text: `Изменить`, callback_data: `streakEdit` },
-                { text: `Удалить`, callback_data: `streakDelete` },
-              ],
-              [{ text: `⬅️ Назад`, callback_data: `streakBack` }],
-            ],
-          },
-        });
-        dataAboutUser.action = `streakAbout`;
-        break;
-      case 3:
-        await bot.editMessageText(`<b>Введите <u>название цели</u> 👀\n\nПример:</b> Побывать в Японии 🌸`, {
-          parse_mode: `html`,
-          chat_id: chatId,
-          message_id: dataAboutUser.messageId,
-          disable_web_page_preview: true,
-          reply_markup: {
-            inline_keyboard: [[{ text: `⬅️ Назад`, callback_data: `streakBack` }]],
-          },
-        });
-        dataAboutUser.action = `streakAddTitle`;
-        break;
-      case 4:
-        await bot.editMessageText(`<b>Введите <u>описание цели</u> 👀\n\nПример:</b> Изучить Кунг-Фу ⛩️`, {
-          parse_mode: `html`,
-          chat_id: chatId,
-          message_id: dataAboutUser.messageId,
-          disable_web_page_preview: true,
-          reply_markup: {
-            inline_keyboard: [[{ text: `⬅️ Назад`, callback_data: `streakBackProtect` }]],
-          },
-        });
-        dataAboutUser.action = `streakAddText`;
-        break;
-      case 5:
-        await bot.editMessageText(`<b>Введите <u>новое название цели</u> 👀\n\nПример:</b> Посетить концерт Cactus Jack 🌵`, {
-          parse_mode: `html`,
-          chat_id: chatId,
-          message_id: dataAboutUser.messageId,
-          disable_web_page_preview: true,
-          reply_markup: {
-            inline_keyboard: [
-              [
-                { text: `⬅️ Назад`, callback_data: `streakBackCur` },
-                { text: `Не менять ✅`, callback_data: `streakNotEditTitle` },
-              ],
-            ],
-          },
-        });
-        dataAboutUser.action = `streakEditTitle`;
-        break;
-      case 6:
-        await bot.editMessageText(`<b>Введите <u>новое описание цели</u> 👀\n\nПример:</b> Сделать фото с Тревисом 🪐`, {
-          parse_mode: `html`,
-          chat_id: chatId,
-          message_id: dataAboutUser.messageId,
-          disable_web_page_preview: true,
-          reply_markup: {
-            inline_keyboard: [
-              [
-                { text: `⬅️ Назад`, callback_data: `streakBackCur` },
-                { text: `Не менять ✅`, callback_data: `streakNotEditText` },
-              ],
-            ],
-          },
-        });
-        dataAboutUser.action = `streakEditText`;
-        break;
-      case 7:
-        await bot.editMessageText(`<b>Твои цели, ${dataAboutUser.login} 🏔</b>\n\n<blockquote>We dont want to tell our dreams. We want to show them.</blockquote> ~ Cristiano Ronaldo 🇵🇹`, {
-          parse_mode: `html`,
-          chat_id: chatId,
-          message_id: dataAboutUser.messageId,
-          disable_web_page_preview: true,
-          reply_markup: {
-            inline_keyboard: [
-              [
-                { text: `⬅️ В меню`, callback_data: `menu` },
-                { text: `Добавить`, callback_data: `streakAdd` },
-              ],
-            ],
-          },
-        });
-        dataAboutUser.action = `streak`;
-        break;
-    }
-  } catch (error) {
-    console.log(error);
-  }
-}
+async function streak(chatId, stage = 1) {}
 
 async function StartAll() {
   bot.on(`message`, async (message) => {
@@ -901,15 +772,17 @@ async function StartAll() {
         case `/start hideNav`:
           menu(chatId);
           break;
-        case `/start markDone`:
-          `${dataAboutUser.goalData.marker[dataAboutUser.supportiveCount - 1] == 1 ? (dataAboutUser.goalData.marker[dataAboutUser.supportiveCount - 1] = 0) : (dataAboutUser.goalData.marker[dataAboutUser.supportiveCount - 1] = 1)}`;
+        case `/start goalMarkDone`:
+          dataAboutUser.goalData.marker[dataAboutUser.supportiveCount - 1] = 1 - dataAboutUser.goalData.marker[dataAboutUser.supportiveCount - 1];
           goal(chatId);
           break;
-        case ``:
+        case `/start noteMarkDone`:
+          dataAboutUser.noteData.marker[dataAboutUser.supportiveCount - 1] = 1 - dataAboutUser.noteData.marker[dataAboutUser.supportiveCount - 1];
+          note(chatId);
           break;
-        case ``:
-          break;
-        case ``:
+        case `/start achivMarkDone`:
+          dataAboutUser.achivData.marker[dataAboutUser.supportiveCount - 1] = 1 - dataAboutUser.achivData.marker[dataAboutUser.supportiveCount - 1];
+          achiv(chatId);
           break;
       }
 
@@ -994,18 +867,22 @@ async function StartAll() {
         // Head Buttons
 
         case `goal`:
+          dataAboutUser.supportiveCount = 1;
           `${dataAboutUser.goalData.title.length >= 1 ? dataAboutUser.supportiveCount == 1 : dataAboutUser.supportiveCount == 0}`;
           `${dataAboutUser.goalData.title.length >= 1 ? goal(chatId) : goal(chatId, 7)}`;
           break;
         case `note`:
+          dataAboutUser.supportiveCount = 1;
           `${dataAboutUser.noteData.title.length >= 1 ? dataAboutUser.supportiveCount == 1 : dataAboutUser.supportiveCount == 0}`;
           `${dataAboutUser.noteData.title.length >= 1 ? note(chatId) : note(chatId, 7)}`;
           break;
         case `achiv`:
+          dataAboutUser.supportiveCount = 1;
           `${dataAboutUser.achivData.title.length >= 1 ? dataAboutUser.supportiveCount == 1 : dataAboutUser.supportiveCount == 0}`;
           `${dataAboutUser.achivData.title.length >= 1 ? achiv(chatId) : achiv(chatId, 7)}`;
           break;
         case `streak`:
+          dataAboutUser.supportiveCount = 1;
           `${dataAboutUser.streakData.title.length >= 1 ? dataAboutUser.supportiveCount == 1 : dataAboutUser.supportiveCount == 0}`;
           `${dataAboutUser.streakData.title.length >= 1 ? streak(chatId) : streak(chatId, 7)}`;
           break;
@@ -1035,7 +912,7 @@ async function StartAll() {
         case `goalEdit`:
           goal(chatId, 5);
           break;
-        case `pageNext`:
+        case `goalPageNext`:
           if (dataAboutUser.supportiveCount == dataAboutUser.goalData.title.length) {
             dataAboutUser.supportiveCount = 1;
           } else if (dataAboutUser.supportiveCount < dataAboutUser.goalData.title.length) {
@@ -1043,7 +920,7 @@ async function StartAll() {
           }
           `${dataAboutUser.goalData.title.length >= 1 ? goal(chatId) : goal(chatId, 7)}`;
           break;
-        case `pageBack`:
+        case `goalPageBack`:
           if (dataAboutUser.supportiveCount > 1) {
             dataAboutUser.supportiveCount -= 1;
           } else if (dataAboutUser.supportiveCount == 1 && dataAboutUser.goalData.title.length != 0) {
@@ -1086,7 +963,7 @@ async function StartAll() {
         case `noteEdit`:
           note(chatId, 5);
           break;
-        case `pageNext`:
+        case `notePageNext`:
           if (dataAboutUser.supportiveCount == dataAboutUser.noteData.title.length) {
             dataAboutUser.supportiveCount = 1;
           } else if (dataAboutUser.supportiveCount < dataAboutUser.noteData.title.length) {
@@ -1094,7 +971,7 @@ async function StartAll() {
           }
           `${dataAboutUser.noteData.title.length >= 1 ? note(chatId) : note(chatId, 7)}`;
           break;
-        case `pageBack`:
+        case `notePageBack`:
           if (dataAboutUser.supportiveCount > 1) {
             dataAboutUser.supportiveCount -= 1;
           } else if (dataAboutUser.supportiveCount == 1 && dataAboutUser.noteData.title.length != 0) {
@@ -1137,7 +1014,7 @@ async function StartAll() {
         case `achivEdit`:
           achiv(chatId, 5);
           break;
-        case `pageNext`:
+        case `achivPageNext`:
           if (dataAboutUser.supportiveCount == dataAboutUser.achivData.title.length) {
             dataAboutUser.supportiveCount = 1;
           } else if (dataAboutUser.supportiveCount < dataAboutUser.achivData.title.length) {
@@ -1145,7 +1022,7 @@ async function StartAll() {
           }
           `${dataAboutUser.achivData.title.length >= 1 ? achiv(chatId) : achiv(chatId, 7)}`;
           break;
-        case `pageBack`:
+        case `achivPageBack`:
           if (dataAboutUser.supportiveCount > 1) {
             dataAboutUser.supportiveCount -= 1;
           } else if (dataAboutUser.supportiveCount == 1 && dataAboutUser.achivData.title.length != 0) {
