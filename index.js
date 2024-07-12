@@ -205,7 +205,7 @@ async function goal(chatId, stage = 1) {
         dataAboutUser.action = `goal`;
         break;
       case 2:
-        await bot.editMessageText(`Цель: <b>${dataAboutUser.supportiveCount}. 🏔\n\n• ${dataAboutUser.goalData.title[dataAboutUser.supportiveCount - 1]} •</b>\n<blockquote>${dataAboutUser.goalData.text[dataAboutUser.supportiveCount - 1]}</blockquote>\n\n<a href="https://t.me/${BotName}/?start=goalMarkDone">Отметить текущий</a>`, {
+        await bot.editMessageText(`Цель: <b>${dataAboutUser.supportiveCount}. 🏔\n\n${dataAboutUser.goalData.marker[dataAboutUser.supportiveCount - 1] == 1 ? `• <s>${dataAboutUser.goalData.title[dataAboutUser.supportiveCount - 1]}</s> •` : `• ${dataAboutUser.goalData.title[dataAboutUser.supportiveCount - 1]} •`}</b>\n<blockquote>${dataAboutUser.goalData.text[dataAboutUser.supportiveCount - 1]}</blockquote>\n\n<a href="https://t.me/${BotName}/?start=goalMarkDone">Отметить текущий</a>`, {
           parse_mode: `html`,
           chat_id: chatId,
           message_id: dataAboutUser.messageId,
@@ -336,7 +336,7 @@ async function note(chatId, stage = 1) {
         dataAboutUser.action = `note`;
         break;
       case 2:
-        await bot.editMessageText(`Заметка: <b>${dataAboutUser.supportiveCount}. ⚡\n\n• ${dataAboutUser.noteData.title[dataAboutUser.supportiveCount - 1]} •</b>\n<blockquote>${dataAboutUser.noteData.text[dataAboutUser.supportiveCount - 1]}</blockquote>\n\n<a href="https://t.me/${BotName}/?start=noteMarkDone">Отметить текущий</a>`, {
+        await bot.editMessageText(`Заметка: <b>${dataAboutUser.supportiveCount}. ⚡\n\n${dataAboutUser.noteData.marker[dataAboutUser.supportiveCount - 1] == 1 ? `• <s>${dataAboutUser.noteData.title[dataAboutUser.supportiveCount - 1]}</s> •` : `• ${dataAboutUser.noteData.title[dataAboutUser.supportiveCount - 1]} •`}</b>\n<blockquote>${dataAboutUser.noteData.text[dataAboutUser.supportiveCount - 1]}</blockquote>\n\n<a href="https://t.me/${BotName}/?start=noteMarkDone">Отметить текущий</a>`, {
           parse_mode: `html`,
           chat_id: chatId,
           message_id: dataAboutUser.messageId,
@@ -439,7 +439,7 @@ async function achiv(chatId, stage = 1) {
   let showText = ``;
 
   for (let i = 1; i <= dataAboutUser.achivData.title.length; i++) {
-    showText += `${dataAboutUser.supportiveCount == i ? `\n\n${dataAboutUser.achivData.marker[i - 1] == 1 ? `• <s>${i}. ${dataAboutUser.achivData.title[i - 1]}</s> •` : `• ${i}. ${dataAboutUser.achivData.title[i - 1]} •`}\n<blockquote>${dataAboutUser.achivData.text[i - 1]}</blockquote>` : `\n\n${dataAboutUser.achivData.marker[i - 1] == 1 ? `<s>${i}. ${dataAboutUser.achivData.title[i - 1]}</s>` : `${i}. ${dataAboutUser.achivData.title[i - 1]}`}`}`;
+    showText += `${dataAboutUser.supportiveCount == i ? `\n\n${dataAboutUser.achivData.marker[i - 1] == 1 ? `• <u>${i}. ${dataAboutUser.achivData.title[i - 1]}</u> •` : `• ${i}. ${dataAboutUser.achivData.title[i - 1]} •`}\n<blockquote>${dataAboutUser.achivData.text[i - 1]}</blockquote>` : `\n\n${dataAboutUser.achivData.marker[i - 1] == 1 ? `<s>${i}. ${dataAboutUser.achivData.title[i - 1]}</s>` : `${i}. ${dataAboutUser.achivData.title[i - 1]}`}`}`;
   }
 
   try {
@@ -467,7 +467,7 @@ async function achiv(chatId, stage = 1) {
         dataAboutUser.action = `achiv`;
         break;
       case 2:
-        await bot.editMessageText(`Достижение: <b>${dataAboutUser.supportiveCount}. 🎖️\n\n• ${dataAboutUser.achivData.title[dataAboutUser.supportiveCount - 1]} •</b>\n<blockquote>${dataAboutUser.achivData.text[dataAboutUser.supportiveCount - 1]}</blockquote>\n\n<a href="https://t.me/${BotName}/?start=achivMarkDone">Отметить текущий</a>`, {
+        await bot.editMessageText(`Достижение: <b>${dataAboutUser.supportiveCount}. 🎖️\n\n${dataAboutUser.achivData.marker[dataAboutUser.supportiveCount - 1] == 1 ? `• <u>${dataAboutUser.achivData.title[dataAboutUser.supportiveCount - 1]}</u> •` : `• ${dataAboutUser.achivData.title[dataAboutUser.supportiveCount - 1]} •`}</b>\n<blockquote>${dataAboutUser.achivData.text[dataAboutUser.supportiveCount - 1]}</blockquote>\n\n<a href="https://t.me/${BotName}/?start=achivMarkDone">Отметить текущий</a>`, {
           parse_mode: `html`,
           chat_id: chatId,
           message_id: dataAboutUser.messageId,
