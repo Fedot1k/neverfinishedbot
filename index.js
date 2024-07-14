@@ -726,7 +726,136 @@ async function sleep(chatId, stage = 1, time = null) {
   }
 }
 
-async function streak(chatId, stage = 1) {}
+async function streak(chatId, stage = 1) {
+  const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
+  let showText = ``;
+
+  for (let i = 1; i <= dataAboutUser.streakData.title.length; i++) {
+    showText += `${dataAboutUser.supportiveCount == i ? `\n\n${dataAboutUser.streakData.marker[i - 1] == 1 ? `• <s>${i}. ${dataAboutUser.streakData.title[i - 1]}</s> •` : `• ${i}. ${dataAboutUser.streakData.title[i - 1]} •`}\n<blockquote>${dataAboutUser.streakData.text[i - 1]}</blockquote>` : `\n\n${dataAboutUser.streakData.marker[i - 1] == 1 ? `<s>${i}. ${dataAboutUser.streakData.title[i - 1]}</s>` : `${i}. ${dataAboutUser.streakData.title[i - 1]}`}`}`;
+  }
+
+  try {
+    switch (stage) {
+      case 1:
+        await bot.editMessageText(`<b>Твои серии, ${dataAboutUser.login} 🔥</b>${showText}\n\n<a href="https://t.me/${BotName}/?start=streakMarkDone">Отметить текущий</a>`, {
+          parse_mode: `html`,
+          chat_id: chatId,
+          message_id: dataAboutUser.messageId,
+          disable_web_page_preview: true,
+          reply_markup: {
+            inline_keyboard: [
+              [
+                { text: `🔼`, callback_data: `streakPageBack` },
+                { text: `• №  ${dataAboutUser.supportiveCount}•`, callback_data: `streakCur` },
+                { text: `🔽`, callback_data: `streakPageNext` },
+              ],
+              [
+                { text: `⬅️ В меню`, callback_data: `menu` },
+                { text: `Добавить`, callback_data: `streakAdd` },
+              ],
+            ],
+          },
+        });
+        dataAboutUser.action = `streak`;
+        break;
+      case 2:
+        await bot.editMessageText(`Цель: <b>${dataAboutUser.supportiveCount}. 🔥\n\n${dataAboutUser.streakData.marker[dataAboutUser.supportiveCount - 1] == 1 ? `• <s>${dataAboutUser.streakData.title[dataAboutUser.supportiveCount - 1]}</s> •` : `• ${dataAboutUser.streakData.title[dataAboutUser.supportiveCount - 1]} •`}</b>\n<blockquote>${dataAboutUser.streakData.text[dataAboutUser.supportiveCount - 1]}</blockquote>\n\n<a href="https://t.me/${BotName}/?start=streakMarkDone">Отметить текущий</a>`, {
+          parse_mode: `html`,
+          chat_id: chatId,
+          message_id: dataAboutUser.messageId,
+          disable_web_page_preview: true,
+          reply_markup: {
+            inline_keyboard: [
+              [
+                { text: `Изменить`, callback_data: `streakEdit` },
+                { text: `Удалить`, callback_data: `streakDelete` },
+              ],
+              [{ text: `⬅️ Назад`, callback_data: `streakBack` }],
+            ],
+          },
+        });
+        dataAboutUser.action = `streakAbout`;
+        break;
+      case 3:
+        await bot.editMessageText(`<b>Введите <u>название цели</u> 👀\n\nПример:</b> Побывать в Японии 🌸`, {
+          parse_mode: `html`,
+          chat_id: chatId,
+          message_id: dataAboutUser.messageId,
+          disable_web_page_preview: true,
+          reply_markup: {
+            inline_keyboard: [[{ text: `⬅️ Назад`, callback_data: `streakBack` }]],
+          },
+        });
+        dataAboutUser.action = `streakAddTitle`;
+        break;
+      case 4:
+        await bot.editMessageText(`<b>Введите <u>описание цели</u> 👀\n\nПример:</b> Изучить Кунг-Фу ⛩️`, {
+          parse_mode: `html`,
+          chat_id: chatId,
+          message_id: dataAboutUser.messageId,
+          disable_web_page_preview: true,
+          reply_markup: {
+            inline_keyboard: [[{ text: `⬅️ Назад`, callback_data: `streakBackProtect` }]],
+          },
+        });
+        dataAboutUser.action = `streakAddText`;
+        break;
+      case 5:
+        await bot.editMessageText(`<b>Введите <u>новое название цели</u> 👀\n\nПример:</b> Посетить концерт Cactus Jack 🌵`, {
+          parse_mode: `html`,
+          chat_id: chatId,
+          message_id: dataAboutUser.messageId,
+          disable_web_page_preview: true,
+          reply_markup: {
+            inline_keyboard: [
+              [
+                { text: `⬅️ Назад`, callback_data: `streakBackCur` },
+                { text: `Не менять ✅`, callback_data: `streakNotEditTitle` },
+              ],
+            ],
+          },
+        });
+        dataAboutUser.action = `streakEditTitle`;
+        break;
+      case 6:
+        await bot.editMessageText(`<b>Введите <u>новое описание цели</u> 👀\n\nПример:</b> Сделать фото с Тревисом 🪐`, {
+          parse_mode: `html`,
+          chat_id: chatId,
+          message_id: dataAboutUser.messageId,
+          disable_web_page_preview: true,
+          reply_markup: {
+            inline_keyboard: [
+              [
+                { text: `⬅️ Назад`, callback_data: `streakBackCur` },
+                { text: `Не менять ✅`, callback_data: `streakNotEditText` },
+              ],
+            ],
+          },
+        });
+        dataAboutUser.action = `streakEditText`;
+        break;
+      case 7:
+        await bot.editMessageText(`<b>Твои серии, ${dataAboutUser.login} 🔥</b>\n\n<blockquote>If you want to be successful, you have to be consistent.</blockquote> ~ Cristiano Ronaldo 🇵🇹`, {
+          parse_mode: `html`,
+          chat_id: chatId,
+          message_id: dataAboutUser.messageId,
+          disable_web_page_preview: true,
+          reply_markup: {
+            inline_keyboard: [
+              [
+                { text: `⬅️ В меню`, callback_data: `menu` },
+                { text: `Добавить`, callback_data: `streakAdd` },
+              ],
+            ],
+          },
+        });
+        dataAboutUser.action = `streak`;
+        break;
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
 
 async function StartAll() {
   bot.on(`message`, async (message) => {
