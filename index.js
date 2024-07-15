@@ -731,7 +731,7 @@ async function streak(chatId, stage = 1) {
   let showText = ``;
 
   for (let i = 1; i <= dataAboutUser.streakData.title.length; i++) {
-    showText += `${dataAboutUser.supportiveCount == i ? `\n\n${dataAboutUser.streakData.marker[i - 1] == 1 ? `• <s>${i}. ${dataAboutUser.streakData.title[i - 1]}</s> •` : `• ${i}. ${dataAboutUser.streakData.title[i - 1]} •`}\n<blockquote>${dataAboutUser.streakData.text[i - 1]}</blockquote>` : `\n\n${dataAboutUser.streakData.marker[i - 1] == 1 ? `<s>${i}. ${dataAboutUser.streakData.title[i - 1]}</s>` : `${i}. ${dataAboutUser.streakData.title[i - 1]}`}`}`;
+    showText += `${dataAboutUser.supportiveCount == i ? `\n\n• ${i}. ${dataAboutUser.streakData.title[i - 1]} •\n<blockquote>Сегодня: ${dataAboutUser.streakData.marker[i - 1] == 1 ? `✅` : `❌`}\nДлительность: ${dataAboutUser.streakData.dur[i - 1]}\nРекорд: ${dataAboutUser.streakData.record[i - 1]}</blockquote>` : `\n\n${i}. ${dataAboutUser.streakData.title[i - 1]}\n<blockquote>Сегодня: ${dataAboutUser.streakData.marker[i - 1] == 1 ? `✅` : `❌`}</blockquote>`}`;
   }
 
   try {
@@ -759,7 +759,7 @@ async function streak(chatId, stage = 1) {
         dataAboutUser.action = `streak`;
         break;
       case 2:
-        await bot.editMessageText(`Цель: <b>${dataAboutUser.supportiveCount}. 🔥\n\n${dataAboutUser.streakData.marker[dataAboutUser.supportiveCount - 1] == 1 ? `• <s>${dataAboutUser.streakData.title[dataAboutUser.supportiveCount - 1]}</s> •` : `• ${dataAboutUser.streakData.title[dataAboutUser.supportiveCount - 1]} •`}</b>\n<blockquote>${dataAboutUser.streakData.text[dataAboutUser.supportiveCount - 1]}</blockquote>\n\n<a href="https://t.me/${BotName}/?start=streakMarkDone">Отметить текущий</a>`, {
+        await bot.editMessageText(`Серия: <b>${dataAboutUser.supportiveCount}. 🔥\n\n• ${dataAboutUser.streakData.title[dataAboutUser.supportiveCount - 1]} •</b>\n<blockquote>Сегодня: ${dataAboutUser.streakData.marker[dataAboutUser.supportiveCount - 1] == 1 ? `✅` : `❌`}\nДлительность: ${dataAboutUser.streakData.dur[dataAboutUser.supportiveCount - 1]}\nРекорд: ${dataAboutUser.streakData.record[dataAboutUser.supportiveCount - 1]}</blockquote>\n\n<a href="https://t.me/${BotName}/?start=streakMarkDone">Отметить текущий</a>`, {
           parse_mode: `html`,
           chat_id: chatId,
           message_id: dataAboutUser.messageId,
@@ -777,7 +777,7 @@ async function streak(chatId, stage = 1) {
         dataAboutUser.action = `streakAbout`;
         break;
       case 3:
-        await bot.editMessageText(`<b>Введите <u>название цели</u> 👀\n\nПример:</b> Побывать в Японии 🌸`, {
+        await bot.editMessageText(`<b>Введите <u>название серии</u> 👀\n\nПример:</b> Пока нет ⚙️`, {
           parse_mode: `html`,
           chat_id: chatId,
           message_id: dataAboutUser.messageId,
@@ -789,52 +789,18 @@ async function streak(chatId, stage = 1) {
         dataAboutUser.action = `streakAddTitle`;
         break;
       case 4:
-        await bot.editMessageText(`<b>Введите <u>описание цели</u> 👀\n\nПример:</b> Изучить Кунг-Фу ⛩️`, {
+        await bot.editMessageText(`<b>Введите <u>новое название серии</u> 👀\n\nПример:</b> Пока нет ⚙️`, {
           parse_mode: `html`,
           chat_id: chatId,
           message_id: dataAboutUser.messageId,
           disable_web_page_preview: true,
           reply_markup: {
-            inline_keyboard: [[{ text: `⬅️ Назад`, callback_data: `streakBackProtect` }]],
-          },
-        });
-        dataAboutUser.action = `streakAddText`;
-        break;
-      case 5:
-        await bot.editMessageText(`<b>Введите <u>новое название цели</u> 👀\n\nПример:</b> Посетить концерт Cactus Jack 🌵`, {
-          parse_mode: `html`,
-          chat_id: chatId,
-          message_id: dataAboutUser.messageId,
-          disable_web_page_preview: true,
-          reply_markup: {
-            inline_keyboard: [
-              [
-                { text: `⬅️ Назад`, callback_data: `streakBackCur` },
-                { text: `Не менять ✅`, callback_data: `streakNotEditTitle` },
-              ],
-            ],
+            inline_keyboard: [[{ text: `⬅️ Назад`, callback_data: `streakBackCur` }]],
           },
         });
         dataAboutUser.action = `streakEditTitle`;
         break;
-      case 6:
-        await bot.editMessageText(`<b>Введите <u>новое описание цели</u> 👀\n\nПример:</b> Сделать фото с Тревисом 🪐`, {
-          parse_mode: `html`,
-          chat_id: chatId,
-          message_id: dataAboutUser.messageId,
-          disable_web_page_preview: true,
-          reply_markup: {
-            inline_keyboard: [
-              [
-                { text: `⬅️ Назад`, callback_data: `streakBackCur` },
-                { text: `Не менять ✅`, callback_data: `streakNotEditText` },
-              ],
-            ],
-          },
-        });
-        dataAboutUser.action = `streakEditText`;
-        break;
-      case 7:
+      case 5:
         await bot.editMessageText(`<b>Твои серии, ${dataAboutUser.login} 🔥</b>\n\n<blockquote>If you want to be successful, you have to be consistent.</blockquote> ~ Cristiano Ronaldo 🇵🇹`, {
           parse_mode: `html`,
           chat_id: chatId,
@@ -913,6 +879,12 @@ async function StartAll() {
           dataAboutUser.achivData.marker[dataAboutUser.supportiveCount - 1] = 1 - dataAboutUser.achivData.marker[dataAboutUser.supportiveCount - 1];
           achiv(chatId);
           break;
+        case `/start streakMarkDone`:
+          dataAboutUser.streakData.dur[dataAboutUser.supportiveCount - 1] += 1;
+          dataAboutUser.streakData.marker[dataAboutUser.supportiveCount - 1] = 1;
+          `${dataAboutUser.streakData.dur[dataAboutUser.supportiveCount - 1] > dataAboutUser.streakData.record[dataAboutUser.supportiveCount - 1] ? (dataAboutUser.streakData.record[dataAboutUser.supportiveCount - 1] += 1) : 0}`;
+          `${dataAboutUser.action == `streak` ? streak(chatId) : streak(chatId, 5)}`;
+          break;
       }
 
       if (dataAboutUser.action == `setLogin` && Array.from(text)[0] != "/") {
@@ -962,6 +934,15 @@ async function StartAll() {
       } else if (dataAboutUser.action == `achivEditText`) {
         dataAboutUser.achivData.text[dataAboutUser.supportiveCount - 1] = text;
         achiv(chatId, 2);
+      } else if (dataAboutUser.action == `streakAddTitle`) {
+        dataAboutUser.streakData.title.push(text);
+        dataAboutUser.streakData.marker.push(0);
+        dataAboutUser.streakData.record.push(0);
+        dataAboutUser.streakData.dur.push(0);
+        streak(chatId, 1);
+      } else if (dataAboutUser.action == `streakEditTitle`) {
+        dataAboutUser.streakData.title[dataAboutUser.supportiveCount - 1] = text;
+        streak(chatId, 2);
       }
 
       bot.deleteMessage(chatId, usermessage);
@@ -1013,7 +994,7 @@ async function StartAll() {
         case `streak`:
           dataAboutUser.supportiveCount = 1;
           `${dataAboutUser.streakData.title.length >= 1 ? dataAboutUser.supportiveCount == 1 : dataAboutUser.supportiveCount == 0}`;
-          `${dataAboutUser.streakData.title.length >= 1 ? streak(chatId) : streak(chatId, 7)}`;
+          `${dataAboutUser.streakData.title.length >= 1 ? streak(chatId) : streak(chatId, 5)}`;
           break;
         case `sleep`:
           sleep(chatId);
@@ -1174,10 +1155,6 @@ async function StartAll() {
 
         // Streak Button
 
-        case `streakBackProtect`:
-          dataAboutUser.streakData.text.push(`без описания`);
-          `${dataAboutUser.streakData.title.length >= 1 ? streak(chatId) : streak(chatId, 7)}`;
-          break;
         case `streakCur`:
           `${dataAboutUser.streakData.title.length != 0 ? streak(chatId, 2) : 0}`;
           break;
@@ -1186,41 +1163,36 @@ async function StartAll() {
           break;
         case `streakDelete`:
           dataAboutUser.streakData.title.splice(dataAboutUser.supportiveCount - 1, 1);
-          dataAboutUser.streakData.text.splice(dataAboutUser.supportiveCount - 1, 1);
           dataAboutUser.streakData.marker.splice(dataAboutUser.supportiveCount - 1, 1);
+          dataAboutUser.streakData.record.splice(dataAboutUser.supportiveCount - 1, 1);
+          dataAboutUser.streakData.dur.splice(dataAboutUser.supportiveCount - 1, 1);
           `${dataAboutUser.supportiveCount == dataAboutUser.streakData.title.length + 1 && dataAboutUser.supportiveCount != 1 ? (dataAboutUser.supportiveCount -= 1) : 0}`;
-          `${dataAboutUser.streakData.title.length >= 1 ? streak(chatId) : streak(chatId, 7)}`;
+          `${dataAboutUser.streakData.title.length >= 1 ? streak(chatId) : streak(chatId, 5)}`;
           break;
         case `streakEdit`:
-          streak(chatId, 5);
+          streak(chatId, 4);
           break;
-        case `pageNext`:
+        case `streakPageNext`:
           if (dataAboutUser.supportiveCount == dataAboutUser.streakData.title.length) {
             dataAboutUser.supportiveCount = 1;
           } else if (dataAboutUser.supportiveCount < dataAboutUser.streakData.title.length) {
             dataAboutUser.supportiveCount += 1;
           }
-          `${dataAboutUser.streakData.title.length >= 1 ? streak(chatId) : streak(chatId, 7)}`;
+          `${dataAboutUser.streakData.title.length >= 1 ? streak(chatId) : streak(chatId, 5)}`;
           break;
-        case `pageBack`:
+        case `streakPageBack`:
           if (dataAboutUser.supportiveCount > 1) {
             dataAboutUser.supportiveCount -= 1;
           } else if (dataAboutUser.supportiveCount == 1 && dataAboutUser.streakData.title.length != 0) {
             dataAboutUser.supportiveCount = dataAboutUser.streakData.title.length;
           }
-          `${dataAboutUser.streakData.title.length >= 1 ? streak(chatId) : streak(chatId, 7)}`;
+          `${dataAboutUser.streakData.title.length >= 1 ? streak(chatId) : streak(chatId, 5)}`;
           break;
         case `streakBackCur`:
           streak(chatId, 2);
           break;
         case `streakBack`:
-          `${dataAboutUser.streakData.title.length >= 1 ? streak(chatId) : streak(chatId, 7)}`;
-          break;
-        case `streakNotEditTitle`:
-          streak(chatId, 6);
-          break;
-        case `streakNotEditText`:
-          streak(chatId, 2);
+          `${dataAboutUser.streakData.title.length >= 1 ? streak(chatId) : streak(chatId, 5)}`;
           break;
 
         // Sleep Button
