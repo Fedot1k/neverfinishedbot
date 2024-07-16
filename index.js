@@ -221,7 +221,7 @@ async function goal(chatId, stage = 1) {
             },
           });
         } else if (dataAboutUser.goalData.title.length == 0) {
-          await bot.editMessageText(`<b>Твои цели, ${dataAboutUser.login} 🏔</b>\n\n<blockquote>Dreams are not what you see in your sleep. They are the things that dont let you sleep.</blockquote> ~ Cristiano Ronaldo 🇵🇹`, {
+          await bot.editMessageText(`<b>Твои цели, ${dataAboutUser.login} 🏔</b>\n\n<blockquote>Мечты это не то, что вы видите во сне. Это то, что не дает вам уснуть.</blockquote> ~ Криштиану Роналду 🇵🇹`, {
             parse_mode: `html`,
             chat_id: chatId,
             message_id: dataAboutUser.messageId,
@@ -368,7 +368,7 @@ async function note(chatId, stage = 1) {
             },
           });
         } else if (dataAboutUser.noteData.title.length == 0) {
-          await bot.editMessageText(`<b>Твои заметки, ${dataAboutUser.login} ⚡</b>\n\n<blockquote>Dont let small obstacles get in the way of being victorious. Remember you are stronger than the challenges you face.</blockquote> ~ Cristiano Ronaldo 🇵🇹`, {
+          await bot.editMessageText(`<b>Твои заметки, ${dataAboutUser.login} ⚡</b>\n\n<blockquote>Не позволяйте препятствиям встать на пути к победе. Вы сильнее тех испытаний, с которыми сталкиваетесь.</blockquote> ~ Криштиану Роналду 🇵🇹`, {
             parse_mode: `html`,
             chat_id: chatId,
             message_id: dataAboutUser.messageId,
@@ -515,7 +515,7 @@ async function achiv(chatId, stage = 1) {
             },
           });
         } else if (dataAboutUser.achivData.title.length == 0) {
-          await bot.editMessageText(`<b>Твои достижения, ${dataAboutUser.login} 🎖️</b>\n\n<blockquote>I dont follow records. Records follow me.</blockquote> ~ Cristiano Ronaldo 🇵🇹`, {
+          await bot.editMessageText(`<b>Твои достижения, ${dataAboutUser.login} 🎖️</b>\n\n<blockquote>Я не бегу за рекордами. Рекорды бегут за мной.</blockquote> ~ Криштиану Роналду 🇵🇹`, {
             parse_mode: `html`,
             chat_id: chatId,
             message_id: dataAboutUser.messageId,
@@ -823,7 +823,7 @@ async function streak(chatId, stage = 1) {
             },
           });
         } else if (dataAboutUser.streakData.title.length == 0) {
-          await bot.editMessageText(`<b>Твои серии, ${dataAboutUser.login} 🔥</b>\n\n<blockquote>If you want to be successful, you have to be consistent.</blockquote> ~ Cristiano Ronaldo 🇵🇹`, {
+          await bot.editMessageText(`<b>Твои серии, ${dataAboutUser.login} 🔥</b>\n\n<blockquote>Если ты хочешь добиться успеха, ты должен быть постоянным.</blockquote> ~ Криштиану Роналду 🇵🇹`, {
             parse_mode: `html`,
             chat_id: chatId,
             message_id: dataAboutUser.messageId,
