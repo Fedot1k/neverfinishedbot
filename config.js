@@ -1,1 +1,0 @@
-export const TelegramToken = `7279660476:AAGHOLKPGLzGTvMXff4mAYBZ8XnLrQV2e8w`;
