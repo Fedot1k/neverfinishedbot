@@ -1,7 +1,8 @@
 import TelegramBot from "node-telegram-bot-api";
+import { TelegramToken } from "./config.js";
 
 const BotName = `neverfinishedbot`;
-const TOKEN = `7279660476:AAGHOLKPGLzGTvMXff4mAYBZ8XnLrQV2e8w`;
+const TOKEN = TelegramToken;
 const bot = new TelegramBot(TOKEN, { polling: true });
 
 let usersData = [];
@@ -183,25 +184,58 @@ async function goal(chatId, stage = 1) {
   try {
     switch (stage) {
       case 1:
-        await bot.editMessageText(`<b>Твои цели, ${dataAboutUser.login} 🏔</b>${showText}\n\n<a href="https://t.me/${BotName}/?start=goalMarkDone">Отметить текущий</a>`, {
-          parse_mode: `html`,
-          chat_id: chatId,
-          message_id: dataAboutUser.messageId,
-          disable_web_page_preview: true,
-          reply_markup: {
-            inline_keyboard: [
-              [
-                { text: `🔼`, callback_data: `goalPageBack` },
-                { text: `• №  ${dataAboutUser.supportiveCount}•`, callback_data: `goalCur` },
-                { text: `🔽`, callback_data: `goalPageNext` },
+        if (dataAboutUser.goalData.title.length > 1) {
+          await bot.editMessageText(`<b>Твои цели, ${dataAboutUser.login} 🏔</b>${showText}\n\n<a href="https://t.me/${BotName}/?start=goalMarkDone">Отметить текущий</a>`, {
+            parse_mode: `html`,
+            chat_id: chatId,
+            message_id: dataAboutUser.messageId,
+            disable_web_page_preview: true,
+            reply_markup: {
+              inline_keyboard: [
+                [
+                  { text: `🔼`, callback_data: `goalPageBack` },
+                  { text: `• №  ${dataAboutUser.supportiveCount}•`, callback_data: `goalCur` },
+                  { text: `🔽`, callback_data: `goalPageNext` },
+                ],
+                [
+                  { text: `⬅️ В меню`, callback_data: `menu` },
+                  { text: `Добавить`, callback_data: `goalAdd` },
+                ],
               ],
-              [
-                { text: `⬅️ В меню`, callback_data: `menu` },
-                { text: `Добавить`, callback_data: `goalAdd` },
+            },
+          });
+        } else if (dataAboutUser.goalData.title.length == 1) {
+          await bot.editMessageText(`<b>Твои цели, ${dataAboutUser.login} 🏔</b>${showText}\n\n<a href="https://t.me/${BotName}/?start=goalMarkDone">Отметить текущий</a>`, {
+            parse_mode: `html`,
+            chat_id: chatId,
+            message_id: dataAboutUser.messageId,
+            disable_web_page_preview: true,
+            reply_markup: {
+              inline_keyboard: [
+                [{ text: `• №  ${dataAboutUser.supportiveCount}•`, callback_data: `goalCur` }],
+                [
+                  { text: `⬅️ В меню`, callback_data: `menu` },
+                  { text: `Добавить`, callback_data: `goalAdd` },
+                ],
               ],
-            ],
-          },
-        });
+            },
+          });
+        } else if (dataAboutUser.goalData.title.length == 0) {
+          await bot.editMessageText(`<b>Твои цели, ${dataAboutUser.login} 🏔</b>\n\n<blockquote>Dreams are not what you see in your sleep. They are the things that dont let you sleep.</blockquote> ~ Cristiano Ronaldo 🇵🇹`, {
+            parse_mode: `html`,
+            chat_id: chatId,
+            message_id: dataAboutUser.messageId,
+            disable_web_page_preview: true,
+            reply_markup: {
+              inline_keyboard: [
+                [
+                  { text: `⬅️ В меню`, callback_data: `menu` },
+                  { text: `Добавить`, callback_data: `goalAdd` },
+                ],
+              ],
+            },
+          });
+        }
         dataAboutUser.action = `goal`;
         break;
       case 2:
@@ -223,7 +257,7 @@ async function goal(chatId, stage = 1) {
         dataAboutUser.action = `goalAbout`;
         break;
       case 3:
-        await bot.editMessageText(`<b>Введите <u>название цели</u> 👀\n\nПример:</b> Побывать в Японии 🌸`, {
+        await bot.editMessageText(`<b>Введите <u>название цели</u> 👀\n\nПример:</b> Посетить концерт Cactus Jack 🌵`, {
           parse_mode: `html`,
           chat_id: chatId,
           message_id: dataAboutUser.messageId,
@@ -235,7 +269,7 @@ async function goal(chatId, stage = 1) {
         dataAboutUser.action = `goalAddTitle`;
         break;
       case 4:
-        await bot.editMessageText(`<b>Введите <u>описание цели</u> 👀\n\nПример:</b> Изучить Кунг-Фу ⛩️`, {
+        await bot.editMessageText(`<b>Введите <u>описание цели</u> 👀\n\nПример:</b> Сделать фото с Тревисом 🪐`, {
           parse_mode: `html`,
           chat_id: chatId,
           message_id: dataAboutUser.messageId,
@@ -247,7 +281,7 @@ async function goal(chatId, stage = 1) {
         dataAboutUser.action = `goalAddText`;
         break;
       case 5:
-        await bot.editMessageText(`<b>Введите <u>новое название цели</u> 👀\n\nПример:</b> Посетить концерт Cactus Jack 🌵`, {
+        await bot.editMessageText(`<b>Введите <u>новое название цели</u> 👀\n\nПример:</b> Побывать в Японии 🌸`, {
           parse_mode: `html`,
           chat_id: chatId,
           message_id: dataAboutUser.messageId,
@@ -264,7 +298,7 @@ async function goal(chatId, stage = 1) {
         dataAboutUser.action = `goalEditTitle`;
         break;
       case 6:
-        await bot.editMessageText(`<b>Введите <u>новое описание цели</u> 👀\n\nПример:</b> Сделать фото с Тревисом 🪐`, {
+        await bot.editMessageText(`<b>Введите <u>новое описание цели</u> 👀\n\nПример:</b> Изучить Кунг-Фу ⛩️`, {
           parse_mode: `html`,
           chat_id: chatId,
           message_id: dataAboutUser.messageId,
@@ -279,23 +313,6 @@ async function goal(chatId, stage = 1) {
           },
         });
         dataAboutUser.action = `goalEditText`;
-        break;
-      case 7:
-        await bot.editMessageText(`<b>Твои цели, ${dataAboutUser.login} 🏔</b>\n\n<blockquote>Dreams are not what you see in your sleep. They are the things that dont let you sleep.</blockquote> ~ Cristiano Ronaldo 🇵🇹`, {
-          parse_mode: `html`,
-          chat_id: chatId,
-          message_id: dataAboutUser.messageId,
-          disable_web_page_preview: true,
-          reply_markup: {
-            inline_keyboard: [
-              [
-                { text: `⬅️ В меню`, callback_data: `menu` },
-                { text: `Добавить`, callback_data: `goalAdd` },
-              ],
-            ],
-          },
-        });
-        dataAboutUser.action = `goal`;
         break;
     }
   } catch (error) {
@@ -314,25 +331,58 @@ async function note(chatId, stage = 1) {
   try {
     switch (stage) {
       case 1:
-        await bot.editMessageText(`<b>Твои заметки, ${dataAboutUser.login} ⚡</b>${showText}\n\n<a href="https://t.me/${BotName}/?start=noteMarkDone">Отметить текущий</a>`, {
-          parse_mode: `html`,
-          chat_id: chatId,
-          message_id: dataAboutUser.messageId,
-          disable_web_page_preview: true,
-          reply_markup: {
-            inline_keyboard: [
-              [
-                { text: `🔼`, callback_data: `notePageBack` },
-                { text: `• №  ${dataAboutUser.supportiveCount}•`, callback_data: `noteCur` },
-                { text: `🔽`, callback_data: `notePageNext` },
+        if (dataAboutUser.noteData.title.length > 1) {
+          await bot.editMessageText(`<b>Твои заметки, ${dataAboutUser.login} ⚡</b>${showText}\n\n<a href="https://t.me/${BotName}/?start=noteMarkDone">Отметить текущий</a>`, {
+            parse_mode: `html`,
+            chat_id: chatId,
+            message_id: dataAboutUser.messageId,
+            disable_web_page_preview: true,
+            reply_markup: {
+              inline_keyboard: [
+                [
+                  { text: `🔼`, callback_data: `notePageBack` },
+                  { text: `• №  ${dataAboutUser.supportiveCount}•`, callback_data: `noteCur` },
+                  { text: `🔽`, callback_data: `notePageNext` },
+                ],
+                [
+                  { text: `⬅️ В меню`, callback_data: `menu` },
+                  { text: `Добавить`, callback_data: `noteAdd` },
+                ],
               ],
-              [
-                { text: `⬅️ В меню`, callback_data: `menu` },
-                { text: `Добавить`, callback_data: `noteAdd` },
+            },
+          });
+        } else if (dataAboutUser.noteData.title.length == 1) {
+          await bot.editMessageText(`<b>Твои заметки, ${dataAboutUser.login} ⚡</b>${showText}\n\n<a href="https://t.me/${BotName}/?start=noteMarkDone">Отметить текущий</a>`, {
+            parse_mode: `html`,
+            chat_id: chatId,
+            message_id: dataAboutUser.messageId,
+            disable_web_page_preview: true,
+            reply_markup: {
+              inline_keyboard: [
+                [{ text: `• №  ${dataAboutUser.supportiveCount}•`, callback_data: `noteCur` }],
+                [
+                  { text: `⬅️ В меню`, callback_data: `menu` },
+                  { text: `Добавить`, callback_data: `noteAdd` },
+                ],
               ],
-            ],
-          },
-        });
+            },
+          });
+        } else if (dataAboutUser.noteData.title.length == 0) {
+          await bot.editMessageText(`<b>Твои заметки, ${dataAboutUser.login} ⚡</b>\n\n<blockquote>Dont let small obstacles get in the way of being victorious. Remember you are stronger than the challenges you face.</blockquote> ~ Cristiano Ronaldo 🇵🇹`, {
+            parse_mode: `html`,
+            chat_id: chatId,
+            message_id: dataAboutUser.messageId,
+            disable_web_page_preview: true,
+            reply_markup: {
+              inline_keyboard: [
+                [
+                  { text: `⬅️ В меню`, callback_data: `menu` },
+                  { text: `Добавить`, callback_data: `noteAdd` },
+                ],
+              ],
+            },
+          });
+        }
         dataAboutUser.action = `note`;
         break;
       case 2:
@@ -354,7 +404,7 @@ async function note(chatId, stage = 1) {
         dataAboutUser.action = `noteAbout`;
         break;
       case 3:
-        await bot.editMessageText(`<b>Введите <u>название заметки</u> 👀\n\nПример:</b> Пока нет ⚙️`, {
+        await bot.editMessageText(`<b>Введите <u>название заметки</u> 👀\n\nПример:</b> Рано проснуться 🦾`, {
           parse_mode: `html`,
           chat_id: chatId,
           message_id: dataAboutUser.messageId,
@@ -366,7 +416,7 @@ async function note(chatId, stage = 1) {
         dataAboutUser.action = `noteAddTitle`;
         break;
       case 4:
-        await bot.editMessageText(`<b>Введите <u>описание заметки</u> 👀\n\nПример:</b> Пока нет ⚙️`, {
+        await bot.editMessageText(`<b>Введите <u>описание заметки</u> 👀\n\nПример:</b> Заправить кровать 🥱`, {
           parse_mode: `html`,
           chat_id: chatId,
           message_id: dataAboutUser.messageId,
@@ -378,7 +428,7 @@ async function note(chatId, stage = 1) {
         dataAboutUser.action = `noteAddText`;
         break;
       case 5:
-        await bot.editMessageText(`<b>Введите <u>новое название заметки</u> 👀\n\nПример:</b> Пока нет ⚙️`, {
+        await bot.editMessageText(`<b>Введите <u>новое название заметки</u> 👀\n\nПример:</b> Сходить в зал 🦍`, {
           parse_mode: `html`,
           chat_id: chatId,
           message_id: dataAboutUser.messageId,
@@ -395,7 +445,7 @@ async function note(chatId, stage = 1) {
         dataAboutUser.action = `noteEditTitle`;
         break;
       case 6:
-        await bot.editMessageText(`<b>Введите <u>новое описание заметки</u> 👀\n\nПример:</b> Пока нет ⚙️`, {
+        await bot.editMessageText(`<b>Введите <u>новое описание заметки</u> 👀\n\nПример:</b> Отдохнуть в сауне ♨️`, {
           parse_mode: `html`,
           chat_id: chatId,
           message_id: dataAboutUser.messageId,
@@ -410,23 +460,6 @@ async function note(chatId, stage = 1) {
           },
         });
         dataAboutUser.action = `noteEditText`;
-        break;
-      case 7:
-        await bot.editMessageText(`<b>Твои заметки, ${dataAboutUser.login} ⚡</b>\n\n<blockquote>Dont let small obstacles get in the way of being victorious. Remember you are stronger than the challenges you face.</blockquote> ~ Cristiano Ronaldo 🇵🇹`, {
-          parse_mode: `html`,
-          chat_id: chatId,
-          message_id: dataAboutUser.messageId,
-          disable_web_page_preview: true,
-          reply_markup: {
-            inline_keyboard: [
-              [
-                { text: `⬅️ В меню`, callback_data: `menu` },
-                { text: `Добавить`, callback_data: `noteAdd` },
-              ],
-            ],
-          },
-        });
-        dataAboutUser.action = `note`;
         break;
     }
   } catch (error) {
@@ -445,25 +478,58 @@ async function achiv(chatId, stage = 1) {
   try {
     switch (stage) {
       case 1:
-        await bot.editMessageText(`<b>Твои достижения, ${dataAboutUser.login} 🎖️</b>${showText}\n\n<a href="https://t.me/${BotName}/?start=achivMarkDone">Отметить текущий</a>`, {
-          parse_mode: `html`,
-          chat_id: chatId,
-          message_id: dataAboutUser.messageId,
-          disable_web_page_preview: true,
-          reply_markup: {
-            inline_keyboard: [
-              [
-                { text: `🔼`, callback_data: `achivPageBack` },
-                { text: `• №  ${dataAboutUser.supportiveCount}•`, callback_data: `achivCur` },
-                { text: `🔽`, callback_data: `achivPageNext` },
+        if (dataAboutUser.achivData.title.length > 1) {
+          await bot.editMessageText(`<b>Твои достижения, ${dataAboutUser.login} 🎖️</b>${showText}\n\n<a href="https://t.me/${BotName}/?start=achivMarkDone">Отметить текущий</a>`, {
+            parse_mode: `html`,
+            chat_id: chatId,
+            message_id: dataAboutUser.messageId,
+            disable_web_page_preview: true,
+            reply_markup: {
+              inline_keyboard: [
+                [
+                  { text: `🔼`, callback_data: `achivPageBack` },
+                  { text: `• №  ${dataAboutUser.supportiveCount}•`, callback_data: `achivCur` },
+                  { text: `🔽`, callback_data: `achivPageNext` },
+                ],
+                [
+                  { text: `⬅️ В меню`, callback_data: `menu` },
+                  { text: `Добавить`, callback_data: `achivAdd` },
+                ],
               ],
-              [
-                { text: `⬅️ В меню`, callback_data: `menu` },
-                { text: `Добавить`, callback_data: `achivAdd` },
+            },
+          });
+        } else if (dataAboutUser.achivData.title.length == 1) {
+          await bot.editMessageText(`<b>Твои достижения, ${dataAboutUser.login} 🎖️</b>${showText}\n\n<a href="https://t.me/${BotName}/?start=achivMarkDone">Отметить текущий</a>`, {
+            parse_mode: `html`,
+            chat_id: chatId,
+            message_id: dataAboutUser.messageId,
+            disable_web_page_preview: true,
+            reply_markup: {
+              inline_keyboard: [
+                [{ text: `• №  ${dataAboutUser.supportiveCount}•`, callback_data: `achivCur` }],
+                [
+                  { text: `⬅️ В меню`, callback_data: `menu` },
+                  { text: `Добавить`, callback_data: `achivAdd` },
+                ],
               ],
-            ],
-          },
-        });
+            },
+          });
+        } else if (dataAboutUser.achivData.title.length == 0) {
+          await bot.editMessageText(`<b>Твои достижения, ${dataAboutUser.login} 🎖️</b>\n\n<blockquote>I dont follow records. Records follow me.</blockquote> ~ Cristiano Ronaldo 🇵🇹`, {
+            parse_mode: `html`,
+            chat_id: chatId,
+            message_id: dataAboutUser.messageId,
+            disable_web_page_preview: true,
+            reply_markup: {
+              inline_keyboard: [
+                [
+                  { text: `⬅️ В меню`, callback_data: `menu` },
+                  { text: `Добавить`, callback_data: `achivAdd` },
+                ],
+              ],
+            },
+          });
+        }
         dataAboutUser.action = `achiv`;
         break;
       case 2:
@@ -485,7 +551,7 @@ async function achiv(chatId, stage = 1) {
         dataAboutUser.action = `achivAbout`;
         break;
       case 3:
-        await bot.editMessageText(`<b>Введите <u>название достижения</u> 👀\n\nПример:</b> Пока нет ⚙️`, {
+        await bot.editMessageText(`<b>Введите <u>название достижения</u> 👀\n\nПример:</b> 20 подтягиваний ⭐`, {
           parse_mode: `html`,
           chat_id: chatId,
           message_id: dataAboutUser.messageId,
@@ -497,7 +563,7 @@ async function achiv(chatId, stage = 1) {
         dataAboutUser.action = `achivAddTitle`;
         break;
       case 4:
-        await bot.editMessageText(`<b>Введите <u>описание достижения</u> 👀\n\nПример:</b> Пока нет ⚙️`, {
+        await bot.editMessageText(`<b>Введите <u>описание достижения</u> 👀\n\nПример:</b> Выход на турнике 💯`, {
           parse_mode: `html`,
           chat_id: chatId,
           message_id: dataAboutUser.messageId,
@@ -509,7 +575,7 @@ async function achiv(chatId, stage = 1) {
         dataAboutUser.action = `achivAddText`;
         break;
       case 5:
-        await bot.editMessageText(`<b>Введите <u>новое название достижения</u> 👀\n\nПример:</b> Пока нет ⚙️`, {
+        await bot.editMessageText(`<b>Введите <u>новое название достижения</u> 👀\n\nПример:</b> Прочитанная книга 📖`, {
           parse_mode: `html`,
           chat_id: chatId,
           message_id: dataAboutUser.messageId,
@@ -526,7 +592,7 @@ async function achiv(chatId, stage = 1) {
         dataAboutUser.action = `achivEditTitle`;
         break;
       case 6:
-        await bot.editMessageText(`<b>Введите <u>новое описание достижения</u> 👀\n\nПример:</b> Пока нет ⚙️`, {
+        await bot.editMessageText(`<b>Введите <u>новое описание достижения</u> 👀\n\nПример:</b> Новые знания и навыки 😎`, {
           parse_mode: `html`,
           chat_id: chatId,
           message_id: dataAboutUser.messageId,
@@ -541,23 +607,6 @@ async function achiv(chatId, stage = 1) {
           },
         });
         dataAboutUser.action = `achivEditText`;
-        break;
-      case 7:
-        await bot.editMessageText(`<b>Твои достижения, ${dataAboutUser.login} 🎖️</b>\n\n<blockquote>I dont follow records. Records follow me.</blockquote> ~ Cristiano Ronaldo 🇵🇹`, {
-          parse_mode: `html`,
-          chat_id: chatId,
-          message_id: dataAboutUser.messageId,
-          disable_web_page_preview: true,
-          reply_markup: {
-            inline_keyboard: [
-              [
-                { text: `⬅️ В меню`, callback_data: `menu` },
-                { text: `Добавить`, callback_data: `achivAdd` },
-              ],
-            ],
-          },
-        });
-        dataAboutUser.action = `achiv`;
         break;
     }
   } catch (error) {
@@ -737,25 +786,58 @@ async function streak(chatId, stage = 1) {
   try {
     switch (stage) {
       case 1:
-        await bot.editMessageText(`<b>Твои серии, ${dataAboutUser.login} 🔥</b>${showText}\n\n<a href="https://t.me/${BotName}/?start=streakMarkDone">Отметить текущий</a>`, {
-          parse_mode: `html`,
-          chat_id: chatId,
-          message_id: dataAboutUser.messageId,
-          disable_web_page_preview: true,
-          reply_markup: {
-            inline_keyboard: [
-              [
-                { text: `🔼`, callback_data: `streakPageBack` },
-                { text: `• №  ${dataAboutUser.supportiveCount}•`, callback_data: `streakCur` },
-                { text: `🔽`, callback_data: `streakPageNext` },
+        if (dataAboutUser.streakData.title.length > 1) {
+          await bot.editMessageText(`<b>Твои серии, ${dataAboutUser.login} 🔥</b>${showText}\n\n<a href="https://t.me/${BotName}/?start=streakMarkDone">Отметить текущий</a>`, {
+            parse_mode: `html`,
+            chat_id: chatId,
+            message_id: dataAboutUser.messageId,
+            disable_web_page_preview: true,
+            reply_markup: {
+              inline_keyboard: [
+                [
+                  { text: `🔼`, callback_data: `streakPageBack` },
+                  { text: `• №  ${dataAboutUser.supportiveCount}•`, callback_data: `streakCur` },
+                  { text: `🔽`, callback_data: `streakPageNext` },
+                ],
+                [
+                  { text: `⬅️ В меню`, callback_data: `menu` },
+                  { text: `Добавить`, callback_data: `streakAdd` },
+                ],
               ],
-              [
-                { text: `⬅️ В меню`, callback_data: `menu` },
-                { text: `Добавить`, callback_data: `streakAdd` },
+            },
+          });
+        } else if (dataAboutUser.streakData.title.length == 1) {
+          await bot.editMessageText(`<b>Твои серии, ${dataAboutUser.login} 🔥</b>${showText}\n\n<a href="https://t.me/${BotName}/?start=streakMarkDone">Отметить текущий</a>`, {
+            parse_mode: `html`,
+            chat_id: chatId,
+            message_id: dataAboutUser.messageId,
+            disable_web_page_preview: true,
+            reply_markup: {
+              inline_keyboard: [
+                [{ text: `• №  ${dataAboutUser.supportiveCount}•`, callback_data: `streakCur` }],
+                [
+                  { text: `⬅️ В меню`, callback_data: `menu` },
+                  { text: `Добавить`, callback_data: `streakAdd` },
+                ],
               ],
-            ],
-          },
-        });
+            },
+          });
+        } else if (dataAboutUser.streakData.title.length == 0) {
+          await bot.editMessageText(`<b>Твои серии, ${dataAboutUser.login} 🔥</b>\n\n<blockquote>If you want to be successful, you have to be consistent.</blockquote> ~ Cristiano Ronaldo 🇵🇹`, {
+            parse_mode: `html`,
+            chat_id: chatId,
+            message_id: dataAboutUser.messageId,
+            disable_web_page_preview: true,
+            reply_markup: {
+              inline_keyboard: [
+                [
+                  { text: `⬅️ В меню`, callback_data: `menu` },
+                  { text: `Добавить`, callback_data: `streakAdd` },
+                ],
+              ],
+            },
+          });
+        }
         dataAboutUser.action = `streak`;
         break;
       case 2:
@@ -777,7 +859,7 @@ async function streak(chatId, stage = 1) {
         dataAboutUser.action = `streakAbout`;
         break;
       case 3:
-        await bot.editMessageText(`<b>Введите <u>название серии</u> 👀\n\nПример:</b> Пока нет ⚙️`, {
+        await bot.editMessageText(`<b>Введите <u>название серии</u> 👀\n\nПример:</b> Пить только воду 💧`, {
           parse_mode: `html`,
           chat_id: chatId,
           message_id: dataAboutUser.messageId,
@@ -789,7 +871,7 @@ async function streak(chatId, stage = 1) {
         dataAboutUser.action = `streakAddTitle`;
         break;
       case 4:
-        await bot.editMessageText(`<b>Введите <u>новое название серии</u> 👀\n\nПример:</b> Пока нет ⚙️`, {
+        await bot.editMessageText(`<b>Введите <u>новое название серии</u> 👀\n\nПример:</b> Тренироваться каждый день 💪`, {
           parse_mode: `html`,
           chat_id: chatId,
           message_id: dataAboutUser.messageId,
@@ -799,23 +881,6 @@ async function streak(chatId, stage = 1) {
           },
         });
         dataAboutUser.action = `streakEditTitle`;
-        break;
-      case 5:
-        await bot.editMessageText(`<b>Твои серии, ${dataAboutUser.login} 🔥</b>\n\n<blockquote>If you want to be successful, you have to be consistent.</blockquote> ~ Cristiano Ronaldo 🇵🇹`, {
-          parse_mode: `html`,
-          chat_id: chatId,
-          message_id: dataAboutUser.messageId,
-          disable_web_page_preview: true,
-          reply_markup: {
-            inline_keyboard: [
-              [
-                { text: `⬅️ В меню`, callback_data: `menu` },
-                { text: `Добавить`, callback_data: `streakAdd` },
-              ],
-            ],
-          },
-        });
-        dataAboutUser.action = `streak`;
         break;
     }
   } catch (error) {
@@ -883,7 +948,7 @@ async function StartAll() {
           dataAboutUser.streakData.dur[dataAboutUser.supportiveCount - 1] += 1;
           dataAboutUser.streakData.marker[dataAboutUser.supportiveCount - 1] = 1;
           `${dataAboutUser.streakData.dur[dataAboutUser.supportiveCount - 1] > dataAboutUser.streakData.record[dataAboutUser.supportiveCount - 1] ? (dataAboutUser.streakData.record[dataAboutUser.supportiveCount - 1] += 1) : 0}`;
-          `${dataAboutUser.action == `streak` ? streak(chatId) : streak(chatId, 5)}`;
+          streak(chatId);
           break;
       }
 
@@ -901,7 +966,7 @@ async function StartAll() {
         goal(chatId, 4);
       } else if (dataAboutUser.action == `goalAddText`) {
         dataAboutUser.goalData.text.push(text);
-        `${dataAboutUser.goalData.title.length >= 1 ? goal(chatId) : goal(chatId, 7)}`;
+        goal(chatId);
       } else if (dataAboutUser.action == `goalEditTitle`) {
         dataAboutUser.goalData.title[dataAboutUser.supportiveCount - 1] = text;
         goal(chatId, 6);
@@ -914,7 +979,7 @@ async function StartAll() {
         note(chatId, 4);
       } else if (dataAboutUser.action == `noteAddText`) {
         dataAboutUser.noteData.text.push(text);
-        `${dataAboutUser.noteData.title.length >= 1 ? note(chatId) : note(chatId, 7)}`;
+        note(chatId);
       } else if (dataAboutUser.action == `noteEditTitle`) {
         dataAboutUser.noteData.title[dataAboutUser.supportiveCount - 1] = text;
         note(chatId, 6);
@@ -927,7 +992,7 @@ async function StartAll() {
         achiv(chatId, 4);
       } else if (dataAboutUser.action == `achivAddText`) {
         dataAboutUser.achivData.text.push(text);
-        `${dataAboutUser.achivData.title.length >= 1 ? achiv(chatId) : achiv(chatId, 7)}`;
+        achiv(chatId);
       } else if (dataAboutUser.action == `achivEditTitle`) {
         dataAboutUser.achivData.title[dataAboutUser.supportiveCount - 1] = text;
         achiv(chatId, 6);
@@ -979,22 +1044,22 @@ async function StartAll() {
         case `goal`:
           dataAboutUser.supportiveCount = 1;
           `${dataAboutUser.goalData.title.length >= 1 ? dataAboutUser.supportiveCount == 1 : dataAboutUser.supportiveCount == 0}`;
-          `${dataAboutUser.goalData.title.length >= 1 ? goal(chatId) : goal(chatId, 7)}`;
+          goal(chatId);
           break;
         case `note`:
           dataAboutUser.supportiveCount = 1;
           `${dataAboutUser.noteData.title.length >= 1 ? dataAboutUser.supportiveCount == 1 : dataAboutUser.supportiveCount == 0}`;
-          `${dataAboutUser.noteData.title.length >= 1 ? note(chatId) : note(chatId, 7)}`;
+          note(chatId);
           break;
         case `achiv`:
           dataAboutUser.supportiveCount = 1;
           `${dataAboutUser.achivData.title.length >= 1 ? dataAboutUser.supportiveCount == 1 : dataAboutUser.supportiveCount == 0}`;
-          `${dataAboutUser.achivData.title.length >= 1 ? achiv(chatId) : achiv(chatId, 7)}`;
+          achiv(chatId);
           break;
         case `streak`:
           dataAboutUser.supportiveCount = 1;
           `${dataAboutUser.streakData.title.length >= 1 ? dataAboutUser.supportiveCount == 1 : dataAboutUser.supportiveCount == 0}`;
-          `${dataAboutUser.streakData.title.length >= 1 ? streak(chatId) : streak(chatId, 5)}`;
+          streak(chatId);
           break;
         case `sleep`:
           sleep(chatId);
@@ -1004,7 +1069,7 @@ async function StartAll() {
 
         case `goalBackProtect`:
           dataAboutUser.goalData.text.push(`без описания`);
-          `${dataAboutUser.goalData.title.length >= 1 ? goal(chatId) : goal(chatId, 7)}`;
+          goal(chatId);
           break;
         case `goalCur`:
           `${dataAboutUser.goalData.title.length != 0 ? goal(chatId, 2) : 0}`;
@@ -1017,7 +1082,7 @@ async function StartAll() {
           dataAboutUser.goalData.text.splice(dataAboutUser.supportiveCount - 1, 1);
           dataAboutUser.goalData.marker.splice(dataAboutUser.supportiveCount - 1, 1);
           `${dataAboutUser.supportiveCount == dataAboutUser.goalData.title.length + 1 && dataAboutUser.supportiveCount != 1 ? (dataAboutUser.supportiveCount -= 1) : 0}`;
-          `${dataAboutUser.goalData.title.length >= 1 ? goal(chatId) : goal(chatId, 7)}`;
+          goal(chatId);
           break;
         case `goalEdit`:
           goal(chatId, 5);
@@ -1028,7 +1093,7 @@ async function StartAll() {
           } else if (dataAboutUser.supportiveCount < dataAboutUser.goalData.title.length) {
             dataAboutUser.supportiveCount += 1;
           }
-          `${dataAboutUser.goalData.title.length >= 1 ? goal(chatId) : goal(chatId, 7)}`;
+          goal(chatId);
           break;
         case `goalPageBack`:
           if (dataAboutUser.supportiveCount > 1) {
@@ -1036,13 +1101,13 @@ async function StartAll() {
           } else if (dataAboutUser.supportiveCount == 1 && dataAboutUser.goalData.title.length != 0) {
             dataAboutUser.supportiveCount = dataAboutUser.goalData.title.length;
           }
-          `${dataAboutUser.goalData.title.length >= 1 ? goal(chatId) : goal(chatId, 7)}`;
+          goal(chatId);
           break;
         case `goalBackCur`:
           goal(chatId, 2);
           break;
         case `goalBack`:
-          `${dataAboutUser.goalData.title.length >= 1 ? goal(chatId) : goal(chatId, 7)}`;
+          goal(chatId);
           break;
         case `goalNotEditTitle`:
           goal(chatId, 6);
@@ -1055,7 +1120,7 @@ async function StartAll() {
 
         case `noteBackProtect`:
           dataAboutUser.noteData.text.push(`без описания`);
-          `${dataAboutUser.noteData.title.length >= 1 ? note(chatId) : note(chatId, 7)}`;
+          note(chatId);
           break;
         case `noteCur`:
           `${dataAboutUser.noteData.title.length != 0 ? note(chatId, 2) : 0}`;
@@ -1068,7 +1133,7 @@ async function StartAll() {
           dataAboutUser.noteData.text.splice(dataAboutUser.supportiveCount - 1, 1);
           dataAboutUser.noteData.marker.splice(dataAboutUser.supportiveCount - 1, 1);
           `${dataAboutUser.supportiveCount == dataAboutUser.noteData.title.length + 1 && dataAboutUser.supportiveCount != 1 ? (dataAboutUser.supportiveCount -= 1) : 0}`;
-          `${dataAboutUser.noteData.title.length >= 1 ? note(chatId) : note(chatId, 7)}`;
+          note(chatId);
           break;
         case `noteEdit`:
           note(chatId, 5);
@@ -1079,7 +1144,7 @@ async function StartAll() {
           } else if (dataAboutUser.supportiveCount < dataAboutUser.noteData.title.length) {
             dataAboutUser.supportiveCount += 1;
           }
-          `${dataAboutUser.noteData.title.length >= 1 ? note(chatId) : note(chatId, 7)}`;
+          note(chatId);
           break;
         case `notePageBack`:
           if (dataAboutUser.supportiveCount > 1) {
@@ -1087,13 +1152,13 @@ async function StartAll() {
           } else if (dataAboutUser.supportiveCount == 1 && dataAboutUser.noteData.title.length != 0) {
             dataAboutUser.supportiveCount = dataAboutUser.noteData.title.length;
           }
-          `${dataAboutUser.noteData.title.length >= 1 ? note(chatId) : note(chatId, 7)}`;
+          note(chatId);
           break;
         case `noteBackCur`:
           note(chatId, 2);
           break;
         case `noteBack`:
-          `${dataAboutUser.noteData.title.length >= 1 ? note(chatId) : note(chatId, 7)}`;
+          note(chatId);
           break;
         case `noteNotEditTitle`:
           note(chatId, 6);
@@ -1106,7 +1171,7 @@ async function StartAll() {
 
         case `achivBackProtect`:
           dataAboutUser.achivData.text.push(`без описания`);
-          `${dataAboutUser.achivData.title.length >= 1 ? achiv(chatId) : achiv(chatId, 7)}`;
+          achiv(chatId);
           break;
         case `achivCur`:
           `${dataAboutUser.achivData.title.length != 0 ? achiv(chatId, 2) : 0}`;
@@ -1119,7 +1184,7 @@ async function StartAll() {
           dataAboutUser.achivData.text.splice(dataAboutUser.supportiveCount - 1, 1);
           dataAboutUser.achivData.marker.splice(dataAboutUser.supportiveCount - 1, 1);
           `${dataAboutUser.supportiveCount == dataAboutUser.achivData.title.length + 1 && dataAboutUser.supportiveCount != 1 ? (dataAboutUser.supportiveCount -= 1) : 0}`;
-          `${dataAboutUser.achivData.title.length >= 1 ? achiv(chatId) : achiv(chatId, 7)}`;
+          achiv(chatId);
           break;
         case `achivEdit`:
           achiv(chatId, 5);
@@ -1130,7 +1195,7 @@ async function StartAll() {
           } else if (dataAboutUser.supportiveCount < dataAboutUser.achivData.title.length) {
             dataAboutUser.supportiveCount += 1;
           }
-          `${dataAboutUser.achivData.title.length >= 1 ? achiv(chatId) : achiv(chatId, 7)}`;
+          achiv(chatId);
           break;
         case `achivPageBack`:
           if (dataAboutUser.supportiveCount > 1) {
@@ -1138,13 +1203,13 @@ async function StartAll() {
           } else if (dataAboutUser.supportiveCount == 1 && dataAboutUser.achivData.title.length != 0) {
             dataAboutUser.supportiveCount = dataAboutUser.achivData.title.length;
           }
-          `${dataAboutUser.achivData.title.length >= 1 ? achiv(chatId) : achiv(chatId, 7)}`;
+          achiv(chatId);
           break;
         case `achivBackCur`:
           achiv(chatId, 2);
           break;
         case `achivBack`:
-          `${dataAboutUser.achivData.title.length >= 1 ? achiv(chatId) : achiv(chatId, 7)}`;
+          achiv(chatId);
           break;
         case `achivNotEditTitle`:
           achiv(chatId, 6);
@@ -1167,7 +1232,7 @@ async function StartAll() {
           dataAboutUser.streakData.record.splice(dataAboutUser.supportiveCount - 1, 1);
           dataAboutUser.streakData.dur.splice(dataAboutUser.supportiveCount - 1, 1);
           `${dataAboutUser.supportiveCount == dataAboutUser.streakData.title.length + 1 && dataAboutUser.supportiveCount != 1 ? (dataAboutUser.supportiveCount -= 1) : 0}`;
-          `${dataAboutUser.streakData.title.length >= 1 ? streak(chatId) : streak(chatId, 5)}`;
+          streak(chatId);
           break;
         case `streakEdit`:
           streak(chatId, 4);
@@ -1178,7 +1243,7 @@ async function StartAll() {
           } else if (dataAboutUser.supportiveCount < dataAboutUser.streakData.title.length) {
             dataAboutUser.supportiveCount += 1;
           }
-          `${dataAboutUser.streakData.title.length >= 1 ? streak(chatId) : streak(chatId, 5)}`;
+          streak(chatId);
           break;
         case `streakPageBack`:
           if (dataAboutUser.supportiveCount > 1) {
@@ -1186,13 +1251,13 @@ async function StartAll() {
           } else if (dataAboutUser.supportiveCount == 1 && dataAboutUser.streakData.title.length != 0) {
             dataAboutUser.supportiveCount = dataAboutUser.streakData.title.length;
           }
-          `${dataAboutUser.streakData.title.length >= 1 ? streak(chatId) : streak(chatId, 5)}`;
+          streak(chatId);
           break;
         case `streakBackCur`:
           streak(chatId, 2);
           break;
         case `streakBack`:
-          `${dataAboutUser.streakData.title.length >= 1 ? streak(chatId) : streak(chatId, 5)}`;
+          streak(chatId);
           break;
 
         // Sleep Button
