@@ -6,6 +6,7 @@ const TOKEN = TelegramToken;
 const bot = new TelegramBot(TOKEN, { polling: true });
 
 let usersData = [];
+let lastDate = new Date();
 
 bot.setMyCommands([
   {
@@ -777,7 +778,19 @@ async function sleep(chatId, stage = 1, time = null) {
 
 async function streak(chatId, stage = 1) {
   const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
+  const curDate = new Date();
+
   let showText = ``;
+
+  if (lastDate.getDate() !== curDate.getDate()) {
+    lastDate = curDate;
+    for (let i = 1; i <= dataAboutUser.streakData.title.length; i++) {
+      if (dataAboutUser.streakData.marker[i - 1] == 0) {
+        dataAboutUser.streakData.dur[i - 1] = 0;
+      }
+      dataAboutUser.streakData.marker[i - 1] = 0;
+    }
+  }
 
   for (let i = 1; i <= dataAboutUser.streakData.title.length; i++) {
     showText += `${dataAboutUser.supportiveCount == i ? `\n\n• ${i}. ${dataAboutUser.streakData.title[i - 1]} •\n<blockquote>Сегодня: ${dataAboutUser.streakData.marker[i - 1] == 1 ? `✅` : `❌`}\nДлительность: ${dataAboutUser.streakData.dur[i - 1]}\nРекорд: ${dataAboutUser.streakData.record[i - 1]}</blockquote>` : `\n\n${i}. ${dataAboutUser.streakData.title[i - 1]}\n<blockquote>Сегодня: ${dataAboutUser.streakData.marker[i - 1] == 1 ? `✅` : `❌`}</blockquote>`}`;
@@ -947,7 +960,9 @@ async function StartAll() {
         case `/start streakMarkDone`:
           dataAboutUser.streakData.dur[dataAboutUser.supportiveCount - 1] += 1;
           dataAboutUser.streakData.marker[dataAboutUser.supportiveCount - 1] = 1;
-          `${dataAboutUser.streakData.dur[dataAboutUser.supportiveCount - 1] > dataAboutUser.streakData.record[dataAboutUser.supportiveCount - 1] ? (dataAboutUser.streakData.record[dataAboutUser.supportiveCount - 1] += 1) : 0}`;
+          if (dataAboutUser.streakData.dur[dataAboutUser.supportiveCount - 1] > dataAboutUser.streakData.record[dataAboutUser.supportiveCount - 1]) {
+            dataAboutUser.streakData.record[dataAboutUser.supportiveCount - 1] += 1;
+          }
           streak(chatId);
           break;
       }
