@@ -1,3 +1,5 @@
-# [neverfinished]() | About
+# [neverfinished](https://t.me/neverfinishedbot) | About
 
-_**Open-Source**_ проект для развития самодисциплины.
+Телеграм-бот для развития самодисциплины. _**Open-Source**_ проект.
+
+Права защищены [digfusion](https://t.me/digfusionbot).
