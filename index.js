@@ -190,7 +190,7 @@ async function goal(chatId, stage = 1) {
   let showText = ``;
 
   for (let i = 1; i <= dataAboutUser.goalData.title.length; i++) {
-    showText += `${dataAboutUser.supportiveCount == i ? `\n\n${dataAboutUser.goalData.marker[i - 1] ? `• <s>${i}. ${dataAboutUser.goalData.title[i - 1]}</s> •` : `• ${i}. ${dataAboutUser.goalData.title[i - 1]} •`}\n<blockquote>${dataAboutUser.goalData.text[i - 1]}</blockquote>` : `\n\n${dataAboutUser.goalData.marker[i - 1] ? `<s>${i}. ${dataAboutUser.goalData.title[i - 1]}</s>` : `${i}. ${dataAboutUser.goalData.title[i - 1]}`}`}`;
+    showText += `${dataAboutUser.supportiveCount == i ? `\n\n${dataAboutUser.goalData.marker[i - 1] ? `• <s>${i}. ${dataAboutUser.goalData.title[i - 1]}</s> •` : `• ${i}. ${dataAboutUser.goalData.title[i - 1]} •`}\n<blockquote>${dataAboutUser.goalData.text[i - 1]}</blockquote>` : `\n\n${dataAboutUser.goalData.marker[i - 1] ? `<s>${i}. ${dataAboutUser.goalData.title[i - 1].slice(0, 100)}${dataAboutUser.goalData.title[i - 1].length > 100 ? `...` : ``}</s>` : `${i}. ${dataAboutUser.goalData.title[i - 1].slice(0, 100)}${dataAboutUser.goalData.title[i - 1].length > 100 ? `...` : ``}`}`}`;
   }
 
   try {
@@ -269,7 +269,7 @@ async function goal(chatId, stage = 1) {
         dataAboutUser.action = `goalAbout`;
         break;
       case 3:
-        await bot.editMessageText(`Цель: ${dataAboutUser.supportiveCount + 1}. <b><u>Введите название</u> 👀\n\nПример:</b> Посетить концерт Cactus Jack 🌵`, {
+        await bot.editMessageText(`Цель: ${dataAboutUser.goalData.title.length + 1}. <b><u>Введите название</u> 👀\n\nПример:</b> Посетить концерт Cactus Jack 🌵`, {
           parse_mode: `html`,
           chat_id: chatId,
           message_id: dataAboutUser.messageId,
@@ -281,7 +281,7 @@ async function goal(chatId, stage = 1) {
         dataAboutUser.action = `goalAddTitle`;
         break;
       case 4:
-        await bot.editMessageText(`Цель: ${dataAboutUser.supportiveCount + 1}. <b><u>Введите описание</u> ✌️\n\nПример:</b> Сделать фото с Тревисом 🪐`, {
+        await bot.editMessageText(`Цель: ${dataAboutUser.goalData.title.length}. <b><u>Введите описание</u> ✌️\n\nПример:</b> Сделать фото с Тревисом 🪐`, {
           parse_mode: `html`,
           chat_id: chatId,
           message_id: dataAboutUser.messageId,
@@ -416,7 +416,7 @@ async function note(chatId, stage = 1) {
         dataAboutUser.action = `noteAbout`;
         break;
       case 3:
-        await bot.editMessageText(`Заметка: ${dataAboutUser.supportiveCount + 1}. <b><u>Введите название</u> 👀\n\nПример:</b> Рано проснуться 🦾`, {
+        await bot.editMessageText(`Заметка: ${dataAboutUser.noteData.title.length + 1}. <b><u>Введите название</u> 👀\n\nПример:</b> Рано проснуться 🦾`, {
           parse_mode: `html`,
           chat_id: chatId,
           message_id: dataAboutUser.messageId,
@@ -428,7 +428,7 @@ async function note(chatId, stage = 1) {
         dataAboutUser.action = `noteAddTitle`;
         break;
       case 4:
-        await bot.editMessageText(`Заметка: ${dataAboutUser.supportiveCount + 1}. <b><u>Введите описание</u> ✌️\n\nПример:</b> Заправить кровать 🥱`, {
+        await bot.editMessageText(`Заметка: ${dataAboutUser.noteData.title.length}. <b><u>Введите описание</u> ✌️\n\nПример:</b> Заправить кровать 🥱`, {
           parse_mode: `html`,
           chat_id: chatId,
           message_id: dataAboutUser.messageId,
@@ -563,7 +563,7 @@ async function achiv(chatId, stage = 1) {
         dataAboutUser.action = `achivAbout`;
         break;
       case 3:
-        await bot.editMessageText(`Достижение: ${dataAboutUser.supportiveCount}. <b><u>Введите название</u> 👀\n\nПример:</b> 20 подтягиваний ⭐`, {
+        await bot.editMessageText(`Достижение: ${dataAboutUser.noteData.title.length + 1}. <b><u>Введите название</u> 👀\n\nПример:</b> 20 подтягиваний ⭐`, {
           parse_mode: `html`,
           chat_id: chatId,
           message_id: dataAboutUser.messageId,
@@ -575,7 +575,7 @@ async function achiv(chatId, stage = 1) {
         dataAboutUser.action = `achivAddTitle`;
         break;
       case 4:
-        await bot.editMessageText(`Достижение: ${dataAboutUser.supportiveCount}. <b><u>Введите описание</u> ✌️\n\nПример:</b> Выход на турнике 💯`, {
+        await bot.editMessageText(`Достижение: ${dataAboutUser.noteData.title.length}. <b><u>Введите описание</u> ✌️\n\nПример:</b> Выход на турнике 💯`, {
           parse_mode: `html`,
           chat_id: chatId,
           message_id: dataAboutUser.messageId,
@@ -650,7 +650,7 @@ async function sleep(chatId, stage = 1, time = null) {
         dataAboutUser.action = `sleep`;
         break;
       case 2:
-        await bot.editMessageText(`<b>Во сколько ты идешь спать? 🤔</b>\n\nПример: <code>22:30</code>`, {
+        await bot.editMessageText(`<b>Во сколько ты <u>идешь спать?</u> 😪</b>\n\nПример: <code>22:30</code>`, {
           parse_mode: `html`,
           chat_id: chatId,
           message_id: dataAboutUser.messageId,
@@ -662,7 +662,7 @@ async function sleep(chatId, stage = 1, time = null) {
         dataAboutUser.action = `addSleepAt`;
         break;
       case 3:
-        await bot.editMessageText(`<b>Во сколько ты просыпаешься? 🤔</b>\n\nПример: <code>6:30</code>`, {
+        await bot.editMessageText(`<b>Во сколько ты <u>просыпаешься?</u> 👀</b>\n\nПример: <code>6:30</code>`, {
           parse_mode: `html`,
           chat_id: chatId,
           message_id: dataAboutUser.messageId,
@@ -758,7 +758,7 @@ async function sleep(chatId, stage = 1, time = null) {
         }
         break;
       case 7:
-        await bot.editMessageText(`<b>Во сколько ты идешь спать? 🤔</b>\n\nПример: <code>22:30</code>\n\n<b>Неверный формат 🫤</b>`, {
+        await bot.editMessageText(`<b>Во сколько ты <u>идешь спать?</u> 😪</b>\n\nПример: <code>22:30</code>\n\n<b>Неверный формат 🫤</b>`, {
           parse_mode: `html`,
           chat_id: chatId,
           message_id: dataAboutUser.messageId,
@@ -770,7 +770,7 @@ async function sleep(chatId, stage = 1, time = null) {
         dataAboutUser.action = `addSleepAt`;
         break;
       case 8:
-        await bot.editMessageText(`<b>Во сколько ты просыпаешься? 🤔</b>\n\nПример: <code>6:30</code>\n\n<b>Неверный формат 🫤</b>`, {
+        await bot.editMessageText(`<b>Во сколько ты <u>просыпаешься?</u> 👀</b>\n\nПример: <code>6:30</code>\n\n<b>Неверный формат 🫤</b>`, {
           parse_mode: `html`,
           chat_id: chatId,
           message_id: dataAboutUser.messageId,
@@ -871,7 +871,7 @@ async function streak(chatId, stage = 1) {
         dataAboutUser.action = `streakAbout`;
         break;
       case 3:
-        await bot.editMessageText(`Серия: ${dataAboutUser.supportiveCount}. <b><u>Введите название</u> 👀\n\nПример:</b> Пить только воду 💧`, {
+        await bot.editMessageText(`Серия: ${dataAboutUser.streakData.title.length + 1}. <b><u>Введите название</u> 👀\n\nПример:</b> Пить только воду 💧`, {
           parse_mode: `html`,
           chat_id: chatId,
           message_id: dataAboutUser.messageId,
@@ -983,10 +983,11 @@ async function StartAll() {
         sleep(chatId, 6, text);
       } else if (dataAboutUser.action == `goalAddTitle` && Array.from(text)[0] != "/" && text.length <= 500) {
         dataAboutUser.goalData.title.push(text);
+        dataAboutUser.goalData.text.push(`Без описания`);
         dataAboutUser.goalData.marker.push(false);
         goal(chatId, 4);
       } else if (dataAboutUser.action == `goalAddText` && Array.from(text)[0] != "/" && text.length <= 700) {
-        dataAboutUser.goalData.text.push(text);
+        dataAboutUser.goalData.text[dataAboutUser.goalData.title.length - 1] = text;
         goal(chatId);
       } else if (dataAboutUser.action == `goalEditTitle` && Array.from(text)[0] != "/" && text.length <= 500) {
         dataAboutUser.goalData.title[dataAboutUser.supportiveCount - 1] = text;
@@ -996,10 +997,11 @@ async function StartAll() {
         goal(chatId, 2);
       } else if (dataAboutUser.action == `noteAddTitle` && Array.from(text)[0] != "/" && text.length <= 500) {
         dataAboutUser.noteData.title.push(text);
+        dataAboutUser.noteData.text.push(`Без описания`);
         dataAboutUser.noteData.marker.push(false);
         note(chatId, 4);
       } else if (dataAboutUser.action == `noteAddText` && Array.from(text)[0] != "/" && text.length <= 700) {
-        dataAboutUser.noteData.text.push(text);
+        dataAboutUser.noteData.text[dataAboutUser.noteData.title.length - 1] = text;
         note(chatId);
       } else if (dataAboutUser.action == `noteEditTitle` && Array.from(text)[0] != "/" && text.length <= 500) {
         dataAboutUser.noteData.title[dataAboutUser.supportiveCount - 1] = text;
@@ -1009,10 +1011,11 @@ async function StartAll() {
         note(chatId, 2);
       } else if (dataAboutUser.action == `achivAddTitle` && Array.from(text)[0] != "/" && text.length <= 500) {
         dataAboutUser.achivData.title.push(text);
+        dataAboutUser.achivData.text.push(`Без описания`);
         dataAboutUser.achivData.marker.push(false);
         achiv(chatId, 4);
       } else if (dataAboutUser.action == `achivAddText` && Array.from(text)[0] != "/" && text.length <= 700) {
-        dataAboutUser.achivData.text.push(text);
+        dataAboutUser.achivData.text[dataAboutUser.achivData.title.length - 1] = text;
         achiv(chatId);
       } else if (dataAboutUser.action == `achivEditTitle` && Array.from(text)[0] != "/" && text.length <= 500) {
         dataAboutUser.achivData.title[dataAboutUser.supportiveCount - 1] = text;
@@ -1092,7 +1095,7 @@ async function StartAll() {
         // Goal Button
 
         case `goalBackProtect`:
-          dataAboutUser.goalData.text.push(`без описания`);
+          dataAboutUser.goalData.text.push(`Без описания`);
           goal(chatId);
           break;
         case `goalCur`:
@@ -1143,7 +1146,7 @@ async function StartAll() {
         // Note Button
 
         case `noteBackProtect`:
-          dataAboutUser.noteData.text.push(`без описания`);
+          dataAboutUser.noteData.text.push(`Без описания`);
           note(chatId);
           break;
         case `noteCur`:
@@ -1194,7 +1197,7 @@ async function StartAll() {
         // Achiv Button
 
         case `achivBackProtect`:
-          dataAboutUser.achivData.text.push(`без описания`);
+          dataAboutUser.achivData.text.push(`Без описания`);
           achiv(chatId);
           break;
         case `achivCur`:
