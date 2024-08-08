@@ -24,6 +24,10 @@ bot.setMyCommands([
     command: `/restart`,
     description: `Перезапуск 🔄️`,
   },
+  {
+    command: `/clear`,
+    description: `Очистить данные ♻️`,
+  },
 ]);
 
 let navtext = `<b>"Цели 🏔"</b> - список целей на будущее.\n\n<b>"Заметки ⚡"</b> - хранилище мыслей и идей.\n\n<b>"Достижения 🎖️"</b> - твои достижения и большие победы.\n\n<b>"Сон ✨"</b> - график сна и советы для правильного ночного режима.\n\n<b>"Серии 🔥"</b> - раздел для трекинга и развития самодисциплины.`;
@@ -178,6 +182,33 @@ async function menu(chatId, stage = 1, navActive = false) {
           },
         });
         dataAboutUser.action = `menu`;
+        break;
+      case 4:
+        if (dataAboutUser.loginOver) {
+          await bot
+            .sendMessage(chatId, `<b>${hello_text}, ${dataAboutUser.login}! ❤️‍🔥</b>\n\n<b>Какой раздел ты хочешь очистить?</b>\n\n<i>*Очистка данных необратима и рекомендована только в случае переполненности раздела 🫤</i>`, {
+              parse_mode: `HTML`,
+              disable_web_page_preview: true,
+              reply_markup: {
+                inline_keyboard: [
+                  [{ text: `⬅️ В меню`, callback_data: `menu` }],
+                  [
+                    { text: `Цели 🏔`, callback_data: `goalClear` },
+                    { text: `Заметки ⚡`, callback_data: `noteClear` },
+                  ],
+                  [{ text: `Достижения 🎖️`, callback_data: `achivClear` }],
+                  [
+                    { text: `Сон ✨`, callback_data: `sleepClear` },
+                    { text: `Серии 🔥`, callback_data: `streakClear` },
+                  ],
+                ],
+              },
+            })
+            .then((message) => {
+              dataAboutUser.messageId = message.message_id;
+              dataAboutUser.action = `ClearAbout`;
+            });
+        }
         break;
     }
   } catch (error) {
@@ -337,7 +368,7 @@ async function note(chatId, stage = 1) {
   let showText = ``;
 
   for (let i = 1; i <= dataAboutUser.noteData.title.length; i++) {
-    showText += `${dataAboutUser.supportiveCount == i ? `\n\n${dataAboutUser.noteData.marker[i - 1] ? `• <s>${i}. ${dataAboutUser.noteData.title[i - 1]}</s> •` : `• ${i}. ${dataAboutUser.noteData.title[i - 1]} •`}\n<blockquote>${dataAboutUser.noteData.text[i - 1]}</blockquote>` : `\n\n${dataAboutUser.noteData.marker[i - 1] ? `<s>${i}. ${dataAboutUser.noteData.title[i - 1]}</s>` : `${i}. ${dataAboutUser.noteData.title[i - 1]}`}`}`;
+    showText += `${dataAboutUser.supportiveCount == i ? `\n\n${dataAboutUser.noteData.marker[i - 1] ? `• <s>${i}. ${dataAboutUser.noteData.title[i - 1]}</s> •` : `• ${i}. ${dataAboutUser.noteData.title[i - 1]} •`}\n<blockquote>${dataAboutUser.noteData.text[i - 1]}</blockquote>` : `\n\n${dataAboutUser.noteData.marker[i - 1] ? `<s>${i}. ${dataAboutUser.noteData.title[i - 1].slice(0, 100)}${dataAboutUser.noteData.title[i - 1].length > 100 ? `...` : ``}</s>` : `${i}. ${dataAboutUser.noteData.title[i - 1].slice(0, 100)}${dataAboutUser.noteData.title[i - 1].length > 100 ? `...` : ``}`}`}`;
   }
 
   try {
@@ -484,7 +515,7 @@ async function achiv(chatId, stage = 1) {
   let showText = ``;
 
   for (let i = 1; i <= dataAboutUser.achivData.title.length; i++) {
-    showText += `${dataAboutUser.supportiveCount == i ? `\n\n${dataAboutUser.achivData.marker[i - 1] ? `• <u>${i}. ${dataAboutUser.achivData.title[i - 1]}</u> •` : `• ${i}. ${dataAboutUser.achivData.title[i - 1]} •`}\n<blockquote>${dataAboutUser.achivData.text[i - 1]}</blockquote>` : `\n\n${dataAboutUser.achivData.marker[i - 1] ? `<s>${i}. ${dataAboutUser.achivData.title[i - 1]}</s>` : `${i}. ${dataAboutUser.achivData.title[i - 1]}`}`}`;
+    showText += `${dataAboutUser.supportiveCount == i ? `\n\n${dataAboutUser.achivData.marker[i - 1] ? `• <s>${i}. ${dataAboutUser.achivData.title[i - 1]}</s> •` : `• ${i}. ${dataAboutUser.achivData.title[i - 1]} •`}\n<blockquote>${dataAboutUser.achivData.text[i - 1]}</blockquote>` : `\n\n${dataAboutUser.achivData.marker[i - 1] ? `<s>${i}. ${dataAboutUser.achivData.title[i - 1].slice(0, 100)}${dataAboutUser.achivData.title[i - 1].length > 100 ? `...` : ``}</s>` : `${i}. ${dataAboutUser.achivData.title[i - 1].slice(0, 100)}${dataAboutUser.achivData.title[i - 1].length > 100 ? `...` : ``}`}`}`;
   }
 
   try {
@@ -792,7 +823,7 @@ async function streak(chatId, stage = 1) {
   let showText = ``;
 
   for (let i = 1; i <= dataAboutUser.streakData.title.length; i++) {
-    showText += `${dataAboutUser.supportiveCount == i ? `\n\n• ${i}. ${dataAboutUser.streakData.title[i - 1]} •\n<blockquote>Сегодня: ${dataAboutUser.streakData.marker[i - 1] ? `✅` : `❌`}\nДлительность: <b>${dataAboutUser.streakData.dur[i - 1]}</b>\nРекорд: <b>${dataAboutUser.streakData.record[i - 1]}</b></blockquote>` : `\n\n${i}. ${dataAboutUser.streakData.title[i - 1]}\n<blockquote>Сегодня: ${dataAboutUser.streakData.marker[i - 1] ? `✅` : `❌`}</blockquote>`}`;
+    showText += `${dataAboutUser.supportiveCount == i ? `\n\n• ${i}. ${dataAboutUser.streakData.title[i - 1]} •\n<blockquote>Сегодня: ${dataAboutUser.streakData.marker[i - 1] ? `✅` : `❌`}\nДлительность: <b>${dataAboutUser.streakData.dur[i - 1]}</b>\nРекорд: <b>${dataAboutUser.streakData.record[i - 1]}</b></blockquote>` : `\n\n${i}. ${dataAboutUser.streakData.title[i - 1].slice(0, 100)}${dataAboutUser.streakData.title[i - 1].length > 100 ? `...` : ``}\n<blockquote>Сегодня: ${dataAboutUser.streakData.marker[i - 1] ? `✅` : `❌`}</blockquote>`}`;
   }
 
   try {
@@ -945,6 +976,9 @@ async function StartAll() {
         case `/restart`:
           first(chatId);
           break;
+        case `/clear`:
+          menu(chatId, 4);
+          break;
         case `/start showNav`:
           menu(chatId, 1, true);
           break;
@@ -1090,6 +1124,40 @@ async function StartAll() {
           break;
         case `sleep`:
           sleep(chatId);
+          break;
+
+        // Clear Buttons
+
+        case `goalClear`:
+          dataAboutUser.goalData.title = [];
+          dataAboutUser.goalData.text = [];
+          dataAboutUser.goalData.marker = [];
+          menu(chatId);
+          break;
+        case `noteClear`:
+          dataAboutUser.noteData.title = [];
+          dataAboutUser.noteData.text = [];
+          dataAboutUser.noteData.marker = [];
+          menu(chatId);
+          break;
+        case `achivClear`:
+          dataAboutUser.achivData.title = [];
+          dataAboutUser.achivData.text = [];
+          dataAboutUser.achivData.marker = [];
+          menu(chatId);
+          break;
+        case `streakClear`:
+          dataAboutUser.streakData.title = [];
+          dataAboutUser.streakData.dur = [];
+          dataAboutUser.streakData.marker = [];
+          dataAboutUser.streakData.record = [];
+          menu(chatId);
+          break;
+        case `sleepClear`:
+          dataAboutUser.sleepData.dur = 0;
+          dataAboutUser.sleepData.sleepAt = `-`;
+          dataAboutUser.sleepData.wakeAt = `-`;
+          menu(chatId);
           break;
 
         // Goal Button
