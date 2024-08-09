@@ -206,7 +206,7 @@ async function menu(chatId, stage = 1, navActive = false) {
             })
             .then((message) => {
               dataAboutUser.messageId = message.message_id;
-              dataAboutUser.action = `ClearAbout`;
+              dataAboutUser.action = `clearAbout`;
             });
         }
         break;
@@ -357,6 +357,23 @@ async function goal(chatId, stage = 1) {
         });
         dataAboutUser.action = `goalEditText`;
         break;
+      case 7:
+        await bot.editMessageText(`<b>Удалить данные о <u>Целях</u>? 🏔</b>\n\n<b><i>Подтвердите свой выбор ⛩️</i></b>`, {
+          parse_mode: `html`,
+          chat_id: chatId,
+          message_id: dataAboutUser.messageId,
+          disable_web_page_preview: true,
+          reply_markup: {
+            inline_keyboard: [
+              [
+                { text: `⬅️ В меню`, callback_data: `menu` },
+                { text: `Удалить ✅`, callback_data: `goalClearApprove` },
+              ],
+            ],
+          },
+        });
+        dataAboutUser.action = `goalClearApprove`;
+        break;
     }
   } catch (error) {
     console.log(error);
@@ -504,6 +521,23 @@ async function note(chatId, stage = 1) {
         });
         dataAboutUser.action = `noteEditText`;
         break;
+      case 7:
+        await bot.editMessageText(`<b>Удалить данные о <u>Заметках</u>? ⚡</b>\n\n<b><i>Подтвердите свой выбор ⛩️</i></b>`, {
+          parse_mode: `html`,
+          chat_id: chatId,
+          message_id: dataAboutUser.messageId,
+          disable_web_page_preview: true,
+          reply_markup: {
+            inline_keyboard: [
+              [
+                { text: `⬅️ В меню`, callback_data: `menu` },
+                { text: `Удалить ✅`, callback_data: `noteClearApprove` },
+              ],
+            ],
+          },
+        });
+        dataAboutUser.action = `noteClearApprove`;
+        break;
     }
   } catch (error) {
     console.log(error);
@@ -650,6 +684,23 @@ async function achiv(chatId, stage = 1) {
           },
         });
         dataAboutUser.action = `achivEditText`;
+        break;
+      case 7:
+        await bot.editMessageText(`<b>Удалить данные о <u>Достижениях</u>? 🎖️</b>\n\n<b><i>Подтвердите свой выбор ⛩️</i></b>`, {
+          parse_mode: `html`,
+          chat_id: chatId,
+          message_id: dataAboutUser.messageId,
+          disable_web_page_preview: true,
+          reply_markup: {
+            inline_keyboard: [
+              [
+                { text: `⬅️ В меню`, callback_data: `menu` },
+                { text: `Удалить ✅`, callback_data: `achivClearApprove` },
+              ],
+            ],
+          },
+        });
+        dataAboutUser.action = `achivClearApprove`;
         break;
     }
   } catch (error) {
@@ -812,6 +863,23 @@ async function sleep(chatId, stage = 1, time = null) {
         });
         dataAboutUser.action = `addWakeAt`;
         break;
+      case 9:
+        await bot.editMessageText(`<b>Удалить данные о <u>Сне</u>? ✨</b>\n\n<b><i>Подтвердите свой выбор ⛩️</i></b>`, {
+          parse_mode: `html`,
+          chat_id: chatId,
+          message_id: dataAboutUser.messageId,
+          disable_web_page_preview: true,
+          reply_markup: {
+            inline_keyboard: [
+              [
+                { text: `⬅️ В меню`, callback_data: `menu` },
+                { text: `Удалить ✅`, callback_data: `sleepClearApprove` },
+              ],
+            ],
+          },
+        });
+        dataAboutUser.action = `sleepClearApprove`;
+        break;
     }
   } catch (error) {
     console.log(error);
@@ -924,6 +992,23 @@ async function streak(chatId, stage = 1) {
           },
         });
         dataAboutUser.action = `streakEditTitle`;
+        break;
+      case 5:
+        await bot.editMessageText(`<b>Удалить данные о <u>Сериях</u>? 🔥</b>\n\n<b><i>Подтвердите свой выбор ⛩️</i></b>`, {
+          parse_mode: `html`,
+          chat_id: chatId,
+          message_id: dataAboutUser.messageId,
+          disable_web_page_preview: true,
+          reply_markup: {
+            inline_keyboard: [
+              [
+                { text: `⬅️ В меню`, callback_data: `menu` },
+                { text: `Удалить ✅`, callback_data: `streakClearApprove` },
+              ],
+            ],
+          },
+        });
+        dataAboutUser.action = `streakClearApprove`;
         break;
     }
   } catch (error) {
@@ -1129,31 +1214,49 @@ async function StartAll() {
         // Clear Buttons
 
         case `goalClear`:
+          goal(chatId, 7);
+          break;
+        case `noteClear`:
+          note(chatId, 7);
+          break;
+        case `achivClear`:
+          achiv(chatId, 7);
+          break;
+        case `streakClear`:
+          streak(chatId, 5);
+          break;
+        case `sleepClear`:
+          sleep(chatId, 9);
+          break;
+
+        // Clear Approve Buttons
+
+        case `goalClearApprove`:
           dataAboutUser.goalData.title = [];
           dataAboutUser.goalData.text = [];
           dataAboutUser.goalData.marker = [];
           menu(chatId);
           break;
-        case `noteClear`:
+        case `noteClearApprove`:
           dataAboutUser.noteData.title = [];
           dataAboutUser.noteData.text = [];
           dataAboutUser.noteData.marker = [];
           menu(chatId);
           break;
-        case `achivClear`:
+        case `achivClearApprove`:
           dataAboutUser.achivData.title = [];
           dataAboutUser.achivData.text = [];
           dataAboutUser.achivData.marker = [];
           menu(chatId);
           break;
-        case `streakClear`:
+        case `streakClearApprove`:
           dataAboutUser.streakData.title = [];
           dataAboutUser.streakData.dur = [];
           dataAboutUser.streakData.marker = [];
           dataAboutUser.streakData.record = [];
           menu(chatId);
           break;
-        case `sleepClear`:
+        case `sleepClearApprove`:
           dataAboutUser.sleepData.dur = 0;
           dataAboutUser.sleepData.sleepAt = `-`;
           dataAboutUser.sleepData.wakeAt = `-`;
