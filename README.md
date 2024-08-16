@@ -2,4 +2,4 @@
 
 Телеграм-бот для развития самодисциплины. _**Open-Source**_ проект.
 
-Права защищены [digfusion](https://t.me/digfusionbot).
+[digfusion](https://t.me/digfusionbot) • [digfusionsupport](https://t.me/digfusionsupport)
