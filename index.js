@@ -1091,66 +1091,67 @@ async function StartAll() {
           streak(chatId);
           break;
       }
-
-      if (dataAboutUser.action == `setLogin` && Array.from(text)[0] != "/" && text.length <= 30) {
-        dataAboutUser.login = text;
-        dataAboutUser.loginOver = true;
-        menu(chatId, 3);
-      } else if (dataAboutUser.action == `addSleepAt` && Array.from(text)[0] != "/") {
-        sleep(chatId, 5, text);
-      } else if (dataAboutUser.action == `addWakeAt` && Array.from(text)[0] != "/") {
-        sleep(chatId, 6, text);
-      } else if (dataAboutUser.action == `goalAddTitle` && Array.from(text)[0] != "/" && text.length <= 500) {
-        dataAboutUser.goalData.title.push(text);
-        dataAboutUser.goalData.text.push(`Без описания`);
-        dataAboutUser.goalData.marker.push(false);
-        goal(chatId, 4);
-      } else if (dataAboutUser.action == `goalAddText` && Array.from(text)[0] != "/" && text.length <= 700) {
-        dataAboutUser.goalData.text[dataAboutUser.goalData.title.length - 1] = text;
-        goal(chatId);
-      } else if (dataAboutUser.action == `goalEditTitle` && Array.from(text)[0] != "/" && text.length <= 500) {
-        dataAboutUser.goalData.title[dataAboutUser.supportiveCount - 1] = text;
-        goal(chatId, 6);
-      } else if (dataAboutUser.action == `goalEditText` && Array.from(text)[0] != "/" && text.length <= 700) {
-        dataAboutUser.goalData.text[dataAboutUser.supportiveCount - 1] = text;
-        goal(chatId, 2);
-      } else if (dataAboutUser.action == `noteAddTitle` && Array.from(text)[0] != "/" && text.length <= 500) {
-        dataAboutUser.noteData.title.push(text);
-        dataAboutUser.noteData.text.push(`Без описания`);
-        dataAboutUser.noteData.marker.push(false);
-        note(chatId, 4);
-      } else if (dataAboutUser.action == `noteAddText` && Array.from(text)[0] != "/" && text.length <= 700) {
-        dataAboutUser.noteData.text[dataAboutUser.noteData.title.length - 1] = text;
-        note(chatId);
-      } else if (dataAboutUser.action == `noteEditTitle` && Array.from(text)[0] != "/" && text.length <= 500) {
-        dataAboutUser.noteData.title[dataAboutUser.supportiveCount - 1] = text;
-        note(chatId, 6);
-      } else if (dataAboutUser.action == `noteEditText` && Array.from(text)[0] != "/" && text.length <= 700) {
-        dataAboutUser.noteData.text[dataAboutUser.supportiveCount - 1] = text;
-        note(chatId, 2);
-      } else if (dataAboutUser.action == `achivAddTitle` && Array.from(text)[0] != "/" && text.length <= 500) {
-        dataAboutUser.achivData.title.push(text);
-        dataAboutUser.achivData.text.push(`Без описания`);
-        dataAboutUser.achivData.marker.push(false);
-        achiv(chatId, 4);
-      } else if (dataAboutUser.action == `achivAddText` && Array.from(text)[0] != "/" && text.length <= 700) {
-        dataAboutUser.achivData.text[dataAboutUser.achivData.title.length - 1] = text;
-        achiv(chatId);
-      } else if (dataAboutUser.action == `achivEditTitle` && Array.from(text)[0] != "/" && text.length <= 500) {
-        dataAboutUser.achivData.title[dataAboutUser.supportiveCount - 1] = text;
-        achiv(chatId, 6);
-      } else if (dataAboutUser.action == `achivEditText` && Array.from(text)[0] != "/" && text.length <= 700) {
-        dataAboutUser.achivData.text[dataAboutUser.supportiveCount - 1] = text;
-        achiv(chatId, 2);
-      } else if (dataAboutUser.action == `streakAddTitle` && Array.from(text)[0] != "/" && text.length <= 500) {
-        dataAboutUser.streakData.title.push(text);
-        dataAboutUser.streakData.marker.push(false);
-        dataAboutUser.streakData.record.push(0);
-        dataAboutUser.streakData.dur.push(0);
-        streak(chatId, 1);
-      } else if (dataAboutUser.action == `streakEditTitle` && Array.from(text)[0] != "/" && text.length <= 500) {
-        dataAboutUser.streakData.title[dataAboutUser.supportiveCount - 1] = text;
-        streak(chatId, 2);
+      if (Array.from(text)[0] != "/") {
+        if (dataAboutUser.action == `setLogin` && text.length <= 30) {
+          dataAboutUser.login = text;
+          dataAboutUser.loginOver = true;
+          menu(chatId, 3);
+        } else if (dataAboutUser.action == `addSleepAt`) {
+          sleep(chatId, 5, text);
+        } else if (dataAboutUser.action == `addWakeAt`) {
+          sleep(chatId, 6, text);
+        } else if (dataAboutUser.action == `goalAddTitle` && text.length <= 500) {
+          dataAboutUser.goalData.title.push(text);
+          dataAboutUser.goalData.text.push(`Без описания`);
+          dataAboutUser.goalData.marker.push(false);
+          goal(chatId, 4);
+        } else if (dataAboutUser.action == `goalAddText` && text.length <= 700) {
+          dataAboutUser.goalData.text[dataAboutUser.goalData.title.length - 1] = text;
+          goal(chatId);
+        } else if (dataAboutUser.action == `goalEditTitle` && text.length <= 500) {
+          dataAboutUser.goalData.title[dataAboutUser.supportiveCount - 1] = text;
+          goal(chatId, 6);
+        } else if (dataAboutUser.action == `goalEditText` && text.length <= 700) {
+          dataAboutUser.goalData.text[dataAboutUser.supportiveCount - 1] = text;
+          goal(chatId, 2);
+        } else if (dataAboutUser.action == `noteAddTitle` && text.length <= 500) {
+          dataAboutUser.noteData.title.push(text);
+          dataAboutUser.noteData.text.push(`Без описания`);
+          dataAboutUser.noteData.marker.push(false);
+          note(chatId, 4);
+        } else if (dataAboutUser.action == `noteAddText` && text.length <= 700) {
+          dataAboutUser.noteData.text[dataAboutUser.noteData.title.length - 1] = text;
+          note(chatId);
+        } else if (dataAboutUser.action == `noteEditTitle` && text.length <= 500) {
+          dataAboutUser.noteData.title[dataAboutUser.supportiveCount - 1] = text;
+          note(chatId, 6);
+        } else if (dataAboutUser.action == `noteEditText` && text.length <= 700) {
+          dataAboutUser.noteData.text[dataAboutUser.supportiveCount - 1] = text;
+          note(chatId, 2);
+        } else if (dataAboutUser.action == `achivAddTitle` && text.length <= 500) {
+          dataAboutUser.achivData.title.push(text);
+          dataAboutUser.achivData.text.push(`Без описания`);
+          dataAboutUser.achivData.marker.push(false);
+          achiv(chatId, 4);
+        } else if (dataAboutUser.action == `achivAddText` && text.length <= 700) {
+          dataAboutUser.achivData.text[dataAboutUser.achivData.title.length - 1] = text;
+          achiv(chatId);
+        } else if (dataAboutUser.action == `achivEditTitle` && text.length <= 500) {
+          dataAboutUser.achivData.title[dataAboutUser.supportiveCount - 1] = text;
+          achiv(chatId, 6);
+        } else if (dataAboutUser.action == `achivEditText` && text.length <= 700) {
+          dataAboutUser.achivData.text[dataAboutUser.supportiveCount - 1] = text;
+          achiv(chatId, 2);
+        } else if (dataAboutUser.action == `streakAddTitle` && text.length <= 500) {
+          dataAboutUser.streakData.title.push(text);
+          dataAboutUser.streakData.marker.push(false);
+          dataAboutUser.streakData.record.push(0);
+          dataAboutUser.streakData.dur.push(0);
+          streak(chatId, 1);
+        } else if (dataAboutUser.action == `streakEditTitle` && text.length <= 500) {
+          dataAboutUser.streakData.title[dataAboutUser.supportiveCount - 1] = text;
+          streak(chatId, 2);
+        }
       }
 
       bot.deleteMessage(chatId, usermessage);
