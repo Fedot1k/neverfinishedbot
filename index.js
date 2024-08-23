@@ -21,7 +21,7 @@ let usersData = [];
 
 bot.setMyCommands([
   {
-    command: `/restart`,
+    command: `/start`,
     description: `Перезапуск 🔄️`,
   },
   {
@@ -1063,9 +1063,6 @@ async function StartAll() {
 
       switch (text) {
         case `/start`:
-          first(chatId);
-          break;
-        case `/restart`:
           first(chatId);
           break;
         case `/clear`:
