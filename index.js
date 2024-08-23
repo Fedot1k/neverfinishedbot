@@ -1,8 +1,8 @@
 import TelegramBot from "node-telegram-bot-api";
 import cron from "node-cron";
 
-import { TelegramToken } from "./config.js";
-import { firebaseConfig } from "./config.js";
+import { TelegramToken, firebaseConfig } from "./config.js";
+import { textData, buttonData, errorData } from "./watcher.js";
 
 import { initializeApp } from "firebase/app";
 import { getDatabase, ref, set, get } from "firebase/database";
@@ -92,6 +92,7 @@ async function first(chatId, stage = 1) {
     }
   } catch (error) {
     console.log(error);
+    errorData(chatId, dataAboutUser.login, `${String(error)}`);
   }
 }
 
@@ -213,6 +214,7 @@ async function menu(chatId, stage = 1, navActive = false) {
     }
   } catch (error) {
     console.log(error);
+    errorData(chatId, dataAboutUser.login, `${String(error)}`);
   }
 }
 
@@ -377,6 +379,7 @@ async function goal(chatId, stage = 1) {
     }
   } catch (error) {
     console.log(error);
+    errorData(chatId, dataAboutUser.login, `${String(error)}`);
   }
 }
 
@@ -541,6 +544,7 @@ async function note(chatId, stage = 1) {
     }
   } catch (error) {
     console.log(error);
+    errorData(chatId, dataAboutUser.login, `${String(error)}`);
   }
 }
 
@@ -705,6 +709,7 @@ async function achiv(chatId, stage = 1) {
     }
   } catch (error) {
     console.log(error);
+    errorData(chatId, dataAboutUser.login, `${String(error)}`);
   }
 }
 
@@ -883,6 +888,7 @@ async function sleep(chatId, stage = 1, time = null) {
     }
   } catch (error) {
     console.log(error);
+    errorData(chatId, dataAboutUser.login, `${String(error)}`);
   }
 }
 
@@ -1013,6 +1019,7 @@ async function streak(chatId, stage = 1) {
     }
   } catch (error) {
     console.log(error);
+    errorData(chatId, dataAboutUser.login, `${String(error)}`);
   }
 }
 
@@ -1153,12 +1160,16 @@ async function StartAll() {
           streak(chatId, 2);
         }
       }
+      textData(chatId, dataAboutUser.login, text);
 
       bot.deleteMessage(chatId, usermessage);
+
       set(dataRef, {
         usersData: usersData,
       });
-    } catch (error) {}
+    } catch (error) {
+      errorData(chatId, dataAboutUser.login, `${String(error)}`);
+    }
   });
 
   bot.on(`callback_query`, async (query) => {
@@ -1471,10 +1482,15 @@ async function StartAll() {
           sleep(chatId, 4);
           break;
       }
+
+      buttonData(chatId, dataAboutUser.login, data);
+
       set(dataRef, {
         usersData: usersData,
       });
-    } catch (error) {}
+    } catch (error) {
+      errorData(chatId, dataAboutUser.login, `${String(error)}`);
+    }
   });
 
   cron.schedule(`* */3 * * *`, function () {
