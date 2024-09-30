@@ -2,6 +2,10 @@
 
 **Self discipline** telegram bot by _**digfusion**_. 
 
-**Open-Source** project.
+• Goal tracking
+
+• To-do Notes
 
 [digfusion](https://t.me/digfusionbot) • [digfusionsupport](https://t.me/digfusionsupport)
+
+> _digfusion 2024_
