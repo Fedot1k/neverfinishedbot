@@ -1,27 +1,30 @@
-import TelegramBot from "node-telegram-bot-api";
+import TelegramBot from "node-telegram-bot-api"; // Telegram, Time
 import cron from "node-cron";
 
-import { initializeApp } from "firebase/app";
+import { initializeApp } from "firebase/app"; // FirebaseDB
 import { getDatabase, ref, set, get } from "firebase/database";
 
-import { config, firebaseConfig } from "./config.js";
+import { config, firebaseConfig } from "./config.js"; // Tokens (secret), Surround Watcher (debugging)
 import { textData, buttonData, errorData } from "./watcher.js";
 
-const app = initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig); // FirebaseDB setup
 const db = getDatabase(app);
 const dataRef = ref(db);
 
-const bot = new TelegramBot(config.Tokens[0], { polling: true });
+const bot = new TelegramBot(config.Tokens[0], { polling: true }); // bot setup
 
 let usersData = [];
 
+// bot menu commands
 bot.setMyCommands([
   { command: `/start`, description: `Перезапуск 🔄️` },
   { command: `/clear`, description: `Очистить данные ♻️` },
 ]);
 
+// introduction text in first message
 let introText = `<b>👋 Добро пожаловать</b> в мир целеустремленности и эффективности с <b><i>neverfinished!</i></b>\n\n<b>•  Трекинг прогресса 💯</b>\nВеди учет своих амбициозных <b><i>целей</i></b> и великих <b><i>достижений!</i></b>\n\n<b>•  Составление заметок ⚡</b>\nЗаписывай свои <b><i>мысли и идеи</i></b>, которые <b><i>нельзя забыть!</i></b>\n\n<b>•  Отчет по личным рекордам 🔥</b>\nПрокачивай <b><i>дисциплину</i></b>, сохраняя победные серии над <b><i>самим собой!</i></b>\n\n<b>•  Отслеживание графика сна ✨</b>\nУлучшай свой <b><i>режим сна</i></b> и проводи день <b><i>энергичнее!</i></b>\n\n<b>💪 Начни сейчас и достигни своих целей вместе с <i>neverfinished!</i></b>`;
 
+// intro message
 async function intro(chatId, stage = 1) {
   const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
 
@@ -80,6 +83,7 @@ async function intro(chatId, stage = 1) {
   }
 }
 
+// menu message
 async function menu(chatId, stage = 1, navActive = false) {
   const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
 
@@ -202,6 +206,7 @@ async function menu(chatId, stage = 1, navActive = false) {
   }
 }
 
+// goal message
 async function goal(chatId, stage = 1) {
   const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
   let showText = ``;
@@ -367,6 +372,7 @@ async function goal(chatId, stage = 1) {
   }
 }
 
+// note message
 async function note(chatId, stage = 1) {
   const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
   let showText = ``;
@@ -532,6 +538,7 @@ async function note(chatId, stage = 1) {
   }
 }
 
+// achievement message
 async function achiv(chatId, stage = 1) {
   const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
   let showText = ``;
@@ -697,6 +704,7 @@ async function achiv(chatId, stage = 1) {
   }
 }
 
+// sleep schedule message
 async function sleep(chatId, stage = 1, time = null) {
   const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
 
@@ -876,6 +884,7 @@ async function sleep(chatId, stage = 1, time = null) {
   }
 }
 
+// streak counter message
 async function streak(chatId, stage = 1) {
   const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
 
@@ -1008,7 +1017,9 @@ async function streak(chatId, stage = 1) {
   }
 }
 
+// master function
 async function StartAll() {
+  // getting data from FirebaseDB
   get(dataRef).then((snapshot) => {
     if (snapshot.exists()) {
       const dataFromDB = snapshot.val();
@@ -1016,11 +1027,13 @@ async function StartAll() {
     }
   });
 
+  // user message recognition
   bot.on(`message`, async (message) => {
     let text = message.text;
     let chatId = message.chat.id;
     let usermessage = message.message_id;
 
+    // adding variables for new users
     try {
       if (!usersData.find((obj) => obj.chatId == chatId)) {
         usersData.push({
@@ -1046,6 +1059,7 @@ async function StartAll() {
 
       const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
 
+      // menu navigation + marking
       switch (text) {
         case `/start`:
           intro(chatId);
@@ -1080,6 +1094,8 @@ async function StartAll() {
           streak(chatId);
           break;
       }
+
+      // processing text from user input
       if (Array.from(text)[0] != "/") {
         if (dataAboutUser.action == `setLogin` && text.length <= 30) {
           dataAboutUser.login = text;
@@ -1142,10 +1158,13 @@ async function StartAll() {
           streak(chatId, 2);
         }
       }
+
+      // Surround Watcher (text)
       textData(chatId, dataAboutUser.login, text);
 
       bot.deleteMessage(chatId, usermessage);
 
+      // sending data to FirebaseDB
       set(dataRef, {
         usersData: usersData,
       });
@@ -1154,6 +1173,7 @@ async function StartAll() {
     }
   });
 
+  // pressed button recognition
   bot.on(`callback_query`, async (query) => {
     let chatId = query.message.chat.id;
     let data = query.data;
@@ -1162,7 +1182,7 @@ async function StartAll() {
 
     try {
       switch (data) {
-        // Menu And Introduction
+        // menu And introduction
 
         case `menu`:
           menu(chatId);
@@ -1179,7 +1199,7 @@ async function StartAll() {
           menu(chatId, 3);
           break;
 
-        // Head Buttons
+        // head buttons
 
         case `goal`:
           dataAboutUser.supportiveCount = 1;
@@ -1205,7 +1225,7 @@ async function StartAll() {
           sleep(chatId);
           break;
 
-        // Clear Buttons
+        // clear buttons
 
         case `goalClear`:
           goal(chatId, 7);
@@ -1223,7 +1243,7 @@ async function StartAll() {
           sleep(chatId, 9);
           break;
 
-        // Clear Approve Buttons
+        // clear approve buttons
 
         case `goalClearApprove`:
           dataAboutUser.goalData.title = [];
@@ -1257,7 +1277,7 @@ async function StartAll() {
           menu(chatId);
           break;
 
-        // Goal Button
+        // goal button
 
         case `goalBackProtect`:
           dataAboutUser.goalData.text.push(`Без описания`);
@@ -1308,7 +1328,7 @@ async function StartAll() {
           goal(chatId, 2);
           break;
 
-        // Note Button
+        // note button
 
         case `noteBackProtect`:
           dataAboutUser.noteData.text.push(`Без описания`);
@@ -1359,7 +1379,7 @@ async function StartAll() {
           note(chatId, 2);
           break;
 
-        // Achiv Button
+        // achiv button
 
         case `achivBackProtect`:
           dataAboutUser.achivData.text.push(`Без описания`);
@@ -1410,7 +1430,7 @@ async function StartAll() {
           achiv(chatId, 2);
           break;
 
-        // Streak Button
+        // streak button
 
         case `streakCur`:
           `${dataAboutUser.streakData.title.length != 0 ? streak(chatId, 2) : 0}`;
@@ -1452,7 +1472,7 @@ async function StartAll() {
           streak(chatId);
           break;
 
-        // Sleep Button
+        // sleep button
 
         case `sleepEdit`:
           sleep(chatId, 2);
@@ -1465,8 +1485,10 @@ async function StartAll() {
           break;
       }
 
+      // Surround Watcher (button)
       buttonData(chatId, dataAboutUser.login, data);
 
+      // sending data to FirebaseDB
       set(dataRef, {
         usersData: usersData,
       });
@@ -1475,12 +1497,14 @@ async function StartAll() {
     }
   });
 
+  // sending data to FirebaseDB (every 3 hours)
   cron.schedule(`* */3 * * *`, function () {
     set(dataRef, {
       usersData: usersData,
     });
   });
 
+  // resetting streak daily markings (every new day)
   cron.schedule(`1 0 * * *`, function () {
     for (let i = 1; i <= dataAboutUser.streakData.title.length; i++) {
       if (!dataAboutUser.streakData.marker[i - 1]) {
