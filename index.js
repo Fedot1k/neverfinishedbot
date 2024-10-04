@@ -30,7 +30,7 @@ async function intro(chatId, stage = 1) {
 
   try {
     switch (stage) {
-      case 1:
+      case 1: // first message (sending)
         await bot
           .sendMessage(chatId, introText, {
             parse_mode: `HTML`,
@@ -44,7 +44,7 @@ async function intro(chatId, stage = 1) {
             dataAboutUser.action = `intro`;
           });
         break;
-      case 2:
+      case 2: // first message (editing after back button)
         await bot.editMessageText(introText, {
           parse_mode: `HTML`,
           chat_id: chatId,
@@ -56,7 +56,7 @@ async function intro(chatId, stage = 1) {
         });
         dataAboutUser.action = `intro`;
         break;
-      case 3:
+      case 3: // username input message
         await bot.editMessageText(`<b>Как пожелаете к вам обращаться в будущем? 🤔</b>\n\n<i><b>*neverfinished</b> несет ответственность за конфиденциальность ваших данных 🤫</i>`, {
           parse_mode: `HTML`,
           chat_id: chatId,
@@ -87,6 +87,7 @@ async function intro(chatId, stage = 1) {
 async function menu(chatId, stage = 1, navActive = false) {
   const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
 
+  // greeting according to daytime
   const currentTime = new Date().getHours();
   let helloText = `Добрый день`;
 
@@ -102,7 +103,7 @@ async function menu(chatId, stage = 1, navActive = false) {
 
   try {
     switch (stage) {
-      case 1:
+      case 1: // regular menu
         await bot.editMessageText(`<b>${helloText}, ${dataAboutUser.login}! 💯</b>\n\n<b>Какой у тебя план на сегодня?</b>\n\n${navActive ? `<blockquote><b>"Цели 🏔"</b> - список целей на будущее.\n\n<b>"Заметки ⚡"</b> - хранилище мыслей и идей.\n\n<b>"Достижения 🎖️"</b> - твои достижения и большие победы.\n\n<b>"Сон ✨"</b> - график сна и советы для правильного ночного режима.\n\n<b>"Серии 🔥"</b> - раздел для трекинга и развития самодисциплины.</blockquote>\n\n<a href="https://t.me/neverfinishedbot/?start=hideNav"><b>Навигация по меню ⇧</b></a>` : `<a href="https://t.me/neverfinishedbot/?start=showNav"><b>Навигация по меню ⇨</b></a>`}`, {
           parse_mode: `html`,
           chat_id: chatId,
@@ -124,7 +125,7 @@ async function menu(chatId, stage = 1, navActive = false) {
         });
         dataAboutUser.action = `menu`;
         break;
-      case 2:
+      case 2: // restarting menu
         if (dataAboutUser.loginOver) {
           await bot
             .sendMessage(chatId, `<b>${helloText}, ${dataAboutUser.login}! 💯</b>\n\n<b>Какой у тебя план на сегодня?</b>\n\n<a href="https://t.me/neverfinishedbot/?start=showNav"><b>Навигация по меню ⇨</b></a>`, {
@@ -150,7 +151,7 @@ async function menu(chatId, stage = 1, navActive = false) {
             });
         }
         break;
-      case 3:
+      case 3: // first time greeting menu
         await bot.editMessageText(`<b>Привет, ${dataAboutUser.login}! 🤘</b>\n\nСпасибо за регистрацию!\nТебя встречает меню <i><b>neverfinished!</b></i>\n\n<a href="https://t.me/neverfinishedbot/?start=showNav"><b>Навигация по меню ⇨</b></a>`, {
           parse_mode: `html`,
           chat_id: chatId,
@@ -172,7 +173,7 @@ async function menu(chatId, stage = 1, navActive = false) {
         });
         dataAboutUser.action = `menu`;
         break;
-      case 4:
+      case 4: // clean up message
         if (dataAboutUser.loginOver) {
           await bot
             .sendMessage(chatId, `<b>${helloText}, ${dataAboutUser.login}! ❤️‍🔥</b>\n\n<b>Какой раздел ты хочешь очистить?</b>\n\n<i>*Очистка данных необратима и рекомендована только в случае переполненности раздела 🫤</i>`, {
@@ -209,6 +210,8 @@ async function menu(chatId, stage = 1, navActive = false) {
 // goal message
 async function goal(chatId, stage = 1) {
   const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
+
+  // organizing text viewed by user
   let showText = ``;
 
   for (let i = 1; i <= dataAboutUser.goalData.title.length; i++) {
