@@ -2,9 +2,9 @@
 
 **self discipline** telegram bot by _**digfusion**_
 
-• Goal tracking
+• goal tracking
 
-• To do notes
+• to do notes
 
 [digfusion](https://t.me/digfusion) • [digfusionsupport](https://t.me/digsupport)
 
