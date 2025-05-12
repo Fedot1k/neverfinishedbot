@@ -3,15 +3,15 @@
   "version": "1.0.0",
   "type": "module",
   "main": "index.js",
-  "scripts": {
-    "start": "nodemon ./index.js"
-  },
-  "author": "",
+  "author": "self discipline bot by digfusion",
   "license": "ISC",
+  "scripts": {
+    "start": "nodemon ./index.js",
+    "start2": "node ./index.js && node ./config.js && node ./watcher.js"
+  },
   "dependencies": {
-    "firebase": "^10.13.0",
-    "node-cron": "^3.0.3",
+    "node-cron": "^4.0.3",
     "node-telegram-bot-api": "^0.66.0",
-    "nodemon": "^3.1.4"
+    "nodemon": "^3.1.10"
   }
 }
