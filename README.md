@@ -6,6 +6,6 @@
 
 • to do notes
 
-[digfusion](https://t.me/digfusion) • [digfusionsupport](https://t.me/digsupport)
+[digfusion](https://t.me/digfusion) • [digsupport](https://t.me/digsupport)
 
 > _digfusion 2025_
