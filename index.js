@@ -20,7 +20,7 @@ async function intro(chatId, stage = 1) {
 
   try {
     switch (stage) {
-      case 1: // first message (sending)
+      case 1:
         await bot
           .sendMessage(chatId, introText, {
             parse_mode: `HTML`,
@@ -36,7 +36,7 @@ async function intro(chatId, stage = 1) {
             dataAboutUser.action = `intro`;
           });
         break;
-      case 2: // first message (editing after back button)
+      case 2:
         await bot.editMessageText(introText, {
           parse_mode: `HTML`,
           chat_id: chatId,
@@ -50,7 +50,7 @@ async function intro(chatId, stage = 1) {
         });
         dataAboutUser.action = `intro`;
         break;
-      case 3: // username input message
+      case 3:
         await bot.editMessageText(
           `<b>Как пожелаете к вам обращаться в будущем? 🤔</b>\n\n<i><b>*neverfinished</b> несет ответственность за конфиденциальность ваших данных 🤫</i>`,
           {
@@ -83,7 +83,6 @@ async function intro(chatId, stage = 1) {
 async function goal(chatId, stage = 1) {
   const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
 
-  // organizing text viewed by user (goal)
   let showText = ``;
 
   for (let i = 1; i <= dataAboutUser.goalData.title.length; i++) {
@@ -108,7 +107,7 @@ async function goal(chatId, stage = 1) {
 
   try {
     switch (stage) {
-      case 1: // regular text
+      case 1:
         if (dataAboutUser.goalData.title.length > 1) {
           await bot.editMessageText(
             `<b>Твои цели, ${dataAboutUser.login} 🏔</b>${showText}\n\n<a href="https://t.me/neverfinishedbot/?start=goalMarkDone"><b>Отметить текущий</b></a>`,
@@ -136,7 +135,6 @@ async function goal(chatId, stage = 1) {
             }
           );
         } else if (dataAboutUser.goalData.title.length == 1) {
-          // one sentence text
           await bot.editMessageText(
             `<b>Твои цели, ${dataAboutUser.login} 🏔</b>${showText}\n\n<a href="https://t.me/neverfinishedbot/?start=goalMarkDone"><b>Отметить текущий</b></a>`,
             {
@@ -161,7 +159,6 @@ async function goal(chatId, stage = 1) {
             }
           );
         } else if (dataAboutUser.goalData.title.length == 0) {
-          // Ronaldo quote for empty text (goal)
           await bot.editMessageText(
             `<b>Твои цели, ${dataAboutUser.login} 🏔</b>\n\n<blockquote><b>Мечты это не то, что вы видите во сне. Это то, что не дает вам уснуть.</b></blockquote><i> ~ Криштиану Роналду 🇵🇹</i>`,
             {
@@ -182,7 +179,7 @@ async function goal(chatId, stage = 1) {
         }
         dataAboutUser.action = `goal`;
         break;
-      case 2: // managing and editing current goal
+      case 2:
         await bot.editMessageText(
           `Цель: <b>${dataAboutUser.supportiveCount}. 🏔\n\n${
             dataAboutUser.goalData.marker[dataAboutUser.supportiveCount - 1]
@@ -217,7 +214,7 @@ async function goal(chatId, stage = 1) {
         );
         dataAboutUser.action = `goalAbout`;
         break;
-      case 3: // adding new goal (title)
+      case 3:
         await bot.editMessageText(
           `Цель: ${
             dataAboutUser.goalData.title.length + 1
@@ -236,7 +233,7 @@ async function goal(chatId, stage = 1) {
         );
         dataAboutUser.action = `goalAddTitle`;
         break;
-      case 4: // adding new goal (description)
+      case 4:
         await bot.editMessageText(
           `Цель: ${dataAboutUser.goalData.title.length}. <b><u>Введите описание</u> ✌️\n\nПример:</b> Сделать фото с Тревисом 🪐`,
           {
@@ -253,7 +250,7 @@ async function goal(chatId, stage = 1) {
         );
         dataAboutUser.action = `goalAddText`;
         break;
-      case 5: // changing goal (title)
+      case 5:
         await bot.editMessageText(
           `Цель: ${dataAboutUser.supportiveCount}. <b><u>Введите новое название</u> 👀\n\nПример:</b> Побывать в Японии 🌸`,
           {
@@ -273,7 +270,7 @@ async function goal(chatId, stage = 1) {
         );
         dataAboutUser.action = `goalEditTitle`;
         break;
-      case 6: // changing goal (description)
+      case 6:
         await bot.editMessageText(
           `Цель: ${dataAboutUser.supportiveCount}. <b><u>Введите новое описание</u> ✌️\n\nПример:</b> Изучить Кунг-Фу ⛩️`,
           {
@@ -293,7 +290,7 @@ async function goal(chatId, stage = 1) {
         );
         dataAboutUser.action = `goalEditText`;
         break;
-      case 7: // clean up confirmation (goal)
+      case 7:
         await bot.editMessageText(
           `<b>Удалить данные о <u>Целях</u>? 🏔</b>\n\n<b><i>Подтвердите свой выбор ⛩️</i></b>`,
           {
@@ -323,7 +320,6 @@ async function goal(chatId, stage = 1) {
 async function note(chatId, stage = 1) {
   const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
 
-  // organizing text viewed by user (note)
   let showText = ``;
 
   for (let i = 1; i <= dataAboutUser.noteData.title.length; i++) {
@@ -348,7 +344,7 @@ async function note(chatId, stage = 1) {
 
   try {
     switch (stage) {
-      case 1: // regular text
+      case 1:
         if (dataAboutUser.noteData.title.length > 1) {
           await bot.editMessageText(
             `<b>Твои заметки, ${dataAboutUser.login} ⚡</b>${showText}\n\n<a href="https://t.me/neverfinishedbot/?start=noteMarkDone"><b>Отметить текущий</b></a>`,
@@ -376,7 +372,6 @@ async function note(chatId, stage = 1) {
             }
           );
         } else if (dataAboutUser.noteData.title.length == 1) {
-          // one sentence text
           await bot.editMessageText(
             `<b>Твои заметки, ${dataAboutUser.login} ⚡</b>${showText}\n\n<a href="https://t.me/neverfinishedbot/?start=noteMarkDone"><b>Отметить текущий</b></a>`,
             {
@@ -401,7 +396,6 @@ async function note(chatId, stage = 1) {
             }
           );
         } else if (dataAboutUser.noteData.title.length == 0) {
-          // Ronaldo quote for empty text (note)
           await bot.editMessageText(
             `<b>Твои заметки, ${dataAboutUser.login} ⚡</b>\n\n<blockquote><b>Не позволяйте препятствиям встать на пути к победе. Вы сильнее тех испытаний, с которыми сталкиваетесь.</b></blockquote><i> ~ Криштиану Роналду 🇵🇹</i>`,
             {
@@ -422,7 +416,7 @@ async function note(chatId, stage = 1) {
         }
         dataAboutUser.action = `note`;
         break;
-      case 2: // managing and editing current note
+      case 2:
         await bot.editMessageText(
           `Заметка: <b>${dataAboutUser.supportiveCount}. ⚡\n\n${
             dataAboutUser.noteData.marker[dataAboutUser.supportiveCount - 1]
@@ -457,7 +451,7 @@ async function note(chatId, stage = 1) {
         );
         dataAboutUser.action = `noteAbout`;
         break;
-      case 3: // adding new note (title)
+      case 3:
         await bot.editMessageText(
           `Заметка: ${
             dataAboutUser.noteData.title.length + 1
@@ -476,7 +470,7 @@ async function note(chatId, stage = 1) {
         );
         dataAboutUser.action = `noteAddTitle`;
         break;
-      case 4: // adding new note (description)
+      case 4:
         await bot.editMessageText(
           `Заметка: ${dataAboutUser.noteData.title.length}. <b><u>Введите описание</u> ✌️\n\nПример:</b> Заправить кровать 🥱`,
           {
@@ -493,7 +487,7 @@ async function note(chatId, stage = 1) {
         );
         dataAboutUser.action = `noteAddText`;
         break;
-      case 5: // changing note (title)
+      case 5:
         await bot.editMessageText(
           `Заметка: ${dataAboutUser.supportiveCount}. <b><u>Введите новое название</u> 👀\n\nПример:</b> Сходить в зал 🦍`,
           {
@@ -513,7 +507,7 @@ async function note(chatId, stage = 1) {
         );
         dataAboutUser.action = `noteEditTitle`;
         break;
-      case 6: // changing note (description)
+      case 6:
         await bot.editMessageText(
           `Заметка: ${dataAboutUser.supportiveCount}. <b><u>Введите новое описание</u> ✌️\n\nПример:</b> Отдохнуть в сауне ♨️`,
           {
@@ -533,7 +527,7 @@ async function note(chatId, stage = 1) {
         );
         dataAboutUser.action = `noteEditText`;
         break;
-      case 7: // clean up confirmation (note)
+      case 7:
         await bot.editMessageText(
           `<b>Удалить данные о <u>Заметках</u>? ⚡</b>\n\n<b><i>Подтвердите свой выбор ⛩️</i></b>`,
           {
@@ -563,7 +557,6 @@ async function note(chatId, stage = 1) {
 async function achiv(chatId, stage = 1) {
   const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
 
-  // organizing text viewed by user (achiv)
   let showText = ``;
 
   for (let i = 1; i <= dataAboutUser.achivData.title.length; i++) {
@@ -591,7 +584,7 @@ async function achiv(chatId, stage = 1) {
 
   try {
     switch (stage) {
-      case 1: // regular text
+      case 1:
         if (dataAboutUser.achivData.title.length > 1) {
           await bot.editMessageText(
             `<b>Твои достижения, ${dataAboutUser.login} 🎖️</b>${showText}\n\n<a href="https://t.me/neverfinishedbot/?start=achivMarkDone"><b>Отметить текущий</b></a>`,
@@ -619,7 +612,6 @@ async function achiv(chatId, stage = 1) {
             }
           );
         } else if (dataAboutUser.achivData.title.length == 1) {
-          // one sentence text
           await bot.editMessageText(
             `<b>Твои достижения, ${dataAboutUser.login} 🎖️</b>${showText}\n\n<a href="https://t.me/neverfinishedbot/?start=achivMarkDone"><b>Отметить текущий</b></a>`,
             {
@@ -644,7 +636,6 @@ async function achiv(chatId, stage = 1) {
             }
           );
         } else if (dataAboutUser.achivData.title.length == 0) {
-          // Ronaldo quote for empty text (achiv)
           await bot.editMessageText(
             `<b>Твои достижения, ${dataAboutUser.login} 🎖️</b>\n\n<blockquote><b>Я не бегу за рекордами. Рекорды бегут за мной.</b></blockquote><i> ~ Криштиану Роналду 🇵🇹</i>`,
             {
@@ -665,7 +656,7 @@ async function achiv(chatId, stage = 1) {
         }
         dataAboutUser.action = `achiv`;
         break;
-      case 2: // managing and editing current achiv
+      case 2:
         await bot.editMessageText(
           `Достижение: <b>${dataAboutUser.supportiveCount}. 🎖️\n\n${
             dataAboutUser.achivData.marker[dataAboutUser.supportiveCount - 1]
@@ -700,7 +691,7 @@ async function achiv(chatId, stage = 1) {
         );
         dataAboutUser.action = `achivAbout`;
         break;
-      case 3: // adding new achiv (title)
+      case 3:
         await bot.editMessageText(
           `Достижение: ${
             dataAboutUser.noteData.title.length + 1
@@ -719,7 +710,7 @@ async function achiv(chatId, stage = 1) {
         );
         dataAboutUser.action = `achivAddTitle`;
         break;
-      case 4: // adding new achiv (description)
+      case 4:
         await bot.editMessageText(
           `Достижение: ${dataAboutUser.noteData.title.length}. <b><u>Введите описание</u> ✌️\n\nПример:</b> Выход на турнике 💯`,
           {
@@ -736,7 +727,7 @@ async function achiv(chatId, stage = 1) {
         );
         dataAboutUser.action = `achivAddText`;
         break;
-      case 5: // changing achiv (title)
+      case 5:
         await bot.editMessageText(
           `Достижение: ${dataAboutUser.supportiveCount}. <b><u>Введите новое название</u> 👀\n\nПример:</b> Прочитанная книга 📖`,
           {
@@ -756,7 +747,7 @@ async function achiv(chatId, stage = 1) {
         );
         dataAboutUser.action = `achivEditTitle`;
         break;
-      case 6: // changing achiv (description)
+      case 6:
         await bot.editMessageText(
           `Достижение: ${dataAboutUser.supportiveCount}. <b><u>Введите новое описание</u> ✌️\n\nПример:</b> Новые знания и навыки 😎`,
           {
@@ -776,7 +767,7 @@ async function achiv(chatId, stage = 1) {
         );
         dataAboutUser.action = `achivEditText`;
         break;
-      case 7: // clean up confirmation (achiv)
+      case 7:
         await bot.editMessageText(
           `<b>Удалить данные о <u>Достижениях</u>? 🎖️</b>\n\n<b><i>Подтвердите свой выбор ⛩️</i></b>`,
           {
@@ -808,7 +799,7 @@ async function sleep(chatId, stage = 1, time = null) {
 
   try {
     switch (stage) {
-      case 1: // user sleep schedule
+      case 1:
         await bot.editMessageText(
           `<b>Твой график сна, ${dataAboutUser.login} ✨</b>\n\nВремя засыпания: <b>${dataAboutUser.sleepData.sleepAt}</b>\nВремя подъема: <b>${dataAboutUser.sleepData.wakeAt}</b>\n\nКоличество сна: <b>${dataAboutUser.sleepData.dur} 😴</b>`,
           {
@@ -838,7 +829,7 @@ async function sleep(chatId, stage = 1, time = null) {
         );
         dataAboutUser.action = `sleep`;
         break;
-      case 2: // setting up bedtime
+      case 2:
         await bot.editMessageText(
           `<b>Во сколько ты <u>идешь спать?</u> 😪</b>\n\nПример: <code>22:30</code>`,
           {
@@ -855,7 +846,7 @@ async function sleep(chatId, stage = 1, time = null) {
         );
         dataAboutUser.action = `addSleepAt`;
         break;
-      case 3: // setting up waking time
+      case 3:
         await bot.editMessageText(
           `<b>Во сколько ты <u>просыпаешься?</u> 👀</b>\n\nПример: <code>6:30</code>`,
           {
@@ -872,7 +863,7 @@ async function sleep(chatId, stage = 1, time = null) {
         );
         dataAboutUser.action = `addWakeAt`;
         break;
-      case 4: // tips and tricks for sleep
+      case 4:
         await bot.editMessageText(
           `<b>Основные советы для правильного режима 💤\n\nПеред сном:</b><blockquote><b>• Отключите телефон 👀</b>\nВоздействие синего света нарушает работу ритмов сна\n\n<b>• Составьте план на день 📚</b>\nЭто поможет избавиться от лишних мыслей и лучше отдохнуть\n\n<b>• Соблюдайте темноту 🌙</b>\nСоздание оптимальных условий способствует хорошему сну</blockquote>\n\n<b>После сна:</b><blockquote><b>• Выпейте воды 💧</b>\nЭто восполнит водный баланс вашего тела\n\n<b>• Избегайте соц. сетей 💻</b>\nЭто может нарушить ваш утренний ритм\n\n<b>• Сделайте зарядку 🧘</b>\nФизическая активность пробуждает организм и делает вас энергичнее</blockquote>`,
           {
@@ -889,7 +880,7 @@ async function sleep(chatId, stage = 1, time = null) {
         );
         dataAboutUser.action = `sleep`;
         break;
-      case 5: // checking validity and saving time (bedtime)
+      case 5:
         if (!/[a-z]/i.test(time) && time.includes(":")) {
           time = time.replace(/\s/g, "");
           let parse = time.split(":");
@@ -928,13 +919,13 @@ async function sleep(chatId, stage = 1, time = null) {
 
             sleep(chatId, 3);
           } else {
-            sleep(chatId, 7); // wrong input format
+            sleep(chatId, 7);
           }
         } else {
-          sleep(chatId, 7); // wrong input format
+          sleep(chatId, 7);
         }
         break;
-      case 6: // checking validity and saving time (waking)
+      case 6:
         if (!/[a-z]/i.test(time) && time.includes(":")) {
           time = time.replace(/\s/g, "");
           let parse = time.split(":");
@@ -971,13 +962,13 @@ async function sleep(chatId, stage = 1, time = null) {
 
             sleep(chatId);
           } else {
-            sleep(chatId, 8); // wrong input format
+            sleep(chatId, 8);
           }
         } else {
-          sleep(chatId, 8); // wrong input format
+          sleep(chatId, 8);
         }
         break;
-      case 7: // setting up bedtime (wrong input format)
+      case 7:
         await bot.editMessageText(
           `<b>Во сколько ты <u>идешь спать?</u> 😪</b>\n\nПример: <code>22:30</code>\n\n<b>Неверный формат 🫤</b>`,
           {
@@ -994,7 +985,7 @@ async function sleep(chatId, stage = 1, time = null) {
         );
         dataAboutUser.action = `addSleepAt`;
         break;
-      case 8: // setting up waking time (wrong input format)
+      case 8:
         await bot.editMessageText(
           `<b>Во сколько ты <u>просыпаешься?</u> 👀</b>\n\nПример: <code>6:30</code>\n\n<b>Неверный формат 🫤</b>`,
           {
@@ -1011,7 +1002,7 @@ async function sleep(chatId, stage = 1, time = null) {
         );
         dataAboutUser.action = `addWakeAt`;
         break;
-      case 9: // clean up confirmation (sleep)
+      case 9:
         await bot.editMessageText(
           `<b>Удалить данные о <u>Сне</u>? ✨</b>\n\n<b><i>Подтвердите свой выбор ⛩️</i></b>`,
           {
@@ -1041,7 +1032,6 @@ async function sleep(chatId, stage = 1, time = null) {
 async function streak(chatId, stage = 1) {
   const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
 
-  // organizing text viewed by user (achiv)
   let showText = ``;
 
   for (let i = 1; i <= dataAboutUser.streakData.title.length; i++) {
@@ -1066,7 +1056,7 @@ async function streak(chatId, stage = 1) {
 
   try {
     switch (stage) {
-      case 1: // regular text
+      case 1:
         if (dataAboutUser.streakData.title.length > 1) {
           await bot.editMessageText(
             `<b>Твои серии, ${dataAboutUser.login} 🔥</b>${showText}\n\n<a href="https://t.me/neverfinishedbot/?start=streakMarkDone"><b>Отметить текущий</b></a>`,
@@ -1094,7 +1084,6 @@ async function streak(chatId, stage = 1) {
             }
           );
         } else if (dataAboutUser.streakData.title.length == 1) {
-          // one sentence text
           await bot.editMessageText(
             `<b>Твои серии, ${dataAboutUser.login} 🔥</b>${showText}\n\n<a href="https://t.me/neverfinishedbot/?start=streakMarkDone"><b>Отметить текущий</b></a>`,
             {
@@ -1119,7 +1108,6 @@ async function streak(chatId, stage = 1) {
             }
           );
         } else if (dataAboutUser.streakData.title.length == 0) {
-          // Ronaldo quote for empty text (streak)
           await bot.editMessageText(
             `<b>Твои серии, ${dataAboutUser.login} 🔥</b>\n\n<blockquote><b>Если ты хочешь добиться успеха, ты должен быть постоянным.</b></blockquote><i> ~ Криштиану Роналду 🇵🇹</i>`,
             {
@@ -1140,7 +1128,7 @@ async function streak(chatId, stage = 1) {
         }
         dataAboutUser.action = `streak`;
         break;
-      case 2: // managing and editing current streak
+      case 2:
         await bot.editMessageText(
           `Серия: <b>${dataAboutUser.supportiveCount}. 🔥\n\n• ${
             dataAboutUser.streakData.title[dataAboutUser.supportiveCount - 1]
@@ -1171,7 +1159,7 @@ async function streak(chatId, stage = 1) {
         );
         dataAboutUser.action = `streakAbout`;
         break;
-      case 3: // adding new streak (title)
+      case 3:
         await bot.editMessageText(
           `Серия: ${
             dataAboutUser.streakData.title.length + 1
@@ -1190,7 +1178,7 @@ async function streak(chatId, stage = 1) {
         );
         dataAboutUser.action = `streakAddTitle`;
         break;
-      case 4: // changing streak (title)
+      case 4:
         await bot.editMessageText(
           `Серия: ${dataAboutUser.supportiveCount}. <b><u>Введите новое название</u> ✌️\n\nПример:</b> Тренироваться каждый день 💪`,
           {
@@ -1207,7 +1195,7 @@ async function streak(chatId, stage = 1) {
         );
         dataAboutUser.action = `streakEditTitle`;
         break;
-      case 5: // clean up confirmation (streak)
+      case 5:
         await bot.editMessageText(
           `<b>Удалить данные о <u>Сериях</u>? 🔥</b>\n\n<b><i>Подтвердите свой выбор ⛩️</i></b>`,
           {
@@ -1237,7 +1225,6 @@ async function streak(chatId, stage = 1) {
 async function menu(chatId, stage = 1, navActive = false) {
   const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
 
-  // greeting according to daytime
   const currentTime = new Date().getHours();
   let helloText = `Добрый день`;
 
@@ -1253,7 +1240,7 @@ async function menu(chatId, stage = 1, navActive = false) {
 
   try {
     switch (stage) {
-      case 1: // regular menu
+      case 1:
         await bot.editMessageText(
           `<b>${helloText}, ${
             dataAboutUser.login
@@ -1284,7 +1271,7 @@ async function menu(chatId, stage = 1, navActive = false) {
         );
         dataAboutUser.action = `menu`;
         break;
-      case 2: // restarting menu
+      case 2:
         if (dataAboutUser.loginOver) {
           await bot
             .sendMessage(
@@ -1314,7 +1301,7 @@ async function menu(chatId, stage = 1, navActive = false) {
             });
         }
         break;
-      case 3: // first time greeting menu
+      case 3:
         await bot.editMessageText(
           `<b>Привет, ${dataAboutUser.login}! 🤘</b>\n\nСпасибо за регистрацию!\nТебя встречает меню <i><b>neverfinished!</b></i>\n\n<a href="https://t.me/neverfinishedbot/?start=showNav"><b>Навигация по меню ⇨</b></a>`,
           {
@@ -1339,7 +1326,7 @@ async function menu(chatId, stage = 1, navActive = false) {
         );
         dataAboutUser.action = `menu`;
         break;
-      case 4: // clean up message
+      case 4:
         if (dataAboutUser.loginOver) {
           await bot
             .sendMessage(
@@ -1448,7 +1435,6 @@ async function StartAll() {
           break;
       }
 
-      // processing text from user input
       if (Array.from(text)[0] != "/") {
         if (dataAboutUser.action == `setLogin` && text.length <= 30) {
           dataAboutUser.login = text;
@@ -1994,14 +1980,12 @@ async function StartAll() {
           break;
       }
 
-      // Surround Watcher (button)
       buttonData(chatId, dataAboutUser.login, data);
     } catch (error) {
       errorData(chatId, dataAboutUser.login, `${String(error)}`);
     }
   });
 
-  // resetting streak daily markings (every new day)
   cron.schedule(`1 0 * * *`, function () {
     for (let i = 1; i <= dataAboutUser.streakData.title.length; i++) {
       if (!dataAboutUser.streakData.marker[i - 1]) {
