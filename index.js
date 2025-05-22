@@ -1,69 +1,59 @@
 import TelegramBot from "node-telegram-bot-api";
 import cron from "node-cron";
+import fs from "fs";
 
 import { config } from "./config.js";
 import { textData, buttonData, errorData } from "./watcher.js";
 
 const bot = new TelegramBot(config.TOKEN.Trial, { polling: true });
 
+const botName = [`trialdynamicsbot`, `neverfinishedbot`][0];
+
 let usersData = [];
 
-bot.setMyCommands([
-  { command: `/start`, description: `Перезапуск 🔄️` },
-  { command: `/clear`, description: `Очистить данные ♻️` },
-]);
+bot.setMyCommands([{ command: `/start`, description: `Перезапуск 🔄️` }]);
 
-let introText = `<b>👋 Добро пожаловать</b> в мир целеустремленности и эффективности с <b><i>neverfinished!</i></b>\n\n<b>•  Трекинг прогресса 💯</b>\nВеди учет своих амбициозных <b><i>целей</i></b> и великих <b><i>достижений!</i></b>\n\n<b>•  Составление заметок ⚡</b>\nЗаписывай свои <b><i>мысли и идеи</i></b>, которые <b><i>нельзя забыть!</i></b>\n\n<b>•  Отчет по личным рекордам 🔥</b>\nПрокачивай <b><i>дисциплину</i></b>, сохраняя победные серии над <b><i>самим собой!</i></b>\n\n<b>•  Отслеживание графика сна ✨</b>\nУлучшай свой <b><i>режим сна</i></b> и проводи день <b><i>энергичнее!</i></b>\n\n<b>💪 Начни сейчас и достигни своих целей вместе с <i>neverfinished!</i></b>`;
-
-async function intro(chatId, stage = 1) {
+async function intro(chatId, type = `edit`) {
   const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
 
   try {
-    switch (stage) {
-      case 1:
-        await bot
-          .sendMessage(chatId, introText, {
+    switch (type) {
+      case `send`:
+        await bot.sendMessage(chatId, `ㅤ`).then((message) => {
+          dataAboutUser.botMessageId = message.message_id;
+          intro(chatId);
+        });
+        break;
+      case `edit`:
+        await bot.editMessageText(
+          `<b>👋 Добро пожаловать</b> в мир дисциплины с <b><i>neverfinished!</i></b>\n\n<b>•  Трекинг прогресса 💯</b>\nВеди учет своих <b><i>целей и достижений!</i></b>\n\n<b>•  Личные рекорды 🔥</b>\nПрокачивай <b><i>дисциплину</i></b>, побеждая <b><i>самого себя!</i></b>\n\n<b>💪 Начни сейчас и достигни своих целей вместе с <i>neverfinished!</i></b>`,
+          {
             parse_mode: `HTML`,
+            chat_id: chatId,
+            message_id: dataAboutUser.botMessageId,
             disable_web_page_preview: true,
             reply_markup: {
               inline_keyboard: [
-                [{ text: `Далее➡️`, callback_data: `introNext` }],
+                [{ text: `Погнали ➡️`, callback_data: `introNext` }],
               ],
             },
-          })
-          .then((message) => {
-            dataAboutUser.messageId = message.message_id;
-            dataAboutUser.action = `intro`;
-          });
+          }
+        );
         break;
-      case 2:
-        await bot.editMessageText(introText, {
-          parse_mode: `HTML`,
-          chat_id: chatId,
-          message_id: dataAboutUser.messageId,
-          disable_web_page_preview: true,
-          reply_markup: {
-            inline_keyboard: [
-              [{ text: `Далее➡️`, callback_data: `introNext` }],
-            ],
-          },
-        });
-        dataAboutUser.action = `intro`;
-        break;
-      case 3:
+      case `greeting`:
         await bot.editMessageText(
           `<b>Как пожелаете к вам обращаться в будущем? 🤔</b>\n\n<i><b>*neverfinished</b> несет ответственность за конфиденциальность ваших данных 🤫</i>`,
           {
             parse_mode: `HTML`,
             chat_id: chatId,
-            message_id: dataAboutUser.messageId,
+            message_id: dataAboutUser.botMessageId,
             disable_web_page_preview: true,
             reply_markup: {
               inline_keyboard: [
                 [
                   {
-                    text: `Оставить ${dataAboutUser.TelegramUsername} ✅`,
-                    callback_data: `leaveName`,
+                    text: `Оставить ${dataAboutUser.login} ✅`,
+                    callback_data: `keepName`,
                   },
                 ],
                 [{ text: `⬅️Назад`, callback_data: `introBack` }],
@@ -71,11 +61,9 @@ async function intro(chatId, stage = 1) {
             },
           }
         );
-        dataAboutUser.action = `setLogin`;
         break;
     }
   } catch (error) {
-    console.log(error);
     errorData(chatId, dataAboutUser.login, `${String(error)}`);
   }
 }
@@ -85,7 +73,7 @@ async function goal(chatId, stage = 1) {
 
   let showText = ``;
 
-  for (let i = 1; i <= dataAboutUser.goalData.title.length; i++) {
+  for (let i = 1; i <= dataAboutUser.goalData.length; i++) {
     showText += `${
       dataAboutUser.supportiveCount == i
         ? `\n\n${
@@ -108,13 +96,13 @@ async function goal(chatId, stage = 1) {
   try {
     switch (stage) {
       case 1:
-        if (dataAboutUser.goalData.title.length > 1) {
+        if (dataAboutUser.goalData.length > 1) {
           await bot.editMessageText(
-            `<b>Твои цели, ${dataAboutUser.login} 🏔</b>${showText}\n\n<a href="https://t.me/neverfinishedbot/?start=goalMarkDone"><b>Отметить текущий</b></a>`,
+            `<b>Твои цели, ${dataAboutUser.login} 🏔</b>${showText}\n\n<a href="https://t.me/${botName}/?start=goalMarkDone"><b>Отметить текущий</b></a>`,
             {
               parse_mode: `html`,
               chat_id: chatId,
-              message_id: dataAboutUser.messageId,
+              message_id: dataAboutUser.botMessageId,
               disable_web_page_preview: true,
               reply_markup: {
                 inline_keyboard: [
@@ -134,13 +122,13 @@ async function goal(chatId, stage = 1) {
               },
             }
           );
-        } else if (dataAboutUser.goalData.title.length == 1) {
+        } else if (dataAboutUser.goalData.length == 1) {
           await bot.editMessageText(
-            `<b>Твои цели, ${dataAboutUser.login} 🏔</b>${showText}\n\n<a href="https://t.me/neverfinishedbot/?start=goalMarkDone"><b>Отметить текущий</b></a>`,
+            `<b>Твои цели, ${dataAboutUser.login} 🏔</b>${showText}\n\n<a href="https://t.me/${botName}/?start=goalMarkDone"><b>Отметить текущий</b></a>`,
             {
               parse_mode: `html`,
               chat_id: chatId,
-              message_id: dataAboutUser.messageId,
+              message_id: dataAboutUser.botMessageId,
               disable_web_page_preview: true,
               reply_markup: {
                 inline_keyboard: [
@@ -158,13 +146,13 @@ async function goal(chatId, stage = 1) {
               },
             }
           );
-        } else if (dataAboutUser.goalData.title.length == 0) {
+        } else if (dataAboutUser.goalData.length == 0) {
           await bot.editMessageText(
             `<b>Твои цели, ${dataAboutUser.login} 🏔</b>\n\n<blockquote><b>Мечты это не то, что вы видите во сне. Это то, что не дает вам уснуть.</b></blockquote><i> ~ Криштиану Роналду 🇵🇹</i>`,
             {
               parse_mode: `html`,
               chat_id: chatId,
-              message_id: dataAboutUser.messageId,
+              message_id: dataAboutUser.botMessageId,
               disable_web_page_preview: true,
               reply_markup: {
                 inline_keyboard: [
@@ -195,11 +183,11 @@ async function goal(chatId, stage = 1) {
                 } •`
           }</b>\n<blockquote>${
             dataAboutUser.goalData.text[dataAboutUser.supportiveCount - 1]
-          }</blockquote>\n\n<a href="https://t.me/neverfinishedbot/?start=goalMarkDone"><b>Отметить текущий</b></a>`,
+          }</blockquote>\n\n<a href="https://t.me/${botName}/?start=goalMarkDone"><b>Отметить текущий</b></a>`,
           {
             parse_mode: `html`,
             chat_id: chatId,
-            message_id: dataAboutUser.messageId,
+            message_id: dataAboutUser.botMessageId,
             disable_web_page_preview: true,
             reply_markup: {
               inline_keyboard: [
@@ -222,7 +210,7 @@ async function goal(chatId, stage = 1) {
           {
             parse_mode: `html`,
             chat_id: chatId,
-            message_id: dataAboutUser.messageId,
+            message_id: dataAboutUser.botMessageId,
             disable_web_page_preview: true,
             reply_markup: {
               inline_keyboard: [
@@ -239,7 +227,7 @@ async function goal(chatId, stage = 1) {
           {
             parse_mode: `html`,
             chat_id: chatId,
-            message_id: dataAboutUser.messageId,
+            message_id: dataAboutUser.botMessageId,
             disable_web_page_preview: true,
             reply_markup: {
               inline_keyboard: [
@@ -256,7 +244,7 @@ async function goal(chatId, stage = 1) {
           {
             parse_mode: `html`,
             chat_id: chatId,
-            message_id: dataAboutUser.messageId,
+            message_id: dataAboutUser.botMessageId,
             disable_web_page_preview: true,
             reply_markup: {
               inline_keyboard: [
@@ -276,7 +264,7 @@ async function goal(chatId, stage = 1) {
           {
             parse_mode: `html`,
             chat_id: chatId,
-            message_id: dataAboutUser.messageId,
+            message_id: dataAboutUser.botMessageId,
             disable_web_page_preview: true,
             reply_markup: {
               inline_keyboard: [
@@ -296,7 +284,7 @@ async function goal(chatId, stage = 1) {
           {
             parse_mode: `html`,
             chat_id: chatId,
-            message_id: dataAboutUser.messageId,
+            message_id: dataAboutUser.botMessageId,
             disable_web_page_preview: true,
             reply_markup: {
               inline_keyboard: [
@@ -322,7 +310,7 @@ async function note(chatId, stage = 1) {
 
   let showText = ``;
 
-  for (let i = 1; i <= dataAboutUser.noteData.title.length; i++) {
+  for (let i = 1; i <= dataAboutUser.noteData.length; i++) {
     showText += `${
       dataAboutUser.supportiveCount == i
         ? `\n\n${
@@ -347,11 +335,11 @@ async function note(chatId, stage = 1) {
       case 1:
         if (dataAboutUser.noteData.title.length > 1) {
           await bot.editMessageText(
-            `<b>Твои заметки, ${dataAboutUser.login} ⚡</b>${showText}\n\n<a href="https://t.me/neverfinishedbot/?start=noteMarkDone"><b>Отметить текущий</b></a>`,
+            `<b>Твои заметки, ${dataAboutUser.login} ⚡</b>${showText}\n\n<a href="https://t.me/${botName}/?start=noteMarkDone"><b>Отметить текущий</b></a>`,
             {
               parse_mode: `html`,
               chat_id: chatId,
-              message_id: dataAboutUser.messageId,
+              message_id: dataAboutUser.botMessageId,
               disable_web_page_preview: true,
               reply_markup: {
                 inline_keyboard: [
@@ -373,11 +361,11 @@ async function note(chatId, stage = 1) {
           );
         } else if (dataAboutUser.noteData.title.length == 1) {
           await bot.editMessageText(
-            `<b>Твои заметки, ${dataAboutUser.login} ⚡</b>${showText}\n\n<a href="https://t.me/neverfinishedbot/?start=noteMarkDone"><b>Отметить текущий</b></a>`,
+            `<b>Твои заметки, ${dataAboutUser.login} ⚡</b>${showText}\n\n<a href="https://t.me/${botName}/?start=noteMarkDone"><b>Отметить текущий</b></a>`,
             {
               parse_mode: `html`,
               chat_id: chatId,
-              message_id: dataAboutUser.messageId,
+              message_id: dataAboutUser.botMessageId,
               disable_web_page_preview: true,
               reply_markup: {
                 inline_keyboard: [
@@ -401,7 +389,7 @@ async function note(chatId, stage = 1) {
             {
               parse_mode: `html`,
               chat_id: chatId,
-              message_id: dataAboutUser.messageId,
+              message_id: dataAboutUser.botMessageId,
               disable_web_page_preview: true,
               reply_markup: {
                 inline_keyboard: [
@@ -432,11 +420,11 @@ async function note(chatId, stage = 1) {
                 } •`
           }</b>\n<blockquote>${
             dataAboutUser.noteData.text[dataAboutUser.supportiveCount - 1]
-          }</blockquote>\n\n<a href="https://t.me/neverfinishedbot/?start=noteMarkDone"><b>Отметить текущий</b></a>`,
+          }</blockquote>\n\n<a href="https://t.me/${botName}/?start=noteMarkDone"><b>Отметить текущий</b></a>`,
           {
             parse_mode: `html`,
             chat_id: chatId,
-            message_id: dataAboutUser.messageId,
+            message_id: dataAboutUser.botMessageId,
             disable_web_page_preview: true,
             reply_markup: {
               inline_keyboard: [
@@ -459,7 +447,7 @@ async function note(chatId, stage = 1) {
           {
             parse_mode: `html`,
             chat_id: chatId,
-            message_id: dataAboutUser.messageId,
+            message_id: dataAboutUser.botMessageId,
             disable_web_page_preview: true,
             reply_markup: {
               inline_keyboard: [
@@ -476,7 +464,7 @@ async function note(chatId, stage = 1) {
           {
             parse_mode: `html`,
             chat_id: chatId,
-            message_id: dataAboutUser.messageId,
+            message_id: dataAboutUser.botMessageId,
             disable_web_page_preview: true,
             reply_markup: {
               inline_keyboard: [
@@ -493,7 +481,7 @@ async function note(chatId, stage = 1) {
           {
             parse_mode: `html`,
             chat_id: chatId,
-            message_id: dataAboutUser.messageId,
+            message_id: dataAboutUser.botMessageId,
             disable_web_page_preview: true,
             reply_markup: {
               inline_keyboard: [
@@ -513,7 +501,7 @@ async function note(chatId, stage = 1) {
           {
             parse_mode: `html`,
             chat_id: chatId,
-            message_id: dataAboutUser.messageId,
+            message_id: dataAboutUser.botMessageId,
             disable_web_page_preview: true,
             reply_markup: {
               inline_keyboard: [
@@ -533,7 +521,7 @@ async function note(chatId, stage = 1) {
           {
             parse_mode: `html`,
             chat_id: chatId,
-            message_id: dataAboutUser.messageId,
+            message_id: dataAboutUser.botMessageId,
             disable_web_page_preview: true,
             reply_markup: {
               inline_keyboard: [
@@ -587,11 +575,11 @@ async function achiv(chatId, stage = 1) {
       case 1:
         if (dataAboutUser.achivData.title.length > 1) {
           await bot.editMessageText(
-            `<b>Твои достижения, ${dataAboutUser.login} 🎖️</b>${showText}\n\n<a href="https://t.me/neverfinishedbot/?start=achivMarkDone"><b>Отметить текущий</b></a>`,
+            `<b>Твои достижения, ${dataAboutUser.login} 🎖️</b>${showText}\n\n<a href="https://t.me/${botName}/?start=achivMarkDone"><b>Отметить текущий</b></a>`,
             {
               parse_mode: `html`,
               chat_id: chatId,
-              message_id: dataAboutUser.messageId,
+              message_id: dataAboutUser.botMessageId,
               disable_web_page_preview: true,
               reply_markup: {
                 inline_keyboard: [
@@ -613,11 +601,11 @@ async function achiv(chatId, stage = 1) {
           );
         } else if (dataAboutUser.achivData.title.length == 1) {
           await bot.editMessageText(
-            `<b>Твои достижения, ${dataAboutUser.login} 🎖️</b>${showText}\n\n<a href="https://t.me/neverfinishedbot/?start=achivMarkDone"><b>Отметить текущий</b></a>`,
+            `<b>Твои достижения, ${dataAboutUser.login} 🎖️</b>${showText}\n\n<a href="https://t.me/${botName}/?start=achivMarkDone"><b>Отметить текущий</b></a>`,
             {
               parse_mode: `html`,
               chat_id: chatId,
-              message_id: dataAboutUser.messageId,
+              message_id: dataAboutUser.botMessageId,
               disable_web_page_preview: true,
               reply_markup: {
                 inline_keyboard: [
@@ -641,7 +629,7 @@ async function achiv(chatId, stage = 1) {
             {
               parse_mode: `html`,
               chat_id: chatId,
-              message_id: dataAboutUser.messageId,
+              message_id: dataAboutUser.botMessageId,
               disable_web_page_preview: true,
               reply_markup: {
                 inline_keyboard: [
@@ -672,11 +660,11 @@ async function achiv(chatId, stage = 1) {
                 } •`
           }</b>\n<blockquote>${
             dataAboutUser.achivData.text[dataAboutUser.supportiveCount - 1]
-          }</blockquote>\n\n<a href="https://t.me/neverfinishedbot/?start=achivMarkDone"><b>Отметить текущий</b></a>`,
+          }</blockquote>\n\n<a href="https://t.me/${botName}/?start=achivMarkDone"><b>Отметить текущий</b></a>`,
           {
             parse_mode: `html`,
             chat_id: chatId,
-            message_id: dataAboutUser.messageId,
+            message_id: dataAboutUser.botMessageId,
             disable_web_page_preview: true,
             reply_markup: {
               inline_keyboard: [
@@ -699,7 +687,7 @@ async function achiv(chatId, stage = 1) {
           {
             parse_mode: `html`,
             chat_id: chatId,
-            message_id: dataAboutUser.messageId,
+            message_id: dataAboutUser.botMessageId,
             disable_web_page_preview: true,
             reply_markup: {
               inline_keyboard: [
@@ -716,7 +704,7 @@ async function achiv(chatId, stage = 1) {
           {
             parse_mode: `html`,
             chat_id: chatId,
-            message_id: dataAboutUser.messageId,
+            message_id: dataAboutUser.botMessageId,
             disable_web_page_preview: true,
             reply_markup: {
               inline_keyboard: [
@@ -733,7 +721,7 @@ async function achiv(chatId, stage = 1) {
           {
             parse_mode: `html`,
             chat_id: chatId,
-            message_id: dataAboutUser.messageId,
+            message_id: dataAboutUser.botMessageId,
             disable_web_page_preview: true,
             reply_markup: {
               inline_keyboard: [
@@ -753,7 +741,7 @@ async function achiv(chatId, stage = 1) {
           {
             parse_mode: `html`,
             chat_id: chatId,
-            message_id: dataAboutUser.messageId,
+            message_id: dataAboutUser.botMessageId,
             disable_web_page_preview: true,
             reply_markup: {
               inline_keyboard: [
@@ -773,7 +761,7 @@ async function achiv(chatId, stage = 1) {
           {
             parse_mode: `html`,
             chat_id: chatId,
-            message_id: dataAboutUser.messageId,
+            message_id: dataAboutUser.botMessageId,
             disable_web_page_preview: true,
             reply_markup: {
               inline_keyboard: [
@@ -805,7 +793,7 @@ async function sleep(chatId, stage = 1, time = null) {
           {
             parse_mode: `html`,
             chat_id: chatId,
-            message_id: dataAboutUser.messageId,
+            message_id: dataAboutUser.botMessageId,
             disable_web_page_preview: true,
             reply_markup: {
               inline_keyboard: [
@@ -835,7 +823,7 @@ async function sleep(chatId, stage = 1, time = null) {
           {
             parse_mode: `html`,
             chat_id: chatId,
-            message_id: dataAboutUser.messageId,
+            message_id: dataAboutUser.botMessageId,
             disable_web_page_preview: true,
             reply_markup: {
               inline_keyboard: [
@@ -852,7 +840,7 @@ async function sleep(chatId, stage = 1, time = null) {
           {
             parse_mode: `html`,
             chat_id: chatId,
-            message_id: dataAboutUser.messageId,
+            message_id: dataAboutUser.botMessageId,
             disable_web_page_preview: true,
             reply_markup: {
               inline_keyboard: [
@@ -869,7 +857,7 @@ async function sleep(chatId, stage = 1, time = null) {
           {
             parse_mode: `html`,
             chat_id: chatId,
-            message_id: dataAboutUser.messageId,
+            message_id: dataAboutUser.botMessageId,
             disable_web_page_preview: true,
             reply_markup: {
               inline_keyboard: [
@@ -974,7 +962,7 @@ async function sleep(chatId, stage = 1, time = null) {
           {
             parse_mode: `html`,
             chat_id: chatId,
-            message_id: dataAboutUser.messageId,
+            message_id: dataAboutUser.botMessageId,
             disable_web_page_preview: true,
             reply_markup: {
               inline_keyboard: [
@@ -991,7 +979,7 @@ async function sleep(chatId, stage = 1, time = null) {
           {
             parse_mode: `html`,
             chat_id: chatId,
-            message_id: dataAboutUser.messageId,
+            message_id: dataAboutUser.botMessageId,
             disable_web_page_preview: true,
             reply_markup: {
               inline_keyboard: [
@@ -1008,7 +996,7 @@ async function sleep(chatId, stage = 1, time = null) {
           {
             parse_mode: `html`,
             chat_id: chatId,
-            message_id: dataAboutUser.messageId,
+            message_id: dataAboutUser.botMessageId,
             disable_web_page_preview: true,
             reply_markup: {
               inline_keyboard: [
@@ -1059,11 +1047,11 @@ async function streak(chatId, stage = 1) {
       case 1:
         if (dataAboutUser.streakData.title.length > 1) {
           await bot.editMessageText(
-            `<b>Твои серии, ${dataAboutUser.login} 🔥</b>${showText}\n\n<a href="https://t.me/neverfinishedbot/?start=streakMarkDone"><b>Отметить текущий</b></a>`,
+            `<b>Твои серии, ${dataAboutUser.login} 🔥</b>${showText}\n\n<a href="https://t.me/${botName}/?start=streakMarkDone"><b>Отметить текущий</b></a>`,
             {
               parse_mode: `html`,
               chat_id: chatId,
-              message_id: dataAboutUser.messageId,
+              message_id: dataAboutUser.botMessageId,
               disable_web_page_preview: true,
               reply_markup: {
                 inline_keyboard: [
@@ -1085,11 +1073,11 @@ async function streak(chatId, stage = 1) {
           );
         } else if (dataAboutUser.streakData.title.length == 1) {
           await bot.editMessageText(
-            `<b>Твои серии, ${dataAboutUser.login} 🔥</b>${showText}\n\n<a href="https://t.me/neverfinishedbot/?start=streakMarkDone"><b>Отметить текущий</b></a>`,
+            `<b>Твои серии, ${dataAboutUser.login} 🔥</b>${showText}\n\n<a href="https://t.me/${botName}/?start=streakMarkDone"><b>Отметить текущий</b></a>`,
             {
               parse_mode: `html`,
               chat_id: chatId,
-              message_id: dataAboutUser.messageId,
+              message_id: dataAboutUser.botMessageId,
               disable_web_page_preview: true,
               reply_markup: {
                 inline_keyboard: [
@@ -1113,7 +1101,7 @@ async function streak(chatId, stage = 1) {
             {
               parse_mode: `html`,
               chat_id: chatId,
-              message_id: dataAboutUser.messageId,
+              message_id: dataAboutUser.botMessageId,
               disable_web_page_preview: true,
               reply_markup: {
                 inline_keyboard: [
@@ -1140,11 +1128,11 @@ async function streak(chatId, stage = 1) {
             dataAboutUser.streakData.dur[dataAboutUser.supportiveCount - 1]
           }</b>\nРекорд: <b>${
             dataAboutUser.streakData.record[dataAboutUser.supportiveCount - 1]
-          }</b></blockquote>\n\n<a href="https://t.me/neverfinishedbot/?start=streakMarkDone"><b>Отметить текущий</b></a>`,
+          }</b></blockquote>\n\n<a href="https://t.me/${botName}/?start=streakMarkDone"><b>Отметить текущий</b></a>`,
           {
             parse_mode: `html`,
             chat_id: chatId,
-            message_id: dataAboutUser.messageId,
+            message_id: dataAboutUser.botMessageId,
             disable_web_page_preview: true,
             reply_markup: {
               inline_keyboard: [
@@ -1167,7 +1155,7 @@ async function streak(chatId, stage = 1) {
           {
             parse_mode: `html`,
             chat_id: chatId,
-            message_id: dataAboutUser.messageId,
+            message_id: dataAboutUser.botMessageId,
             disable_web_page_preview: true,
             reply_markup: {
               inline_keyboard: [
@@ -1184,7 +1172,7 @@ async function streak(chatId, stage = 1) {
           {
             parse_mode: `html`,
             chat_id: chatId,
-            message_id: dataAboutUser.messageId,
+            message_id: dataAboutUser.botMessageId,
             disable_web_page_preview: true,
             reply_markup: {
               inline_keyboard: [
@@ -1201,7 +1189,7 @@ async function streak(chatId, stage = 1) {
           {
             parse_mode: `html`,
             chat_id: chatId,
-            message_id: dataAboutUser.messageId,
+            message_id: dataAboutUser.botMessageId,
             disable_web_page_preview: true,
             reply_markup: {
               inline_keyboard: [
@@ -1222,37 +1210,37 @@ async function streak(chatId, stage = 1) {
   }
 }
 
-async function menu(chatId, stage = 1, navActive = false) {
+async function menu(chatId, type = `edit`, navigate = false) {
   const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
 
   const currentTime = new Date().getHours();
   let helloText = `Добрый день`;
 
-  if (currentTime >= 5 && currentTime <= 10) {
+  if (currentTime >= 5 && currentTime <= 8) {
     helloText = `Доброе утро`;
-  } else if (currentTime >= 11 && currentTime <= 16) {
+  } else if (currentTime >= 9 && currentTime <= 16) {
     helloText = `Добрый день`;
   } else if (currentTime >= 17 && currentTime <= 22) {
     helloText = `Добрый вечер`;
-  } else if (currentTime > 22 || currentTime < 5) {
+  } else if (currentTime >= 23 || currentTime <= 4) {
     helloText = `Доброй ночи`;
   }
 
   try {
-    switch (stage) {
-      case 1:
+    switch (type) {
+      case `edit`:
         await bot.editMessageText(
           `<b>${helloText}, ${
             dataAboutUser.login
           }! 💯</b>\n\n<b>Какой у тебя план на сегодня?</b>\n\n${
-            navActive
-              ? `<blockquote><b>"Цели 🏔"</b> - список целей на будущее.\n\n<b>"Заметки ⚡"</b> - хранилище мыслей и идей.\n\n<b>"Достижения 🎖️"</b> - твои достижения и большие победы.\n\n<b>"Сон ✨"</b> - график сна и советы для правильного ночного режима.\n\n<b>"Серии 🔥"</b> - раздел для трекинга и развития самодисциплины.</blockquote>\n\n<a href="https://t.me/neverfinishedbot/?start=hideNav"><b>Навигация по меню ⇧</b></a>`
-              : `<a href="https://t.me/neverfinishedbot/?start=showNav"><b>Навигация по меню ⇨</b></a>`
+            navigate
+              ? `<blockquote><b>Цели 🏔</b> — список целей на будущее\n\n<b>Заметки ⚡</b> — хранилище мыслей и идей\n\n<b>Достижения 🎖️</b> — твои большие победы\n\n<b>Сон ✨</b> — режим и советы для лучшего сна\n\n<b>Серии 🔥</b> — раздел самодисциплины</blockquote>\n\n<a href="https://t.me/${botName}/?start=hideNav"><b>Навигация по меню ⇧</b></a>`
+              : `<a href="https://t.me/${botName}/?start=showNav"><b>Навигация по меню ⇨</b></a>`
           }`,
           {
             parse_mode: `html`,
             chat_id: chatId,
-            message_id: dataAboutUser.messageId,
+            message_id: dataAboutUser.botMessageId,
             disable_web_page_preview: true,
             reply_markup: {
               inline_keyboard: [
@@ -1269,45 +1257,14 @@ async function menu(chatId, stage = 1, navActive = false) {
             },
           }
         );
-        dataAboutUser.action = `menu`;
         break;
-      case 2:
-        if (dataAboutUser.loginOver) {
-          await bot
-            .sendMessage(
-              chatId,
-              `<b>${helloText}, ${dataAboutUser.login}! 💯</b>\n\n<b>Какой у тебя план на сегодня?</b>\n\n<a href="https://t.me/neverfinishedbot/?start=showNav"><b>Навигация по меню ⇨</b></a>`,
-              {
-                parse_mode: `HTML`,
-                disable_web_page_preview: true,
-                reply_markup: {
-                  inline_keyboard: [
-                    [
-                      { text: `Цели 🏔`, callback_data: `goal` },
-                      { text: `Заметки ⚡`, callback_data: `note` },
-                    ],
-                    [{ text: `Достижения 🎖️`, callback_data: `achiv` }],
-                    [
-                      { text: `Сон ✨`, callback_data: `sleep` },
-                      { text: `Серии 🔥`, callback_data: `streak` },
-                    ],
-                  ],
-                },
-              }
-            )
-            .then((message) => {
-              dataAboutUser.messageId = message.message_id;
-              dataAboutUser.action = `menu`;
-            });
-        }
-        break;
-      case 3:
+      case `firstMeeting`:
         await bot.editMessageText(
-          `<b>Привет, ${dataAboutUser.login}! 🤘</b>\n\nСпасибо за регистрацию!\nТебя встречает меню <i><b>neverfinished!</b></i>\n\n<a href="https://t.me/neverfinishedbot/?start=showNav"><b>Навигация по меню ⇨</b></a>`,
+          `<b>Привет, ${dataAboutUser.login}! 🤘</b>\n\nСпасибо за регистрацию!\nТебя встречает меню <i><b>neverfinished!</b></i>\n\n<a href="https://t.me/${botName}/?start=showNav"><b>Навигация по меню ⇨</b></a>`,
           {
             parse_mode: `html`,
             chat_id: chatId,
-            message_id: dataAboutUser.messageId,
+            message_id: dataAboutUser.botMessageId,
             disable_web_page_preview: true,
             reply_markup: {
               inline_keyboard: [
@@ -1324,67 +1281,51 @@ async function menu(chatId, stage = 1, navActive = false) {
             },
           }
         );
-        dataAboutUser.action = `menu`;
-        break;
-      case 4:
-        if (dataAboutUser.loginOver) {
-          await bot
-            .sendMessage(
-              chatId,
-              `<b>${helloText}, ${dataAboutUser.login}! ❤️‍🔥</b>\n\n<b>Какой раздел ты хочешь очистить?</b>\n\n<i>*Очистка данных необратима и рекомендована только в случае переполненности раздела 🫤</i>`,
-              {
-                parse_mode: `HTML`,
-                disable_web_page_preview: true,
-                reply_markup: {
-                  inline_keyboard: [
-                    [{ text: `⬅️ В меню`, callback_data: `menu` }],
-                    [
-                      { text: `Цели 🏔`, callback_data: `goalClear` },
-                      { text: `Заметки ⚡`, callback_data: `noteClear` },
-                    ],
-                    [{ text: `Достижения 🎖️`, callback_data: `achivClear` }],
-                    [
-                      { text: `Сон ✨`, callback_data: `sleepClear` },
-                      { text: `Серии 🔥`, callback_data: `streakClear` },
-                    ],
-                  ],
-                },
-              }
-            )
-            .then((message) => {
-              dataAboutUser.messageId = message.message_id;
-              dataAboutUser.action = `clearAbout`;
-            });
-        }
         break;
     }
   } catch (error) {
-    console.log(error);
     errorData(chatId, dataAboutUser.login, `${String(error)}`);
   }
 }
 
 async function StartAll() {
+  if (fs.readFileSync("DB.json") != "[]" && fs.readFileSync("DB.json") != "") {
+    let dataFromDB = JSON.parse(fs.readFileSync("DB.json"));
+    usersData = dataFromDB.usersData || null;
+  }
+
   bot.on(`message`, async (message) => {
-    let text = message.text;
     let chatId = message.chat.id;
-    let usermessage = message.message_id;
+    let text = message.text;
 
     try {
-      if (!usersData.find((obj) => obj.chatId == chatId)) {
+      const userInfo = usersData.find((obj) => obj.chatId == chatId);
+
+      if (userInfo) {
+        Object.assign(userInfo, {
+          chatId: chatId,
+          login: message.from.first_name,
+          botMessageId: userInfo.botMessageId ?? null,
+          userAction: userInfo.userAction ?? `regular`,
+          supportiveCount: userInfo.supportiveCount ?? 1,
+          goalData: userInfo.goalData ?? [],
+          noteData: userInfo.noteData ?? [],
+          achivData: userInfo.achivData ?? [],
+          sleepData: userInfo.sleepData ?? [],
+          streakData: userInfo.streakData ?? [],
+        });
+      } else {
         usersData.push({
           chatId: chatId,
-          login: null,
-          TelegramUsername: message.from.first_name,
-          messageId: null,
-          action: null,
-          loginOver: false,
+          login: message.from.first_name,
+          botMessageId: null,
+          userAction: `regular`,
           supportiveCount: 1,
-          goalData: {},
-          noteData: {},
-          achivData: {},
-          streakData: {},
-          sleepData: {},
+          goalData: [],
+          noteData: [],
+          achivData: [],
+          sleepData: [],
+          streakData: [],
         });
       }
 
@@ -1392,13 +1333,12 @@ async function StartAll() {
 
       switch (text) {
         case `/start`:
-          intro(chatId);
-          break;
-        case `/clear`:
-          menu(chatId, 4);
+          bot.deleteMessage(chatId, dataAboutUser.botMessageId);
+          dataAboutUser.userAction = `regular`;
+          intro(chatId, `send`);
           break;
         case `/start showNav`:
-          menu(chatId, 1, true);
+          menu(chatId, `edit`, true);
           break;
         case `/start hideNav`:
           menu(chatId);
@@ -1438,8 +1378,7 @@ async function StartAll() {
       if (Array.from(text)[0] != "/") {
         if (dataAboutUser.action == `setLogin` && text.length <= 30) {
           dataAboutUser.login = text;
-          dataAboutUser.loginOver = true;
-          menu(chatId, 3);
+          menu(chatId, `firstMeeting`);
         } else if (dataAboutUser.action == `addSleepAt`) {
           sleep(chatId, 5, text);
         } else if (dataAboutUser.action == `addWakeAt`) {
@@ -1551,9 +1490,9 @@ async function StartAll() {
 
       textData(chatId, dataAboutUser.login, text);
 
-      bot.deleteMessage(chatId, usermessage);
+      bot.deleteMessage(chatId, message.message_id);
     } catch (error) {
-      errorData(chatId, dataAboutUser.login, `${String(error)}`);
+      errorData(chatId, "gfsegs", `${String(error)}`);
     }
   });
 
@@ -1569,15 +1508,13 @@ async function StartAll() {
           menu(chatId);
           break;
         case `introNext`:
-          intro(chatId, 3);
+          intro(chatId, `greeting`);
           break;
         case `introBack`:
-          intro(chatId, 2);
+          intro(chatId);
           break;
-        case `leaveName`:
-          dataAboutUser.login = dataAboutUser.TelegramUsername;
-          dataAboutUser.loginOver = true;
-          menu(chatId, 3);
+        case `keepName`:
+          menu(chatId, `firstMeeting`);
           break;
 
         // head buttons
@@ -1993,6 +1930,12 @@ async function StartAll() {
       }
       dataAboutUser.streakData.marker[i - 1] = false;
     }
+  });
+
+  cron.schedule(`*/1 * * * *`, function () {
+    try {
+      fs.writeFileSync("DB.json", JSON.stringify({ usersData }, null, 2));
+    } catch (error) {}
   });
 }
 
