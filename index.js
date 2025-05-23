@@ -3,11 +3,11 @@ import cron from "node-cron";
 import fs from "fs";
 
 import { config } from "./config.js";
-import { textData, buttonData, errorData } from "./watcher.js";
+import { textData, buttonData, errorData, databaseBackup } from "./watcher.js";
 
 const bot = new TelegramBot(config.TOKEN.Trial, { polling: true });
 
-const botName = [`trialdynamicsbot`, `neverfinishedbot`][0];
+const botName = { Trial: `trialdynamicsbot`, Never: `neverfinishedbot` }.Trial;
 
 let usersData = [];
 
@@ -68,7 +68,7 @@ async function intro(chatId, type = `edit`) {
   }
 }
 
-async function goal(chatId, stage = 1) {
+async function goal(chatId, type = `edit`) {
   const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
 
   let showText = ``;
@@ -94,8 +94,8 @@ async function goal(chatId, stage = 1) {
   }
 
   try {
-    switch (stage) {
-      case 1:
+    switch (type) {
+      case `edit`:
         if (dataAboutUser.goalData.length > 1) {
           await bot.editMessageText(
             `<b>Твои цели, ${dataAboutUser.login} 🏔</b>${showText}\n\n<a href="https://t.me/${botName}/?start=goalMarkDone"><b>Отметить текущий</b></a>`,
@@ -300,12 +300,11 @@ async function goal(chatId, stage = 1) {
         break;
     }
   } catch (error) {
-    console.log(error);
     errorData(chatId, dataAboutUser.login, `${String(error)}`);
   }
 }
 
-async function note(chatId, stage = 1) {
+async function note(chatId, type = `edit`) {
   const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
 
   let showText = ``;
@@ -331,8 +330,8 @@ async function note(chatId, stage = 1) {
   }
 
   try {
-    switch (stage) {
-      case 1:
+    switch (type) {
+      case `edit`:
         if (dataAboutUser.noteData.title.length > 1) {
           await bot.editMessageText(
             `<b>Твои заметки, ${dataAboutUser.login} ⚡</b>${showText}\n\n<a href="https://t.me/${botName}/?start=noteMarkDone"><b>Отметить текущий</b></a>`,
@@ -537,12 +536,11 @@ async function note(chatId, stage = 1) {
         break;
     }
   } catch (error) {
-    console.log(error);
     errorData(chatId, dataAboutUser.login, `${String(error)}`);
   }
 }
 
-async function achiv(chatId, stage = 1) {
+async function achiv(chatId, type = `edit`) {
   const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
 
   let showText = ``;
@@ -571,8 +569,8 @@ async function achiv(chatId, stage = 1) {
   }
 
   try {
-    switch (stage) {
-      case 1:
+    switch (type) {
+      case `edit`:
         if (dataAboutUser.achivData.title.length > 1) {
           await bot.editMessageText(
             `<b>Твои достижения, ${dataAboutUser.login} 🎖️</b>${showText}\n\n<a href="https://t.me/${botName}/?start=achivMarkDone"><b>Отметить текущий</b></a>`,
@@ -777,17 +775,16 @@ async function achiv(chatId, stage = 1) {
         break;
     }
   } catch (error) {
-    console.log(error);
     errorData(chatId, dataAboutUser.login, `${String(error)}`);
   }
 }
 
-async function sleep(chatId, stage = 1, time = null) {
+async function sleep(chatId, type = `edit`, time = null) {
   const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
 
   try {
-    switch (stage) {
-      case 1:
+    switch (type) {
+      case `edit`:
         await bot.editMessageText(
           `<b>Твой график сна, ${dataAboutUser.login} ✨</b>\n\nВремя засыпания: <b>${dataAboutUser.sleepData.sleepAt}</b>\nВремя подъема: <b>${dataAboutUser.sleepData.wakeAt}</b>\n\nКоличество сна: <b>${dataAboutUser.sleepData.dur} 😴</b>`,
           {
@@ -1012,12 +1009,11 @@ async function sleep(chatId, stage = 1, time = null) {
         break;
     }
   } catch (error) {
-    console.log(error);
     errorData(chatId, dataAboutUser.login, `${String(error)}`);
   }
 }
 
-async function streak(chatId, stage = 1) {
+async function streak(chatId, type = `edit`) {
   const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
 
   let showText = ``;
@@ -1043,8 +1039,8 @@ async function streak(chatId, stage = 1) {
   }
 
   try {
-    switch (stage) {
-      case 1:
+    switch (type) {
+      case `edit`:
         if (dataAboutUser.streakData.title.length > 1) {
           await bot.editMessageText(
             `<b>Твои серии, ${dataAboutUser.login} 🔥</b>${showText}\n\n<a href="https://t.me/${botName}/?start=streakMarkDone"><b>Отметить текущий</b></a>`,
@@ -1205,7 +1201,6 @@ async function streak(chatId, stage = 1) {
         break;
     }
   } catch (error) {
-    console.log(error);
     errorData(chatId, dataAboutUser.login, `${String(error)}`);
   }
 }
@@ -1304,7 +1299,7 @@ async function StartAll() {
       if (userInfo) {
         Object.assign(userInfo, {
           chatId: chatId,
-          login: message.from.first_name,
+          login: userInfo.login ?? message.from.first_name,
           botMessageId: userInfo.botMessageId ?? null,
           userAction: userInfo.userAction ?? `regular`,
           supportiveCount: userInfo.supportiveCount ?? 1,
@@ -1328,6 +1323,8 @@ async function StartAll() {
           streakData: [],
         });
       }
+
+      bot.deleteMessage(chatId, message.message_id);
 
       const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
 
@@ -1488,11 +1485,9 @@ async function StartAll() {
         }
       }
 
-      textData(chatId, dataAboutUser.login, text);
-
-      bot.deleteMessage(chatId, message.message_id);
+      textData(chatId, message.from.username, dataAboutUser.login, text);
     } catch (error) {
-      errorData(chatId, "gfsegs", `${String(error)}`);
+      errorData(chatId, dataAboutUser.login, `${String(error)}`);
     }
   });
 
@@ -1917,7 +1912,12 @@ async function StartAll() {
           break;
       }
 
-      buttonData(chatId, dataAboutUser.login, data);
+      buttonData(
+        chatId,
+        query.message.chat.username,
+        dataAboutUser.login,
+        data
+      );
     } catch (error) {
       errorData(chatId, dataAboutUser.login, `${String(error)}`);
     }
@@ -1931,6 +1931,12 @@ async function StartAll() {
       dataAboutUser.streakData.marker[i - 1] = false;
     }
   });
+
+  // cron.schedule(`0 0 * * 1`, function () {
+  //   try {
+  //     databaseBackup(usersData);
+  //   } catch (error) {}
+  // });
 
   cron.schedule(`*/1 * * * *`, function () {
     try {
