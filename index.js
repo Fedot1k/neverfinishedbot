@@ -42,7 +42,7 @@ async function intro(chatId, type = `edit`) {
       case `greeting`:
         dataAboutUser.userAction = `getName`;
         await bot.editMessageText(
-          `<b>Как пожелаете к вам обращаться в будущем? 🤔</b>\n\n<i><b>*neverfinished</b> несет ответственность за конфиденциальность ваших данных 🤫</i>`,
+          `<b>Как мне к тебе обращаться? 🤔</b>\n\n<i>Не парься, можно будет поменять в любое время через меню команд 🤝</i>`,
           {
             parse_mode: `HTML`,
             chat_id: chatId,
@@ -85,7 +85,7 @@ async function goal(chatId, type = `show`) {
           `<b>Твои цели, ${dataAboutUser.login} 🏔</b>\n\n${
             dataAboutUser.goalData.length != 0
               ? `${!selected.marker ? selected.title : `☑️ ${selected.title}`}`
-              : `<blockquote><b>Мечты это не то, что вы видите во сне. Это то, что не дает вам уснуть.</b></blockquote><i> ~ Криштиану Роналду 🇵🇹</i>`
+              : `<blockquote><b>Мечты это не то, что вы видите во сне. Это то, что не дает вам уснуть</b></blockquote><i> ~ Криштиану Роналду 🇵🇹</i>`
           }`,
           {
             parse_mode: `HTML`,
@@ -169,7 +169,7 @@ async function note(chatId, type = `show`) {
           `<b>Твои заметки, ${dataAboutUser.login} ⚡️</b>\n\n${
             dataAboutUser.noteData.length != 0
               ? `${!selected.marker ? selected.title : `☑️ ${selected.title}`}`
-              : `<blockquote><b>Не позволяйте препятствиям встать на пути к победе. Вы сильнее тех испытаний, с которыми сталкиваетесь.</b></blockquote><i> ~ Криштиану Роналду 🇵🇹</i>`
+              : `<blockquote><b>Не позволяйте препятствиям встать на пути к победе. Вы сильнее тех испытаний, с которыми сталкиваетесь</b></blockquote><i> ~ Криштиану Роналду 🇵🇹</i>`
           }`,
           {
             parse_mode: `HTML`,
@@ -253,7 +253,7 @@ async function feat(chatId, type = `show`) {
           `<b>Твои достижения, ${dataAboutUser.login} 🎖</b>\n\n${
             dataAboutUser.featData.length != 0
               ? `${!selected.marker ? selected.title : `☑️ ${selected.title}`}`
-              : `<blockquote><b>Я не бегу за рекордами. Рекорды бегут за мной.</b></blockquote><i> ~ Криштиану Роналду 🇵🇹</i>`
+              : `<blockquote><b>Я не бегу за рекордами. Рекорды бегут за мной</b></blockquote><i> ~ Криштиану Роналду 🇵🇹</i>`
           }`,
           {
             parse_mode: `HTML`,
@@ -308,6 +308,117 @@ async function feat(chatId, type = `show`) {
                 [
                   { text: `⬅️ Назад`, callback_data: `feat` },
                   { text: `Удалить 🗑`, callback_data: `featDelete` },
+                ],
+              ],
+            },
+          }
+        );
+        break;
+    }
+  } catch (error) {
+    errorData(chatId, dataAboutUser.login, `${String(error)}`);
+  }
+}
+
+async function sleep(chatId, type = `show`) {
+  const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
+
+  try {
+    switch (type) {
+      case `show`:
+        dataAboutUser.userAction = `sleep`;
+        await bot.editMessageText(
+          `<b>Твой сон, ${dataAboutUser.login} ✨</b>\n\n${
+            dataAboutUser.featData.length != 0
+              ? `${!selected.marker ? selected.title : `☑️ ${selected.title}`}`
+              : `<blockquote><b>Кому-то я нравлюсь, а кому-то нет. Я от этого бессонницей страдать не буду</b></blockquote><i> ~ Криштиану Роналду 🇵🇹</i>`
+          }`,
+          {
+            parse_mode: `HTML`,
+            chat_id: chatId,
+            message_id: dataAboutUser.botMessageId,
+            disable_web_page_preview: true,
+            reply_markup: {
+              inline_keyboard: [
+                [{ text: `Добавить ⌚️`, callback_data: `sleepAdd` }],
+                [
+                  { text: `❕Советы`, callback_data: `sleepTips` },
+                  { text: `digfusion❔`, callback_data: `digfusion` },
+                ],
+                [{ text: `⬅️ В меню`, callback_data: `menu` }],
+              ],
+            },
+          }
+        );
+        break;
+      case `tips`:
+        dataAboutUser.userAction = `regular`;
+        await bot.editMessageText(
+          `<b>Советы для правильного режима 💤\n\nПеред сном:</b>\n<blockquote><b>• Отключи телефон 👀</b>\nИзбавит от лишних мыслей</blockquote>\n<blockquote><b>• Соблюдай темноту 🌙</b>\nГораздо быстрее уснешь</blockquote>\n\n<b>После сна:</b>\n<blockquote><b>• Избегай экранов 💻</b>\nНельзя потерять фокус</blockquote>\n<blockquote><b>• Займись спортом 🧘</b>\nБудешь супер энергичным</blockquote>`,
+          {
+            parse_mode: `HTML`,
+            chat_id: chatId,
+            message_id: dataAboutUser.botMessageId,
+            disable_web_page_preview: true,
+            reply_markup: {
+              inline_keyboard: [[{ text: `⬅️ Назад`, callback_data: `sleep` }]],
+            },
+          }
+        );
+        break;
+      case `digfusion`:
+        dataAboutUser.userAction = `regular`;
+        await bot.editMessageText(
+          `<b><i>❔digfusion • О нас</i></b>\n\n<blockquote>Компания <b><i>digfusion</i></b> - <b>начинающий стартап,</b> разрабатывающий <b>свои приложения</b> и предоставляющий услуги по <b>созданию чат-ботов</b> различных типов!\n\nБыстро, надежно и с умом. Нам доверяют <b>известные личности,</b> и мы делаем продукт, который <b>цепляет и приносит результат</b>\n\n<i>Это приложение разработано <b>digfusion</b> с душой 🤍</i></blockquote>\n\n<b><a href="https://digfusion.ru/">Сайт</a> • <a href="https://t.me/digfusion">Новости</a> • <a href="https://t.me/digfeedbacks">Отзывы</a></b>`,
+          {
+            parse_mode: `HTML`,
+            chat_id: chatId,
+            message_id: dataAboutUser.botMessageId,
+            disable_web_page_preview: true,
+            reply_markup: {
+              inline_keyboard: [[{ text: `⬅️ Назад`, callback_data: `sleep` }]],
+            },
+          }
+        );
+        break;
+    }
+  } catch (error) {
+    errorData(chatId, dataAboutUser.login, `${String(error)}`);
+  }
+}
+
+async function streak(chatId, type = `show`) {
+  const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
+
+  try {
+    switch (type) {
+      case `show`:
+        dataAboutUser.userAction = `streak`;
+        await bot.editMessageText(
+          `<b>Твои серии, ${dataAboutUser.login} 🔥</b>\n\n${
+            dataAboutUser.featData.length != 0
+              ? `${!selected.marker ? selected.title : `☑️ ${selected.title}`}`
+              : `<blockquote><b>Если ты хочешь добиться успеха, ты должен быть постоянным</b></blockquote><i> ~ Криштиану Роналду 🇵🇹</i>`
+          }`,
+          {
+            parse_mode: `HTML`,
+            chat_id: chatId,
+            message_id: dataAboutUser.botMessageId,
+            disable_web_page_preview: true,
+            reply_markup: {
+              inline_keyboard: [
+                [
+                  { text: `${dataAboutUser.streakData.length > 1 ? `🔼` : ``}`, callback_data: `streakBack` },
+                  {
+                    text: `${dataAboutUser.streakData.length != 0 ? `${dataAboutUser.supportiveCount}/${dataAboutUser.streakData.length}` : ``}`,
+                    callback_data: `streakSelect`,
+                  },
+                  { text: `${dataAboutUser.streakData.length > 1 ? `🔽` : ``}`, callback_data: `streakNext` },
+                ],
+                [{ text: `Добавить ✍️`, callback_data: `streakAdd` }],
+                [
+                  { text: `⬅️ В меню`, callback_data: `menu` },
+                  { text: `${dataAboutUser.streakData.length != 0 ? `Отметить${selected.marker ? ` ✅` : ``}` : ``}`, callback_data: `streakMark` },
                 ],
               ],
             },
@@ -620,6 +731,13 @@ async function StartAll() {
           dataAboutUser.featData.splice(dataAboutUser.supportiveCount - 1, 1);
           `${dataAboutUser.supportiveCount > 1 ? (dataAboutUser.supportiveCount -= 1) : ``}`;
           feat(chatId);
+          break;
+
+        case `sleepTips`:
+          sleep(chatId, `tips`);
+          break;
+        case `digfusion`:
+          sleep(chatId, `digfusion`);
           break;
       }
 
