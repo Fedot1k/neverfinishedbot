@@ -25,6 +25,7 @@ async function intro(chatId, type = `edit`) {
         });
         break;
       case `edit`:
+        dataAboutUser.userAction = `regular`;
         await bot.editMessageText(
           `<b>👋 Добро пожаловать</b> в мир дисциплины с <b><i>neverfinished!</i></b>\n\n<b>•  Трекинг прогресса 💯</b>\nВеди учет своих <b><i>целей и достижений!</i></b>\n\n<b>•  Личные рекорды 🔥</b>\nПрокачивай <b><i>дисциплину</i></b>, побеждая <b><i>самого себя!</i></b>\n\n<b>💪 Начни сейчас и достигни своих целей вместе с <i>neverfinished!</i></b>`,
           {
@@ -39,6 +40,7 @@ async function intro(chatId, type = `edit`) {
         );
         break;
       case `greeting`:
+        dataAboutUser.userAction = `getName`;
         await bot.editMessageText(
           `<b>Как пожелаете к вам обращаться в будущем? 🤔</b>\n\n<i><b>*neverfinished</b> несет ответственность за конфиденциальность ваших данных 🤫</i>`,
           {
@@ -78,6 +80,7 @@ async function goal(chatId, type = `show`) {
   try {
     switch (type) {
       case `show`:
+        dataAboutUser.userAction = `goal`;
         await bot.editMessageText(
           `<b>Твои цели, ${dataAboutUser.login} 🏔</b>\n\n${
             dataAboutUser.goalData.length != 0
@@ -110,6 +113,7 @@ async function goal(chatId, type = `show`) {
         );
         break;
       case `add`:
+        dataAboutUser.userAction = `goalAdding`;
         await bot.editMessageText(`<b>${dataAboutUser.goalData.length + 1}. Новая цель 🏔</b>\n\nВведи текст цели`, {
           parse_mode: `HTML`,
           chat_id: chatId,
@@ -121,6 +125,7 @@ async function goal(chatId, type = `show`) {
         });
         break;
       case `select`:
+        dataAboutUser.userAction = `goalEditing`;
         await bot.editMessageText(
           `<b>${dataAboutUser.supportiveCount}. Цель 🏔</b>\n\n${
             !selected.marker ? selected.title : `☑️ ${selected.title}`
@@ -147,8 +152,178 @@ async function goal(chatId, type = `show`) {
   }
 }
 
+async function note(chatId, type = `show`) {
+  const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
+
+  let selected;
+
+  if (dataAboutUser.noteData.length) {
+    selected = dataAboutUser.noteData[dataAboutUser.supportiveCount - 1];
+  }
+
+  try {
+    switch (type) {
+      case `show`:
+        dataAboutUser.userAction = `note`;
+        await bot.editMessageText(
+          `<b>Твои заметки, ${dataAboutUser.login} ⚡️</b>\n\n${
+            dataAboutUser.noteData.length != 0
+              ? `${!selected.marker ? selected.title : `☑️ ${selected.title}`}`
+              : `<blockquote><b>Не позволяйте препятствиям встать на пути к победе. Вы сильнее тех испытаний, с которыми сталкиваетесь.</b></blockquote><i> ~ Криштиану Роналду 🇵🇹</i>`
+          }`,
+          {
+            parse_mode: `HTML`,
+            chat_id: chatId,
+            message_id: dataAboutUser.botMessageId,
+            disable_web_page_preview: true,
+            reply_markup: {
+              inline_keyboard: [
+                [
+                  { text: `${dataAboutUser.noteData.length > 1 ? `🔼` : ``}`, callback_data: `noteBack` },
+                  {
+                    text: `${dataAboutUser.noteData.length != 0 ? `${dataAboutUser.supportiveCount}/${dataAboutUser.noteData.length}` : ``}`,
+                    callback_data: `noteSelect`,
+                  },
+                  { text: `${dataAboutUser.noteData.length > 1 ? `🔽` : ``}`, callback_data: `noteNext` },
+                ],
+                [{ text: `Добавить ✍️`, callback_data: `noteAdd` }],
+                [
+                  { text: `⬅️ В меню`, callback_data: `menu` },
+                  { text: `${dataAboutUser.noteData.length != 0 ? `Отметить${selected.marker ? ` ✅` : ``}` : ``}`, callback_data: `noteMark` },
+                ],
+              ],
+            },
+          }
+        );
+        break;
+      case `add`:
+        dataAboutUser.userAction = `noteAdding`;
+        await bot.editMessageText(`<b>${dataAboutUser.noteData.length + 1}. Новая заметка ⚡️</b>\n\nВведи текст заметки`, {
+          parse_mode: `HTML`,
+          chat_id: chatId,
+          message_id: dataAboutUser.botMessageId,
+          disable_web_page_preview: true,
+          reply_markup: {
+            inline_keyboard: [[{ text: `⬅️ Назад`, callback_data: `note` }]],
+          },
+        });
+        break;
+      case `select`:
+        dataAboutUser.userAction = `noteEditing`;
+        await bot.editMessageText(
+          `<b>${dataAboutUser.supportiveCount}. Заметка ⚡️</b>\n\n${
+            !selected.marker ? selected.title : `☑️ ${selected.title}`
+          }\n\nВведи новый текст заметки, чтобы изменить`,
+          {
+            parse_mode: `HTML`,
+            chat_id: chatId,
+            message_id: dataAboutUser.botMessageId,
+            disable_web_page_preview: true,
+            reply_markup: {
+              inline_keyboard: [
+                [
+                  { text: `⬅️ Назад`, callback_data: `note` },
+                  { text: `Удалить 🗑`, callback_data: `noteDelete` },
+                ],
+              ],
+            },
+          }
+        );
+        break;
+    }
+  } catch (error) {
+    errorData(chatId, dataAboutUser.login, `${String(error)}`);
+  }
+}
+
+async function feat(chatId, type = `show`) {
+  const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
+
+  let selected;
+
+  if (dataAboutUser.featData.length) {
+    selected = dataAboutUser.featData[dataAboutUser.supportiveCount - 1];
+  }
+
+  try {
+    switch (type) {
+      case `show`:
+        dataAboutUser.userAction = `feat`;
+        await bot.editMessageText(
+          `<b>Твои достижения, ${dataAboutUser.login} 🎖</b>\n\n${
+            dataAboutUser.featData.length != 0
+              ? `${!selected.marker ? selected.title : `☑️ ${selected.title}`}`
+              : `<blockquote><b>Я не бегу за рекордами. Рекорды бегут за мной.</b></blockquote><i> ~ Криштиану Роналду 🇵🇹</i>`
+          }`,
+          {
+            parse_mode: `HTML`,
+            chat_id: chatId,
+            message_id: dataAboutUser.botMessageId,
+            disable_web_page_preview: true,
+            reply_markup: {
+              inline_keyboard: [
+                [
+                  { text: `${dataAboutUser.featData.length > 1 ? `🔼` : ``}`, callback_data: `featBack` },
+                  {
+                    text: `${dataAboutUser.featData.length != 0 ? `${dataAboutUser.supportiveCount}/${dataAboutUser.featData.length}` : ``}`,
+                    callback_data: `featSelect`,
+                  },
+                  { text: `${dataAboutUser.featData.length > 1 ? `🔽` : ``}`, callback_data: `featNext` },
+                ],
+                [{ text: `Добавить ✍️`, callback_data: `featAdd` }],
+                [
+                  { text: `⬅️ В меню`, callback_data: `menu` },
+                  { text: `${dataAboutUser.featData.length != 0 ? `Отметить${selected.marker ? ` ✅` : ``}` : ``}`, callback_data: `featMark` },
+                ],
+              ],
+            },
+          }
+        );
+        break;
+      case `add`:
+        dataAboutUser.userAction = `featAdding`;
+        await bot.editMessageText(`<b>${dataAboutUser.featData.length + 1}. Новое достижение 🎖</b>\n\nВведи текст достижения`, {
+          parse_mode: `HTML`,
+          chat_id: chatId,
+          message_id: dataAboutUser.botMessageId,
+          disable_web_page_preview: true,
+          reply_markup: {
+            inline_keyboard: [[{ text: `⬅️ Назад`, callback_data: `feat` }]],
+          },
+        });
+        break;
+      case `select`:
+        dataAboutUser.userAction = `featEditing`;
+        await bot.editMessageText(
+          `<b>${dataAboutUser.supportiveCount}. Достижение 🎖</b>\n\n${
+            !selected.marker ? selected.title : `☑️ ${selected.title}`
+          }\n\nВведи новый текст достижения, чтобы изменить`,
+          {
+            parse_mode: `HTML`,
+            chat_id: chatId,
+            message_id: dataAboutUser.botMessageId,
+            disable_web_page_preview: true,
+            reply_markup: {
+              inline_keyboard: [
+                [
+                  { text: `⬅️ Назад`, callback_data: `feat` },
+                  { text: `Удалить 🗑`, callback_data: `featDelete` },
+                ],
+              ],
+            },
+          }
+        );
+        break;
+    }
+  } catch (error) {
+    errorData(chatId, dataAboutUser.login, `${String(error)}`);
+  }
+}
+
 async function menu(chatId, type = `edit`, navigate = false) {
   const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
+
+  dataAboutUser.userAction = `regular`;
 
   const currentTime = new Date().getHours();
   let helloText = `Добрый день`;
@@ -183,7 +358,7 @@ async function menu(chatId, type = `edit`, navigate = false) {
                   { text: `Цели 🏔`, callback_data: `goal` },
                   { text: `Заметки ⚡`, callback_data: `note` },
                 ],
-                [{ text: `Достижения 🎖️`, callback_data: `achiv` }],
+                [{ text: `Достижения 🎖️`, callback_data: `feat` }],
                 [
                   { text: `Сон ✨`, callback_data: `sleep` },
                   { text: `Серии 🔥`, callback_data: `streak` },
@@ -245,7 +420,7 @@ async function StartAll() {
           supportiveCount: userInfo.supportiveCount ?? 1,
           goalData: userInfo.goalData ?? [],
           noteData: userInfo.noteData ?? [],
-          achivData: userInfo.achivData ?? [],
+          featData: userInfo.achivData ?? [],
           sleepData: userInfo.sleepData ?? [],
           streakData: userInfo.streakData ?? [],
         });
@@ -258,7 +433,7 @@ async function StartAll() {
           supportiveCount: 1,
           goalData: [],
           noteData: [],
-          achivData: [],
+          featData: [],
           sleepData: [],
           streakData: [],
         });
@@ -273,7 +448,6 @@ async function StartAll() {
           case `/start`:
             intro(chatId, `send`);
             bot.deleteMessage(chatId, dataAboutUser.botMessageId);
-            dataAboutUser.userAction = `regular`;
             break;
           case `/start showNav`:
             menu(chatId, `edit`, true);
@@ -288,18 +462,34 @@ async function StartAll() {
         switch (dataAboutUser.userAction) {
           case `getName`:
             dataAboutUser.login = text.slice(0, 20);
-            dataAboutUser.userAction = `regular`;
             menu(chatId, `firstMeeting`);
             break;
+
           case `goalAdding`:
             dataAboutUser.goalData.unshift({ title: text, marker: false });
-            dataAboutUser.userAction = `goal`;
             goal(chatId);
             break;
           case `goalEditing`:
             dataAboutUser.goalData[dataAboutUser.supportiveCount - 1].title = text;
-            dataAboutUser.userAction = `goal`;
             goal(chatId);
+            break;
+
+          case `noteAdding`:
+            dataAboutUser.noteData.unshift({ title: text, marker: false });
+            note(chatId);
+            break;
+          case `noteEditing`:
+            dataAboutUser.noteData[dataAboutUser.supportiveCount - 1].title = text;
+            note(chatId);
+            break;
+
+          case `featAdding`:
+            dataAboutUser.featData.unshift({ title: text, marker: false });
+            feat(chatId);
+            break;
+          case `featEditing`:
+            dataAboutUser.featData[dataAboutUser.supportiveCount - 1].title = text;
+            feat(chatId);
             break;
         }
       }
@@ -324,38 +514,36 @@ async function StartAll() {
           break;
         case `introNext`:
           intro(chatId, `greeting`);
-          dataAboutUser.userAction = `getName`;
           break;
         case `introBack`:
           intro(chatId);
-          dataAboutUser.userAction = `regular`;
           break;
         case `keepName`:
           menu(chatId, `firstMeeting`);
-          dataAboutUser.userAction = `regular`;
           break;
 
         case `goal`:
           goal(chatId);
-          dataAboutUser.userAction = `goal`;
           break;
         case `note`:
           note(chatId);
-          dataAboutUser.userAction = `note`;
           break;
         case `feat`:
           feat(chatId);
-          dataAboutUser.userAction = `feat`;
           break;
         case `sleep`:
           sleep(chatId);
-          dataAboutUser.userAction = `sleep`;
           break;
         case `streak`:
           streak(chatId);
-          dataAboutUser.userAction = `streak`;
           break;
 
+        case `goalAdd`:
+          goal(chatId, `add`);
+          break;
+        case `goalSelect`:
+          goal(chatId, `select`);
+          break;
         case `goalNext`:
           `${
             dataAboutUser.supportiveCount < dataAboutUser.goalData.length ? (dataAboutUser.supportiveCount += 1) : (dataAboutUser.supportiveCount = 1)
@@ -368,14 +556,6 @@ async function StartAll() {
           }`;
           goal(chatId);
           break;
-        case `goalSelect`:
-          dataAboutUser.userAction = `goalEditing`;
-          goal(chatId, `select`);
-          break;
-        case `goalAdd`:
-          dataAboutUser.userAction = `goalAdding`;
-          goal(chatId, `add`);
-          break;
         case `goalMark`:
           dataAboutUser.goalData[dataAboutUser.supportiveCount - 1].marker = 1 - dataAboutUser.goalData[dataAboutUser.supportiveCount - 1].marker;
           goal(chatId);
@@ -384,6 +564,62 @@ async function StartAll() {
           dataAboutUser.goalData.splice(dataAboutUser.supportiveCount - 1, 1);
           `${dataAboutUser.supportiveCount > 1 ? (dataAboutUser.supportiveCount -= 1) : ``}`;
           goal(chatId);
+          break;
+
+        case `noteAdd`:
+          note(chatId, `add`);
+          break;
+        case `noteSelect`:
+          note(chatId, `select`);
+          break;
+        case `noteNext`:
+          `${
+            dataAboutUser.supportiveCount < dataAboutUser.noteData.length ? (dataAboutUser.supportiveCount += 1) : (dataAboutUser.supportiveCount = 1)
+          }`;
+          note(chatId);
+          break;
+        case `noteBack`:
+          `${
+            dataAboutUser.supportiveCount > 1 ? (dataAboutUser.supportiveCount -= 1) : (dataAboutUser.supportiveCount = dataAboutUser.noteData.length)
+          }`;
+          note(chatId);
+          break;
+        case `noteMark`:
+          dataAboutUser.noteData[dataAboutUser.supportiveCount - 1].marker = 1 - dataAboutUser.noteData[dataAboutUser.supportiveCount - 1].marker;
+          note(chatId);
+          break;
+        case `noteDelete`:
+          dataAboutUser.noteData.splice(dataAboutUser.supportiveCount - 1, 1);
+          `${dataAboutUser.supportiveCount > 1 ? (dataAboutUser.supportiveCount -= 1) : ``}`;
+          note(chatId);
+          break;
+
+        case `featAdd`:
+          feat(chatId, `add`);
+          break;
+        case `featSelect`:
+          feat(chatId, `select`);
+          break;
+        case `featNext`:
+          `${
+            dataAboutUser.supportiveCount < dataAboutUser.featData.length ? (dataAboutUser.supportiveCount += 1) : (dataAboutUser.supportiveCount = 1)
+          }`;
+          feat(chatId);
+          break;
+        case `featBack`:
+          `${
+            dataAboutUser.supportiveCount > 1 ? (dataAboutUser.supportiveCount -= 1) : (dataAboutUser.supportiveCount = dataAboutUser.featData.length)
+          }`;
+          feat(chatId);
+          break;
+        case `featMark`:
+          dataAboutUser.featData[dataAboutUser.supportiveCount - 1].marker = 1 - dataAboutUser.featData[dataAboutUser.supportiveCount - 1].marker;
+          feat(chatId);
+          break;
+        case `featDelete`:
+          dataAboutUser.featData.splice(dataAboutUser.supportiveCount - 1, 1);
+          `${dataAboutUser.supportiveCount > 1 ? (dataAboutUser.supportiveCount -= 1) : ``}`;
+          feat(chatId);
           break;
       }
 
