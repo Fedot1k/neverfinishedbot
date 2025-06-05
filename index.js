@@ -5,9 +5,9 @@ import fs from "fs";
 import { config } from "./config.js";
 import { textData, buttonData, errorData, databaseBackup } from "./watcher.js";
 
-const bot = new TelegramBot(config.TOKEN.Trial, { polling: true });
+const bot = new TelegramBot(config.TOKEN.Never, { polling: true });
 
-const botName = { Trial: `trialdynamicsbot`, Never: `neverfinishedbot` }.Trial;
+const botName = { Trial: `trialdynamicsbot`, Never: `neverfinishedbot` }.Never;
 
 let usersData = [];
 
@@ -84,7 +84,7 @@ async function goal(chatId, type = `show`) {
         await bot.editMessageText(
           `<b>Твои цели, ${dataAboutUser.login} 🏔</b>\n\n${
             dataAboutUser.goalData.length != 0
-              ? `${!selected.marker ? selected.title : `☑️ ${selected.title}`}`
+              ? `${!selected.marker ? selected.title : `☑️ ${selected.title}`}\nㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤ`
               : `<blockquote><b>Мечты это не то, что вы видите во сне. Это то, что не дает вам уснуть</b></blockquote><i> ~ Криштиану Роналду 🇵🇹</i>`
           }`,
           {
@@ -168,7 +168,7 @@ async function note(chatId, type = `show`) {
         await bot.editMessageText(
           `<b>Твои заметки, ${dataAboutUser.login} ⚡️</b>\n\n${
             dataAboutUser.noteData.length != 0
-              ? `${!selected.marker ? selected.title : `☑️ ${selected.title}`}`
+              ? `${!selected.marker ? selected.title : `☑️ ${selected.title}`}\nㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤ`
               : `<blockquote><b>Не позволяйте препятствиям встать на пути к победе. Вы сильнее тех испытаний, с которыми сталкиваетесь</b></blockquote><i> ~ Криштиану Роналду 🇵🇹</i>`
           }`,
           {
@@ -252,7 +252,7 @@ async function feat(chatId, type = `show`) {
         await bot.editMessageText(
           `<b>Твои достижения, ${dataAboutUser.login} 🎖</b>\n\n${
             dataAboutUser.featData.length != 0
-              ? `${!selected.marker ? selected.title : `☑️ ${selected.title}`}`
+              ? `${!selected.marker ? selected.title : `☑️ ${selected.title}`}\nㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤ`
               : `<blockquote><b>Я не бегу за рекордами. Рекорды бегут за мной</b></blockquote><i> ~ Криштиану Роналду 🇵🇹</i>`
           }`,
           {
@@ -323,6 +323,15 @@ async function feat(chatId, type = `show`) {
 async function sleep(chatId, type = `show`) {
   const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
 
+  let rest;
+
+  if (dataAboutUser.sleepData.length == 2) {
+    rest =
+      1440 -
+      (Number(dataAboutUser.sleepData[0][0]) * 60 + Number(dataAboutUser.sleepData[0][1])) +
+      (Number(dataAboutUser.sleepData[1][0]) * 60 + Number(dataAboutUser.sleepData[1][1]));
+  }
+
   try {
     switch (type) {
       case `show`:
@@ -331,8 +340,12 @@ async function sleep(chatId, type = `show`) {
           `<b>Твой сон, ${dataAboutUser.login} ✨</b>\n\n${
             dataAboutUser.sleepData.length != 0
               ? `<b>💤 ${dataAboutUser.sleepData[0].join(`:`)}\n☀️ ${
-                  dataAboutUser.sleepData.length == 2 ? `${dataAboutUser.sleepData[1].join(`:`)}` : `-`
-                }</b>\n\n`
+                  dataAboutUser.sleepData.length == 2
+                    ? `${dataAboutUser.sleepData[1].join(`:`)}\n\nВремя отдыха - ${Math.floor(rest / 60)}:${
+                        rest % 60 != 0 ? rest % 60 : `${rest % 60}0`
+                      }`
+                    : `\n\nВремя отдыха - `
+                }</b>ㅤㅤㅤㅤㅤㅤ`
               : `<blockquote><b>Кому-то я нравлюсь, а кому-то нет. Я от этого бессонницей страдать не буду</b></blockquote><i> ~ Криштиану Роналду 🇵🇹</i>`
           }`,
           {
@@ -386,7 +399,7 @@ async function sleep(chatId, type = `show`) {
       case `addStart`:
         dataAboutUser.userAction = `sleepAddStart`;
         await bot.editMessageText(
-          `<b>Твой сон, ${dataAboutUser.login} ✨</b>\n\nВо сколько ты ложишься спать?${
+          `<b>Твой сон, ${dataAboutUser.login} ✨</b>\n\nВо сколько ты <u>ложишься спать?</u>${
             dataAboutUser.sleepData.length != 0 ? `\n\n<b>Сейчас:</b>\n<blockquote>${dataAboutUser.sleepData[0].join(`:`)}</blockquote>` : ``
           }`,
           {
@@ -403,7 +416,7 @@ async function sleep(chatId, type = `show`) {
       case `addFinish`:
         dataAboutUser.userAction = `sleepAddFinish`;
         await bot.editMessageText(
-          `<b>Твой сон, ${dataAboutUser.login} ✨</b>\n\nВо сколько ты просыпаешься?${
+          `<b>Твой сон, ${dataAboutUser.login} ✨</b>\n\nВо сколько ты <u>просыпаешься?</u>${
             dataAboutUser.sleepData.length == 2 ? `\n\n<b>Сейчас:</b>\n<blockquote>${dataAboutUser.sleepData[1].join(`:`)}</blockquote>` : ``
           }`,
           {
@@ -439,7 +452,7 @@ async function streak(chatId, type = `show`) {
         await bot.editMessageText(
           `<b>Твои серии, ${dataAboutUser.login} 🔥</b>\n\n${
             dataAboutUser.streakData.length != 0
-              ? `${selected.title}\n<blockquote>Длительность: <b>${selected.duration}</b></blockquote>`
+              ? `${selected.title}\n<blockquote>Длительность: <b>${selected.duration}</b></blockquote>\nㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤ`
               : `<blockquote><b>Если ты хочешь добиться успеха, ты должен быть постоянным</b></blockquote><i> ~ Криштиану Роналду 🇵🇹</i>`
           }`,
           {
