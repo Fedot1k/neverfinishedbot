@@ -340,7 +340,7 @@ async function sleep(chatId, type = `show`) {
             disable_web_page_preview: true,
             reply_markup: {
               inline_keyboard: [
-                [{ text: `Добавить ⌚️`, callback_data: `sleepAdd` }],
+                [{ text: `${dataAboutUser.sleepData.length ? `Добавить ⌚️` : `Добавить ⌚️`}`, callback_data: `sleepAdd` }],
                 [
                   { text: `❕Советы`, callback_data: `sleepTips` },
                   { text: `digfusion❔`, callback_data: `digfusion` },
@@ -381,6 +381,30 @@ async function sleep(chatId, type = `show`) {
           }
         );
         break;
+      case `addStart`:
+        dataAboutUser.userAction = `sleepAdding`;
+        await bot.editMessageText(`<b>Твой сон, ${dataAboutUser.login} ✨</b>\n\nВо сколько ты ложишься спать?`, {
+          parse_mode: `HTML`,
+          chat_id: chatId,
+          message_id: dataAboutUser.botMessageId,
+          disable_web_page_preview: true,
+          reply_markup: {
+            inline_keyboard: [[{ text: `⬅️ Назад`, callback_data: `sleep` }]],
+          },
+        });
+        break;
+      case `addFinish`:
+        dataAboutUser.userAction = `sleepAdding`;
+        await bot.editMessageText(`<b>Твой сон, ${dataAboutUser.login} ✨</b>\n\nВо сколько ты просыпаешься?`, {
+          parse_mode: `HTML`,
+          chat_id: chatId,
+          message_id: dataAboutUser.botMessageId,
+          disable_web_page_preview: true,
+          reply_markup: {
+            inline_keyboard: [[{ text: `⬅️ Назад`, callback_data: `sleepAdd` }]],
+          },
+        });
+        break;
     }
   } catch (error) {
     errorData(chatId, dataAboutUser.login, `${String(error)}`);
@@ -390,14 +414,20 @@ async function sleep(chatId, type = `show`) {
 async function streak(chatId, type = `show`) {
   const dataAboutUser = usersData.find((obj) => obj.chatId == chatId);
 
+  let selected;
+
+  if (dataAboutUser.streakData.length) {
+    selected = dataAboutUser.streakData[dataAboutUser.supportiveCount - 1];
+  }
+
   try {
     switch (type) {
       case `show`:
         dataAboutUser.userAction = `streak`;
         await bot.editMessageText(
           `<b>Твои серии, ${dataAboutUser.login} 🔥</b>\n\n${
-            dataAboutUser.featData.length != 0
-              ? `${!selected.marker ? selected.title : `☑️ ${selected.title}`}`
+            dataAboutUser.streakData.length != 0
+              ? `${selected.title}\n<blockquote>Длительность: <b>${selected.duration}</b></blockquote>`
               : `<blockquote><b>Если ты хочешь добиться успеха, ты должен быть постоянным</b></blockquote><i> ~ Криштиану Роналду 🇵🇹</i>`
           }`,
           {
@@ -419,6 +449,39 @@ async function streak(chatId, type = `show`) {
                 [
                   { text: `⬅️ В меню`, callback_data: `menu` },
                   { text: `${dataAboutUser.streakData.length != 0 ? `Отметить${selected.marker ? ` ✅` : ``}` : ``}`, callback_data: `streakMark` },
+                ],
+              ],
+            },
+          }
+        );
+        break;
+      case `add`:
+        dataAboutUser.userAction = `streakAdding`;
+        await bot.editMessageText(`<b>${dataAboutUser.streakData.length + 1}. Новая серия 🔥</b>\n\nВведи название серии`, {
+          parse_mode: `HTML`,
+          chat_id: chatId,
+          message_id: dataAboutUser.botMessageId,
+          disable_web_page_preview: true,
+          reply_markup: {
+            inline_keyboard: [[{ text: `⬅️ Назад`, callback_data: `streak` }]],
+          },
+        });
+        break;
+      case `select`:
+        dataAboutUser.userAction = `streakEditing`;
+        await bot.editMessageText(
+          `<b>${dataAboutUser.supportiveCount}. Серия 🔥</b>\n\n${selected.title}\n<blockquote>Длительность: <b>${selected.duration}</b></blockquote>\n\nВведи новый заголовок серии, чтобы изменить`,
+          {
+            parse_mode: `HTML`,
+            chat_id: chatId,
+            message_id: dataAboutUser.botMessageId,
+            disable_web_page_preview: true,
+            reply_markup: {
+              inline_keyboard: [
+                [{ text: `Обнулить 😕`, callback_data: `streakZero` }],
+                [
+                  { text: `⬅️ Назад`, callback_data: `streak` },
+                  { text: `Удалить 🗑`, callback_data: `streakDelete` },
                 ],
               ],
             },
@@ -602,6 +665,22 @@ async function StartAll() {
             dataAboutUser.featData[dataAboutUser.supportiveCount - 1].title = text;
             feat(chatId);
             break;
+
+          case `streakAdding`:
+            dataAboutUser.streakData.unshift({ title: text, marker: false, duration: 0 });
+            streak(chatId);
+            break;
+          case `streakEditing`:
+            dataAboutUser.streakData[dataAboutUser.supportiveCount - 1].title = text;
+            streak(chatId);
+            break;
+
+          case `sleepStartAdding`:
+            sleep(chatId, `addFinish`);
+            break;
+          case `sleepFinishAdding`:
+            sleep(chatId);
+            break;
         }
       }
 
@@ -733,11 +812,58 @@ async function StartAll() {
           feat(chatId);
           break;
 
+        case `streakAdd`:
+          streak(chatId, `add`);
+          break;
+        case `streakSelect`:
+          streak(chatId, `select`);
+          break;
+        case `streakNext`:
+          `${
+            dataAboutUser.supportiveCount < dataAboutUser.streakData.length
+              ? (dataAboutUser.supportiveCount += 1)
+              : (dataAboutUser.supportiveCount = 1)
+          }`;
+          streak(chatId);
+          break;
+        case `streakBack`:
+          `${
+            dataAboutUser.supportiveCount > 1
+              ? (dataAboutUser.supportiveCount -= 1)
+              : (dataAboutUser.supportiveCount = dataAboutUser.streakData.length)
+          }`;
+          streak(chatId);
+          break;
+        case `streakMark`:
+          dataAboutUser.streakData[dataAboutUser.supportiveCount - 1].marker = true;
+          dataAboutUser.streakData[dataAboutUser.supportiveCount - 1].duration += 1;
+          streak(chatId);
+          break;
+        case `streakDelete`:
+          dataAboutUser.streakData.splice(dataAboutUser.supportiveCount - 1, 1);
+          `${dataAboutUser.supportiveCount > 1 ? (dataAboutUser.supportiveCount -= 1) : ``}`;
+          streak(chatId);
+          break;
+        case `streakZero`:
+          dataAboutUser.streakData[dataAboutUser.supportiveCount - 1].marker = false;
+          dataAboutUser.streakData[dataAboutUser.supportiveCount - 1].duration = 0;
+          streak(chatId, `select`);
+          break;
+
         case `sleepTips`:
           sleep(chatId, `tips`);
           break;
         case `digfusion`:
           sleep(chatId, `digfusion`);
+          break;
+
+        case `sleepAdd`:
+          sleep(chatId, `add`);
+          break;
+        case `sleepDelete`:
+          dataAboutUser.sleepData.splice(dataAboutUser.supportiveCount - 1, 1);
+          `${dataAboutUser.supportiveCount > 1 ? (dataAboutUser.supportiveCount -= 1) : ``}`;
+          sleep(chatId);
           break;
       }
 
