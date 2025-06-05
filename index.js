@@ -329,8 +329,10 @@ async function sleep(chatId, type = `show`) {
         dataAboutUser.userAction = `sleep`;
         await bot.editMessageText(
           `<b>Твой сон, ${dataAboutUser.login} ✨</b>\n\n${
-            dataAboutUser.featData.length != 0
-              ? `${!selected.marker ? selected.title : `☑️ ${selected.title}`}`
+            dataAboutUser.sleepData.length != 0
+              ? `<b>💤 ${dataAboutUser.sleepData[0].join(`:`)}\n☀️ ${
+                  dataAboutUser.sleepData.length == 2 ? `${dataAboutUser.sleepData[1].join(`:`)}` : `-`
+                }</b>\n\n`
               : `<blockquote><b>Кому-то я нравлюсь, а кому-то нет. Я от этого бессонницей страдать не буду</b></blockquote><i> ~ Криштиану Роналду 🇵🇹</i>`
           }`,
           {
@@ -340,7 +342,7 @@ async function sleep(chatId, type = `show`) {
             disable_web_page_preview: true,
             reply_markup: {
               inline_keyboard: [
-                [{ text: `${dataAboutUser.sleepData.length ? `Добавить ⌚️` : `Добавить ⌚️`}`, callback_data: `sleepAdd` }],
+                [{ text: `${dataAboutUser.sleepData.length != 0 ? `Изменить ⌚️` : `Добавить ⌚️`}`, callback_data: `sleepAdd` }],
                 [
                   { text: `❕Советы`, callback_data: `sleepTips` },
                   { text: `digfusion❔`, callback_data: `digfusion` },
@@ -382,28 +384,38 @@ async function sleep(chatId, type = `show`) {
         );
         break;
       case `addStart`:
-        dataAboutUser.userAction = `sleepAdding`;
-        await bot.editMessageText(`<b>Твой сон, ${dataAboutUser.login} ✨</b>\n\nВо сколько ты ложишься спать?`, {
-          parse_mode: `HTML`,
-          chat_id: chatId,
-          message_id: dataAboutUser.botMessageId,
-          disable_web_page_preview: true,
-          reply_markup: {
-            inline_keyboard: [[{ text: `⬅️ Назад`, callback_data: `sleep` }]],
-          },
-        });
+        dataAboutUser.userAction = `sleepAddStart`;
+        await bot.editMessageText(
+          `<b>Твой сон, ${dataAboutUser.login} ✨</b>\n\nВо сколько ты ложишься спать?${
+            dataAboutUser.sleepData.length != 0 ? `\n\n<b>Сейчас:</b>\n<blockquote>${dataAboutUser.sleepData[0].join(`:`)}</blockquote>` : ``
+          }`,
+          {
+            parse_mode: `HTML`,
+            chat_id: chatId,
+            message_id: dataAboutUser.botMessageId,
+            disable_web_page_preview: true,
+            reply_markup: {
+              inline_keyboard: [[{ text: `⬅️ Назад`, callback_data: `sleep` }]],
+            },
+          }
+        );
         break;
       case `addFinish`:
-        dataAboutUser.userAction = `sleepAdding`;
-        await bot.editMessageText(`<b>Твой сон, ${dataAboutUser.login} ✨</b>\n\nВо сколько ты просыпаешься?`, {
-          parse_mode: `HTML`,
-          chat_id: chatId,
-          message_id: dataAboutUser.botMessageId,
-          disable_web_page_preview: true,
-          reply_markup: {
-            inline_keyboard: [[{ text: `⬅️ Назад`, callback_data: `sleepAdd` }]],
-          },
-        });
+        dataAboutUser.userAction = `sleepAddFinish`;
+        await bot.editMessageText(
+          `<b>Твой сон, ${dataAboutUser.login} ✨</b>\n\nВо сколько ты просыпаешься?${
+            dataAboutUser.sleepData.length == 2 ? `\n\n<b>Сейчас:</b>\n<blockquote>${dataAboutUser.sleepData[1].join(`:`)}</blockquote>` : ``
+          }`,
+          {
+            parse_mode: `HTML`,
+            chat_id: chatId,
+            message_id: dataAboutUser.botMessageId,
+            disable_web_page_preview: true,
+            reply_markup: {
+              inline_keyboard: [[{ text: `⬅️ Назад`, callback_data: `sleepAdd` }]],
+            },
+          }
+        );
         break;
     }
   } catch (error) {
@@ -675,11 +687,17 @@ async function StartAll() {
             streak(chatId);
             break;
 
-          case `sleepStartAdding`:
-            sleep(chatId, `addFinish`);
+          case `sleepAddStart`:
+            if (/^([01]?\d|2[0-3])[: ]([0-5]\d)$/.test(text)) {
+              dataAboutUser.sleepData[0] = [text.split(/[: ]/)[0], text.split(/[: ]/)[1]];
+              sleep(chatId, `addFinish`);
+            }
             break;
-          case `sleepFinishAdding`:
-            sleep(chatId);
+          case `sleepAddFinish`:
+            if (/^([01]?\d|2[0-3])[: ]([0-5]\d)$/.test(text)) {
+              dataAboutUser.sleepData[1] = [text.split(/[: ]/)[0], text.split(/[: ]/)[1]];
+              sleep(chatId);
+            }
             break;
         }
       }
@@ -858,12 +876,7 @@ async function StartAll() {
           break;
 
         case `sleepAdd`:
-          sleep(chatId, `add`);
-          break;
-        case `sleepDelete`:
-          dataAboutUser.sleepData.splice(dataAboutUser.supportiveCount - 1, 1);
-          `${dataAboutUser.supportiveCount > 1 ? (dataAboutUser.supportiveCount -= 1) : ``}`;
-          sleep(chatId);
+          sleep(chatId, `addStart`);
           break;
       }
 
